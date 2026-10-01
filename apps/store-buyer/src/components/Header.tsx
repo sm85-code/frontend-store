@@ -70,7 +70,7 @@ export function Header() {
                 </Button>
               </>
             ) : me.isPending ? null : (
-              <Link href="/masuk" className={buttonVariants({ size: 'sm', className: 'rounded-full px-5' })}>
+              <Link href="/masuk" className={buttonVariants({ size: 'sm', className: 'rounded-lg px-5' })}>
                 Masuk
               </Link>
             )}

@@ -8,7 +8,7 @@ export default function NotFound() {
       <LogoMark className="size-20" />
       <h1 className="text-3xl font-extrabold">Halaman tidak ditemukan</h1>
       <p className="text-muted-foreground">Lampunya masih kuning: tautan ini mungkin sudah berubah. Coba kembali ke beranda dan cari produknya.</p>
-      <Link href="/" className={buttonVariants({ size: 'lg', className: 'rounded-full font-bold' })}>Ke beranda</Link>
+      <Link href="/" className={buttonVariants({ size: 'lg', className: 'rounded-lg font-bold' })}>Ke beranda</Link>
     </div>
   )
 }

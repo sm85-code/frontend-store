@@ -7,7 +7,7 @@ export function Footer() {
       <div className="mx-auto grid max-w-6xl gap-6 px-4 py-8 text-sm sm:grid-cols-[1.3fr_1fr] sm:px-6">
         <div>
           <Logo />
-          <p className="mt-3 max-w-sm text-muted-foreground">
+          <p className="prose-id mt-3 max-w-sm text-muted-foreground">
             Belanja produk pilihan dengan mudah: masuk dengan Google, simpan alamat, dan pantau pesanan Anda di satu tempat.
           </p>
         </div>

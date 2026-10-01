@@ -30,7 +30,7 @@ export default function AlamatPage() {
       {alamat.isPending ? <PageSpinner /> : alamat.error ? <ErrorNotice message={errorMessage(alamat.error)} /> : (
         <ul className="mb-4 flex flex-col gap-3">
           {alamat.data.map((a) => (
-            <li key={a.id} className="flex items-start justify-between gap-3 rounded-2xl border bg-card p-4 text-sm shadow-[var(--shadow-card)]">
+            <li key={a.id} className="flex items-start justify-between gap-3 rounded-lg border bg-card p-4 text-sm shadow-[var(--shadow-card)]">
               <div>
                 <p className="font-medium">{a.label} {a.utama ? <Badge tone="info">Utama</Badge> : null}</p>
                 <p>{a.nama_penerima} ({a.telepon_penerima})</p>

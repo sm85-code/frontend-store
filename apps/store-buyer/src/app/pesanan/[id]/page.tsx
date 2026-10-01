@@ -60,8 +60,11 @@ export default function PesananDetailPage() {
         <CardContent>
           <ul className="flex flex-col gap-1 text-sm">
             {p.items.map((i) => (
-              <li key={i.produk_id} className="flex justify-between gap-2">
-                <span>{i.qty}× {i.nama_produk}</span>
+              <li key={`${i.produk_id}-${i.varian_id ?? ''}`} className="flex justify-between gap-2">
+                <span>
+                  {i.qty}× {i.nama_produk}{i.nama_varian ? ` (${i.nama_varian})` : ''}
+                  {i.preorder ? <span className="block text-xs text-muted-foreground">Pre-order · diproses {i.hari_proses} hari</span> : null}
+                </span>
                 <span>{fmtRp(i.subtotal)}</span>
               </li>
             ))}

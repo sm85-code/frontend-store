@@ -37,11 +37,11 @@ export default function ChatPage() {
   return (
     <div className="mx-auto max-w-2xl">
       <h1 className="mb-4 text-2xl font-extrabold tracking-tight">Chat dengan toko</h1>
-      <div className="flex h-[60vh] flex-col rounded-2xl border bg-card shadow-[var(--shadow-card)]">
+      <div className="flex h-[60vh] flex-col rounded-lg border bg-card shadow-[var(--shadow-card)]">
         <ul className="flex flex-1 flex-col gap-2 overflow-y-auto p-4" aria-live="polite">
           {count === 0 ? <li className="m-auto text-sm text-muted-foreground">Tulis pesan pertama Anda.</li> : null}
           {chat.data.pesan?.map((m) => (
-            <li key={m.id} className={cn('max-w-[80%] rounded-2xl px-3.5 py-2 text-sm', m.pengirim_admin ? 'self-start bg-muted' : 'self-end bg-primary/25')}>
+            <li key={m.id} className={cn('max-w-[80%] rounded-lg px-3.5 py-2 text-sm', m.pengirim_admin ? 'self-start bg-muted' : 'self-end bg-primary/25')}>
               <p className="whitespace-pre-wrap break-words">{m.isi}</p>
               <p className="mt-1 text-[0.7rem] text-muted-foreground">{fmtDateTime(m.created_at)}</p>
             </li>
