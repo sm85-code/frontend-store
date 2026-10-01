@@ -1,4 +1,4 @@
-import { Button, ThemeToggle, cn } from '@store/ui'
+import { Button, ThemeToggle } from '@store/ui'
 import {
   LayoutDashboard,
   LogOut,
@@ -9,7 +9,6 @@ import {
   Settings,
   Tags,
   Users,
-  X,
   type LucideIcon,
 } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
@@ -37,6 +36,13 @@ export function navFor(role: string | undefined): NavItem[] {
   return NAV.filter((item) => !item.ownerOnly || role === 'owner')
 }
 
+/** Shown as fixed tabs on phones; everything else lives under "Lainnya". */
+const BOTTOM_NAV = ['/', '/pesanan', '/produk', '/chat']
+
+function isActive(pathname: string, to: string): boolean {
+  return to === '/' ? pathname === '/' : pathname === to || pathname.startsWith(`${to}/`)
+}
+
 export default function Layout({ children }: { children: ReactNode }) {
   const { user, signOut } = useAuth()
   const navigate = useNavigate()
@@ -46,76 +52,127 @@ export default function Layout({ children }: { children: ReactNode }) {
   useEffect(() => setOpen(false), [location.pathname])
 
   const items = navFor(user?.role)
+  const bottom = items.filter((i) => BOTTOM_NAV.includes(i.to))
+  const moreActive = items.some((i) => !BOTTOM_NAV.includes(i.to) && isActive(location.pathname, i.to))
 
-  const nav = (
-    <nav aria-label="Menu utama" className="flex flex-col gap-1">
-      {items.map(({ to, label, icon: Icon }) => (
-        <NavLink
-          key={to}
-          to={to}
-          end={to === '/'}
-          className={({ isActive }) =>
-            cn(
-              'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted',
-              isActive && 'bg-primary/20 text-foreground',
-            )
-          }
-        >
-          <Icon className="size-4" aria-hidden />
-          {label}
-        </NavLink>
-      ))}
-    </nav>
-  )
+  const keluar = async () => {
+    await signOut()
+    navigate('/login', { replace: true })
+  }
 
   return (
-    <div className="min-h-screen lg:grid lg:grid-cols-[15rem_1fr]">
-      <aside className="hidden border-r bg-card p-4 lg:block">
-        <p className="mb-6 px-3 text-lg font-bold">Admin Toko</p>
-        {nav}
-      </aside>
+    <div className="flex min-h-screen bg-background">
+      <div className="floating-card fixed inset-x-3 top-3 z-40 flex h-14 items-center gap-2 rounded-2xl px-4 lg:hidden">
+        <div className="flex size-8 flex-shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+          T
+        </div>
+        <p className="truncate text-sm font-semibold">Admin Toko</p>
+        <div className="ml-auto">
+          <ThemeToggle />
+        </div>
+      </div>
 
-      <div className="flex min-w-0 flex-col">
-        <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b bg-card/90 px-4 backdrop-blur">
-          <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Buka menu" onClick={() => setOpen(true)}>
-            <Menu className="size-5" />
-          </Button>
-          <p className="font-semibold lg:hidden">Admin Toko</p>
-          <div className="ml-auto flex items-center gap-2">
-            <span className="hidden text-sm text-muted-foreground sm:inline">
-              {user?.nama} · {user?.role}
-            </span>
-            <ThemeToggle />
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={async () => {
-                await signOut()
-                navigate('/login', { replace: true })
-              }}
-            >
+      <aside
+        className={`fixed top-0 left-0 z-50 h-[100dvh] w-72 transition-transform lg:sticky lg:transform-none ${
+          open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        }`}
+      >
+        <div className="floating-card m-0 flex h-full flex-col overflow-hidden rounded-none lg:m-4 lg:h-[calc(100dvh-2rem)] lg:rounded-2xl">
+          <div className="flex items-center gap-3 p-6">
+            <div className="flex size-11 flex-shrink-0 items-center justify-center rounded-full bg-primary text-base font-bold text-primary-foreground">
+              T
+            </div>
+            <div>
+              <p className="text-base leading-tight font-semibold">Admin Toko</p>
+              <p className="text-xs text-muted-foreground">Ampel Kuning</p>
+            </div>
+          </div>
+
+          <nav aria-label="Menu utama" className="min-h-0 flex-1 space-y-1 overflow-y-auto p-3">
+            {items.map(({ to, label, icon: Icon }) => {
+              const active = isActive(location.pathname, to)
+              return (
+                <NavLink key={to} to={to} end={to === '/'} className={`side-link ${active ? 'active' : ''}`}>
+                  <span className="nav-ico">
+                    <Icon className="size-4" strokeWidth={active ? 2.5 : 2} aria-hidden />
+                  </span>
+                  <span>{label}</span>
+                </NavLink>
+              )
+            })}
+          </nav>
+
+          <div className="shrink-0 p-4">
+            <div className="mb-3 flex items-center gap-3">
+              <div className="flex size-9 flex-shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
+                {user?.nama?.[0]?.toUpperCase()}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold">{user?.nama}</p>
+                <p className="text-xs text-muted-foreground capitalize">{user?.role}</p>
+              </div>
+              <ThemeToggle />
+            </div>
+            <Button variant="outline" size="sm" className="w-full" onClick={keluar}>
               <LogOut className="size-4" /> Keluar
             </Button>
           </div>
-        </header>
-
-        <main className="mx-auto w-full max-w-6xl flex-1 p-4 sm:p-6">{children}</main>
-      </div>
+        </div>
+      </aside>
 
       {open ? (
-        <div className="fixed inset-0 z-30 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
-          <button type="button" className="absolute inset-0 bg-black/50" aria-label="Tutup menu" onClick={() => setOpen(false)} />
-          <div className="absolute inset-y-0 left-0 w-64 bg-card p-4 shadow-xl">
-            <div className="mb-6 flex items-center justify-between px-3">
-              <p className="text-lg font-bold">Admin Toko</p>
-              <Button variant="ghost" size="icon" aria-label="Tutup menu" onClick={() => setOpen(false)}>
-                <X className="size-5" />
-              </Button>
-            </div>
-            {nav}
-          </div>
-        </div>
+        <button type="button" className="fixed inset-0 z-40 bg-black/20 lg:hidden" aria-label="Tutup menu" onClick={() => setOpen(false)} />
       ) : null}
+
+      <main className="min-w-0 flex-1 pt-20 pb-24 lg:pt-0 lg:pb-0">
+        <div className="fade-in mx-auto w-full max-w-[1400px] p-4 sm:p-6 lg:p-8">{children}</div>
+      </main>
+
+      <nav
+        aria-label="Navigasi utama"
+        className="bottom-nav-shell fixed inset-x-0 bottom-0 z-30 flex items-stretch lg:hidden"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      >
+        {bottom.map(({ to, label, icon: Icon }) => {
+          const active = isActive(location.pathname, to)
+          return (
+            <NavLink
+              key={to}
+              to={to}
+              end={to === '/'}
+              className={`flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[11px] font-medium ${
+                active ? 'text-primary' : 'text-muted-foreground'
+              }`}
+            >
+              <span
+                className={`flex size-8 items-center justify-center rounded-xl border bg-muted ${
+                  active ? 'border-primary/35' : 'border-transparent'
+                }`}
+              >
+                <Icon className="size-4.5" strokeWidth={active ? 2.5 : 2} aria-hidden />
+              </span>
+              <span className="truncate px-1">{label}</span>
+            </NavLink>
+          )
+        })}
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label="Buka menu lainnya"
+          className={`flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[11px] font-medium ${
+            moreActive ? 'text-primary' : 'text-muted-foreground'
+          }`}
+        >
+          <span
+            className={`flex size-8 items-center justify-center rounded-xl border bg-muted ${
+              moreActive ? 'border-primary/35' : 'border-transparent'
+            }`}
+          >
+            <Menu className="size-4.5" strokeWidth={moreActive ? 2.5 : 2} aria-hidden />
+          </span>
+          <span>Lainnya</span>
+        </button>
+      </nav>
     </div>
   )
 }
