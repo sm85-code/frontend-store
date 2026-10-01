@@ -12,8 +12,8 @@ import {
   type Mode,
   type WallpaperId,
 } from '../../lib/appearance'
-import { Button } from '@store/ui'
-import { Popover, PopoverContent, PopoverTrigger } from './Popover'
+import { Button } from '@/components/ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
 const selectClass =
   'h-9 w-full rounded-lg border border-input bg-transparent px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50'

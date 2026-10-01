@@ -1,23 +1,25 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { Kategori } from '@store/shared'
-import { Button, EmptyState, ErrorNotice, Field, Input, Table, Td, Th } from '@store/ui'
-import { PageSpinner } from '../components/Spinner'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Trash2 } from 'lucide-react'
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import { ConfirmDialog } from '../components/ConfirmDialog'
-import { PageHeader } from '../components/PageHeader'
+import Spinner from '@/components/Spinner'
+import TableShell from '@/components/TableShell'
+import { useConfirm } from '@/components/ConfirmProvider'
+import { ErrorLine, Field, PageTitle } from '@/components/erp'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { api, errorMessage } from '../lib/api'
 
 const schema = z.object({ nama: z.string().trim().min(1, 'Nama kategori wajib diisi').max(128) })
 
 export default function KategoriPage() {
   const qc = useQueryClient()
+  const confirm = useConfirm()
   const kategori = useQuery({ queryKey: ['kategori'], queryFn: api.listKategori })
-  const [hapus, setHapus] = useState<Kategori | null>(null)
   const {
     register,
     handleSubmit,
@@ -37,7 +39,6 @@ export default function KategoriPage() {
   const hapusMut = useMutation({
     mutationFn: (id: string) => api.deleteKategori(id),
     onSuccess: () => {
-      setHapus(null)
       void qc.invalidateQueries({ queryKey: ['kategori'] })
       void qc.invalidateQueries({ queryKey: ['produk'] })
       toast.success('Kategori dihapus')
@@ -45,55 +46,76 @@ export default function KategoriPage() {
     onError: (e) => toast.error(errorMessage(e)),
   })
 
+  async function onDelete(k: Kategori) {
+    const ok = await confirm({
+      title: 'Hapus kategori?',
+      description: `Kategori "${k.nama}" akan dihapus. Produknya tetap ada.`,
+      destructive: true,
+    })
+    if (ok) hapusMut.mutate(k.id)
+  }
+
   return (
-    <>
-      <PageHeader title="Kategori" description="Produk pada kategori yang dihapus tidak ikut terhapus, hanya kehilangan kategorinya." />
-      <form className="mb-6 flex max-w-md items-start gap-2" noValidate onSubmit={handleSubmit((v) => tambah.mutate(v.nama))}>
-        <Field label="Kategori baru" htmlFor="nama" error={errors.nama?.message} className="flex-1">
-          <Input id="nama" aria-invalid={!!errors.nama} {...register('nama')} />
-        </Field>
-        <Button type="submit" className="mt-[1.65rem]" loading={tambah.isPending}>
-          Tambah
-        </Button>
-      </form>
+    <div className="space-y-4">
+      <PageTitle title="Kategori" description="Produk pada kategori yang dihapus tidak ikut terhapus, hanya kehilangan kategorinya." />
 
-      {kategori.isPending ? (
-        <PageSpinner />
-      ) : kategori.error ? (
-        <ErrorNotice message={errorMessage(kategori.error)} />
-      ) : kategori.data.length === 0 ? (
-        <EmptyState title="Belum ada kategori" />
-      ) : (
-        <Table>
-          <thead>
-            <tr>
-              <Th>Nama</Th>
-              <Th className="w-16" />
-            </tr>
-          </thead>
-          <tbody>
-            {kategori.data.map((k) => (
-              <tr key={k.id}>
-                <Td>{k.nama}</Td>
-                <Td>
-                  <Button variant="ghost" size="icon" aria-label={`Hapus ${k.nama}`} onClick={() => setHapus(k)}>
-                    <Trash2 className="size-4" />
-                  </Button>
-                </Td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      )}
+      <Card>
+        <CardHeader>
+          <CardTitle>Kategori Baru</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form className="flex max-w-md items-start gap-2" noValidate onSubmit={handleSubmit((v) => tambah.mutate(v.nama))}>
+            <div className="flex-1">
+              <Field label="Nama kategori" htmlFor="nama" error={errors.nama?.message}>
+                <Input id="nama" aria-invalid={!!errors.nama} {...register('nama')} />
+              </Field>
+            </div>
+            <Button type="submit" className="mt-[1.65rem]" disabled={tambah.isPending}>
+              {tambah.isPending ? 'Menyimpan…' : 'Tambah'}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
 
-      <ConfirmDialog
-        open={hapus !== null}
-        title="Hapus kategori?"
-        message={`Kategori "${hapus?.nama ?? ''}" akan dihapus. Produknya tetap ada.`}
-        loading={hapusMut.isPending}
-        onClose={() => setHapus(null)}
-        onConfirm={() => hapus && hapusMut.mutate(hapus.id)}
-      />
-    </>
+      <Card>
+        <CardContent className="pt-6">
+          {kategori.isPending ? (
+            <Spinner column label="Memuat kategori…" />
+          ) : kategori.error ? (
+            <ErrorLine message={errorMessage(kategori.error)} />
+          ) : (
+            <TableShell minWidth={320}>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nama</TableHead>
+                    <TableHead className="text-right">Aksi</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {kategori.data.map((k) => (
+                    <TableRow key={k.id}>
+                      <TableCell className="font-medium">{k.nama}</TableCell>
+                      <TableCell className="text-right">
+                        <Button size="sm" variant="destructive" aria-label={`Hapus ${k.nama}`} onClick={() => onDelete(k)}>
+                          Hapus
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {kategori.data.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={2} className="py-8 text-center text-muted-foreground">
+                        Belum ada kategori.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableShell>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   )
 }

@@ -1,48 +1,19 @@
-import { Button } from '@store/ui'
-import {
-  LayoutDashboard,
-  LogOut,
-  Menu,
-  MessageSquare,
-  Package,
-  Receipt,
-  Settings,
-  Tags,
-  Users,
-  type LucideIcon,
-} from 'lucide-react'
-import { useEffect, useState, type ReactNode } from 'react'
+import { LogOut } from 'lucide-react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { useAuth } from '../lib/auth'
-import AppearancePopover from './appearance/AppearancePopover'
-import WallpaperLayer from './appearance/WallpaperLayer'
+import AppearancePopover from '@/components/appearance/AppearancePopover'
+import BottomNav from '@/components/BottomNav'
+import WallpaperLayer from '@/components/appearance/WallpaperLayer'
+import { Button } from '@/components/ui/button'
+import { BOTTOM_NAV_PATHS, filterNavForUser } from '@/config/nav'
+import { ROLE_LABELS, type Role } from '@/config/roles'
+import { useAuth } from '@/lib/auth'
 
-interface NavItem {
-  to: string
-  label: string
-  icon: LucideIcon
-  ownerOnly?: boolean
-}
-
-export const NAV: NavItem[] = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/pesanan', label: 'Pesanan', icon: Receipt },
-  { to: '/produk', label: 'Produk', icon: Package },
-  { to: '/kategori', label: 'Kategori', icon: Tags },
-  { to: '/chat', label: 'Chat', icon: MessageSquare },
-  { to: '/pengaturan', label: 'Pengaturan', icon: Settings },
-  { to: '/staff', label: 'Staff', icon: Users, ownerOnly: true },
-]
-
-export function navFor(role: string | undefined): NavItem[] {
-  return NAV.filter((item) => !item.ownerOnly || role === 'owner')
-}
-
-/** Shown as fixed tabs on phones; everything else lives under "Lainnya". */
-const BOTTOM_NAV = ['/', '/pesanan', '/produk', '/chat']
-
-function isActive(pathname: string, to: string): boolean {
-  return to === '/' ? pathname === '/' : pathname === to || pathname.startsWith(`${to}/`)
+function isNavActive(pathname: string, to: string, allPaths: string[]) {
+  const matches = allPaths.filter((p) => pathname === p || pathname.startsWith(`${p}/`))
+  if (matches.length === 0) return false
+  const best = matches.reduce((a, b) => (a.length >= b.length ? a : b))
+  return best === to
 }
 
 export default function Layout({ children }: { children: ReactNode }) {
@@ -51,131 +22,121 @@ export default function Layout({ children }: { children: ReactNode }) {
   const location = useLocation()
   const [open, setOpen] = useState(false)
 
-  useEffect(() => setOpen(false), [location.pathname])
+  const visible = useMemo(() => filterNavForUser(user), [user])
+  const allPaths = useMemo(() => visible.map((n) => n.to), [visible])
 
-  const items = navFor(user?.role)
-  const bottom = items.filter((i) => BOTTOM_NAV.includes(i.to))
-  const moreActive = items.some((i) => !BOTTOM_NAV.includes(i.to) && isActive(location.pathname, i.to))
+  const bottomItems = useMemo(() => {
+    const byPath = new Map(visible.map((n) => [n.to, n]))
+    return BOTTOM_NAV_PATHS.map((p) => byPath.get(p)).filter(Boolean) as typeof visible
+  }, [visible])
 
-  const keluar = async () => {
-    await signOut()
-    navigate('/login', { replace: true })
-  }
+  const moreActive = useMemo(() => {
+    if (!visible.length) return false
+    const onPrimary = BOTTOM_NAV_PATHS.some((p) => isNavActive(location.pathname, p, [...BOTTOM_NAV_PATHS]))
+    if (onPrimary) return false
+    return visible.some(
+      (n) => !(BOTTOM_NAV_PATHS as readonly string[]).includes(n.to) && isNavActive(location.pathname, n.to, allPaths),
+    )
+  }, [visible, location.pathname, allPaths])
+
+  if (!user) return null
 
   return (
     <div className="app-shell flex min-h-screen">
       <WallpaperLayer />
-      <div className="floating-card fixed inset-x-3 top-3 z-40 flex h-14 items-center gap-2 rounded-2xl px-4 lg:hidden">
-        <div className="flex size-8 flex-shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-          T
-        </div>
-        <p className="truncate text-sm font-semibold">Admin Toko</p>
-        <div className="ml-auto">
-          <AppearancePopover align="end" triggerClassName="gap-1.5" />
+      <div
+        className="fixed inset-x-3 top-3 z-40 flex h-14 items-center rounded-2xl px-4 lg:hidden"
+        style={{ background: 'var(--surface)', border: '1px solid var(--legacy-border)', boxShadow: 'var(--shadow-soft)' }}
+      >
+        <div className="flex min-w-0 items-center gap-2">
+          <div
+            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
+            style={{ background: 'var(--primary)' }}
+          >
+            T
+          </div>
+          <span className="font-heading truncate text-sm font-semibold">Admin Toko</span>
         </div>
       </div>
 
       <aside
-        className={`fixed top-0 left-0 z-50 h-[100dvh] w-72 transition-transform lg:sticky lg:transform-none ${
+        data-testid="sidebar"
+        className={`fixed top-0 left-0 z-50 flex h-[100dvh] w-72 flex-col overflow-hidden transition-transform lg:sticky lg:transform-none ${
           open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
-        <div className="floating-card m-0 flex h-full flex-col overflow-hidden rounded-none lg:m-4 lg:h-[calc(100dvh-2rem)] lg:rounded-2xl">
+        <div
+          className="m-0 flex h-full flex-col overflow-hidden rounded-none lg:m-4 lg:h-[calc(100dvh-2rem)] lg:rounded-2xl"
+          style={{ background: 'var(--surface)', border: '1px solid var(--legacy-border)', boxShadow: 'var(--shadow-soft)' }}
+        >
           <div className="flex items-center gap-3 p-6">
-            <div className="flex size-11 flex-shrink-0 items-center justify-center rounded-full bg-primary text-base font-bold text-primary-foreground">
+            <div
+              className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full text-base font-bold text-white"
+              style={{ background: 'var(--primary)' }}
+            >
               T
             </div>
             <div>
-              <p className="text-base leading-tight font-semibold">Admin Toko</p>
-              <p className="text-xs text-muted-foreground">Ampel Kuning</p>
+              <div className="font-heading text-base leading-tight font-semibold">Admin Toko</div>
+              <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                Ampel Kuning
+              </div>
             </div>
           </div>
-
-          <nav aria-label="Menu utama" className="min-h-0 flex-1 space-y-1 overflow-y-auto p-3">
-            {items.map(({ to, label, icon: Icon }) => {
-              const active = isActive(location.pathname, to)
+          <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto p-3">
+            {visible.map((n) => {
+              const Icon = n.icon
+              const active = isNavActive(location.pathname, n.to, allPaths)
               return (
-                <NavLink key={to} to={to} end={to === '/'} className={`side-link ${active ? 'active' : ''}`}>
+                <NavLink
+                  key={n.to}
+                  to={n.to}
+                  data-testid={`nav-${n.to.replace(/\//g, '-')}`}
+                  onClick={() => setOpen(false)}
+                  className={`side-link ${active ? 'active' : ''}`}
+                >
                   <span className="nav-ico">
-                    <Icon className="size-4" strokeWidth={active ? 2.5 : 2} aria-hidden />
+                    <Icon className="size-4.5" strokeWidth={active ? 2.5 : 2} />
                   </span>
-                  <span>{label}</span>
+                  <span>{n.label}</span>
                 </NavLink>
               )
             })}
           </nav>
-
           <div className="shrink-0 p-4">
             <AppearancePopover triggerClassName="mb-3 w-full justify-start gap-2" align="start" />
             <div className="mb-3 flex items-center gap-3">
-              <div className="flex size-9 flex-shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
-                {user?.nama?.[0]?.toUpperCase()}
+              <div
+                className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full font-heading text-sm font-semibold text-white"
+                style={{ background: 'var(--primary)' }}
+              >
+                {user.nama?.[0]?.toUpperCase()}
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold">{user?.nama}</p>
-                <p className="text-xs text-muted-foreground capitalize">{user?.role}</p>
+              <div className="min-w-0">
+                <div className="truncate text-sm font-semibold">{user.nama}</div>
+                <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                  {ROLE_LABELS[user.role as Role] ?? user.role}
+                </div>
               </div>
             </div>
-            <Button variant="outline" size="sm" className="w-full" onClick={keluar}>
+            <Button data-testid="logout-btn" onClick={async () => {
+                await signOut()
+                navigate('/login', { replace: true })
+              }} variant="outline" size="sm" className="w-full">
               <LogOut className="size-4" /> Keluar
             </Button>
           </div>
         </div>
       </aside>
 
-      {open ? (
-        <button type="button" className="fixed inset-0 z-40 bg-black/20 lg:hidden" aria-label="Tutup menu" onClick={() => setOpen(false)} />
-      ) : null}
-
+      {open && <div className="fixed inset-0 z-40 bg-black/20 lg:hidden" onClick={() => setOpen(false)} />}
       <main className="min-w-0 flex-1 pt-20 pb-24 lg:pt-0 lg:pb-0">
-        <div className="fade-in mx-auto w-full max-w-[1400px] p-4 sm:p-6 lg:p-8">{children}</div>
+        <div className="fade-in mx-auto max-w-[1400px] p-4 sm:p-6 lg:p-8">{children}</div>
       </main>
 
-      <nav
-        aria-label="Navigasi utama"
-        className="bottom-nav-shell fixed inset-x-0 bottom-0 z-30 flex items-stretch lg:hidden"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
-      >
-        {bottom.map(({ to, label, icon: Icon }) => {
-          const active = isActive(location.pathname, to)
-          return (
-            <NavLink
-              key={to}
-              to={to}
-              end={to === '/'}
-              className={`flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[11px] font-medium ${
-                active ? 'text-primary' : 'text-muted-foreground'
-              }`}
-            >
-              <span
-                className={`flex size-8 items-center justify-center rounded-xl border bg-muted ${
-                  active ? 'border-primary/35' : 'border-transparent'
-                }`}
-              >
-                <Icon className="size-4.5" strokeWidth={active ? 2.5 : 2} aria-hidden />
-              </span>
-              <span className="truncate px-1">{label}</span>
-            </NavLink>
-          )
-        })}
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          aria-label="Buka menu lainnya"
-          className={`flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[11px] font-medium ${
-            moreActive ? 'text-primary' : 'text-muted-foreground'
-          }`}
-        >
-          <span
-            className={`flex size-8 items-center justify-center rounded-xl border bg-muted ${
-              moreActive ? 'border-primary/35' : 'border-transparent'
-            }`}
-          >
-            <Menu className="size-4.5" strokeWidth={moreActive ? 2.5 : 2} aria-hidden />
-          </span>
-          <span>Lainnya</span>
-        </button>
-      </nav>
+      <BottomNav items={bottomItems} onOpenMore={() => setOpen(true)} moreActive={moreActive} />
     </div>
   )
 }
+
+export { navFor } from '@/config/nav'

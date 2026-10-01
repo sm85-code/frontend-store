@@ -1,16 +1,26 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { fmtRp, type Produk } from '@store/shared'
-import { Badge, Button, EmptyState, ErrorNotice, Field, Input, Modal, Notice, Select, Table, Td, Textarea, Th } from '@store/ui'
-import { PageSpinner } from '../components/Spinner'
+import Spinner from '@/components/Spinner'
+import TableShell from '@/components/TableShell'
+import { useConfirm } from '@/components/ConfirmProvider'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Textarea } from '@/components/ui/textarea'
+import { ErrorLine, Field, PageTitle } from '@/components/erp'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ImageUp, Pencil, Plus, Trash2 } from 'lucide-react'
+import { ImageUp } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import { ConfirmDialog } from '../components/ConfirmDialog'
-import { PageHeader } from '../components/PageHeader'
 import { api, errorMessage } from '../lib/api'
+
+const selectClass =
+  'h-9 w-full rounded-lg border border-input bg-transparent px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50'
 
 const schema = z.object({
   nama: z.string().trim().min(1, 'Nama wajib diisi').max(255),
@@ -81,14 +91,14 @@ function ProdukForm({ produk, onDone }: { produk: Produk | null; onDone: () => v
         <Textarea id="p-desk" {...register('deskripsi')} />
       </Field>
       <Field label="Kategori" htmlFor="p-kat">
-        <Select id="p-kat" {...register('kategori_id')}>
+        <select id="p-kat" className={selectClass} {...register('kategori_id')}>
           <option value="">Tanpa kategori</option>
           {kategori.data?.map((k) => (
             <option key={k.id} value={k.id}>
               {k.nama}
             </option>
           ))}
-        </Select>
+        </select>
       </Field>
       <div className="grid grid-cols-2 gap-3">
         <Field label="Harga (Rp)" htmlFor="p-harga" error={errors.harga?.message}>
@@ -100,14 +110,14 @@ function ProdukForm({ produk, onDone }: { produk: Produk | null; onDone: () => v
       </div>
 
       {produk ? (
-        <div className="flex flex-col gap-2 rounded-md border p-3">
+        <div className="flex flex-col gap-2 rounded-lg border p-3">
           <div className="flex items-center gap-3">
             {produk.foto_url ? (
-              <img src={produk.foto_url} alt={`Foto ${produk.nama}`} className="size-16 rounded-md object-cover" />
+              <img src={produk.foto_url} alt={`Foto ${produk.nama}`} className="size-16 rounded-lg object-cover" />
             ) : (
-              <div className="grid size-16 place-items-center rounded-md bg-muted text-xs text-muted-foreground">Belum ada</div>
+              <div className="grid size-16 place-items-center rounded-lg bg-muted text-xs text-muted-foreground">Belum ada</div>
             )}
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm font-medium hover:bg-muted">
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border bg-card px-3 py-2 text-sm font-medium hover:bg-muted">
               <ImageUp className="size-4" /> {foto.isPending ? 'Mengunggah…' : 'Unggah foto'}
               <input
                 type="file"
@@ -125,18 +135,18 @@ function ProdukForm({ produk, onDone }: { produk: Produk | null; onDone: () => v
               />
             </label>
           </div>
-          {fotoNotice ? <Notice tone="warning">{fotoNotice}</Notice> : null}
+          {fotoNotice ? <p className="rounded-lg border px-3 py-2 text-sm" style={{ borderColor: 'var(--warning)', color: 'var(--warning)' }}>{fotoNotice}</p> : null}
         </div>
       ) : (
         <p className="text-sm text-muted-foreground">Foto bisa diunggah setelah produk disimpan.</p>
       )}
 
       <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={onDone}>
+        <Button type="button" variant="outline" onClick={onDone}>
           Batal
         </Button>
-        <Button type="submit" loading={simpan.isPending}>
-          Simpan
+        <Button type="submit" disabled={simpan.isPending}>
+          {simpan.isPending ? 'Menyimpan…' : 'Simpan'}
         </Button>
       </div>
     </form>
@@ -145,10 +155,10 @@ function ProdukForm({ produk, onDone }: { produk: Produk | null; onDone: () => v
 
 export default function ProdukPage() {
   const qc = useQueryClient()
+  const confirm = useConfirm()
   const produk = useQuery({ queryKey: ['produk'], queryFn: api.listProduk })
   const [cari, setCari] = useState('')
   const [editing, setEditing] = useState<Produk | 'baru' | null>(null)
-  const [hapus, setHapus] = useState<Produk | null>(null)
 
   const aktifMut = useMutation({
     mutationFn: (p: Produk) => api.patchProduk(p.id, { aktif: !p.aktif }),
@@ -158,7 +168,6 @@ export default function ProdukPage() {
   const hapusMut = useMutation({
     mutationFn: (id: string) => api.deleteProduk(id),
     onSuccess: () => {
-      setHapus(null)
       void qc.invalidateQueries({ queryKey: ['produk'] })
       toast.success('Produk dihapus')
     },
@@ -171,100 +180,124 @@ export default function ProdukPage() {
     return (produk.data ?? []).filter((p) => !q || p.nama.toLowerCase().includes(q))
   }, [produk.data, cari])
 
+  async function onDelete(p: Produk) {
+    const ok = await confirm({
+      title: 'Hapus produk?',
+      description: `"${p.nama}" akan dihapus permanen. Produk yang sudah pernah dipesan sebaiknya dinonaktifkan saja.`,
+      destructive: true,
+    })
+    if (ok) hapusMut.mutate(p.id)
+  }
+
   return (
-    <>
-      <PageHeader
-        title="Produk"
-        actions={
-          <Button onClick={() => setEditing('baru')}>
-            <Plus className="size-4" /> Tambah produk
-          </Button>
-        }
-      />
-      <Input
-        aria-label="Cari produk"
-        placeholder="Cari nama produk…"
-        value={cari}
-        onChange={(e) => setCari(e.target.value)}
-        className="mb-4 max-w-sm"
-      />
+    <div className="space-y-4">
+      <PageTitle title="Produk" actions={<Button onClick={() => setEditing('baru')}>Tambah Produk</Button>} />
 
-      {produk.isPending ? (
-        <PageSpinner />
-      ) : produk.error ? (
-        <ErrorNotice message={errorMessage(produk.error)} />
-      ) : rows.length === 0 ? (
-        <EmptyState title={cari ? 'Tidak ada produk yang cocok' : 'Belum ada produk'} />
-      ) : (
-        <Table>
-          <thead>
-            <tr>
-              <Th>Produk</Th>
-              <Th>Kategori</Th>
-              <Th className="text-right">Harga</Th>
-              <Th className="text-right">Stok</Th>
-              <Th>Status</Th>
-              <Th className="w-28" />
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((p) => (
-              <tr key={p.id}>
-                <Td>
-                  <div className="flex items-center gap-3">
-                    {p.foto_url ? (
-                      <img src={p.foto_url} alt="" loading="lazy" className="size-10 rounded-md object-cover" />
-                    ) : (
-                      <div className="size-10 rounded-md bg-muted" aria-hidden />
-                    )}
-                    <div>
-                      <p className="font-medium">{p.nama}</p>
-                      {p.sumber === 'erp' ? <Badge className="mt-0.5">Dari ERP</Badge> : null}
-                    </div>
-                  </div>
-                </Td>
-                <Td>{p.kategori_nama ?? '-'}</Td>
-                <Td className="text-right">{fmtRp(p.harga)}</Td>
-                <Td className="text-right">{p.stok}</Td>
-                <Td>
-                  <button
-                    type="button"
-                    onClick={() => aktifMut.mutate(p)}
-                    disabled={aktifMut.isPending}
-                    aria-label={`${p.aktif ? 'Nonaktifkan' : 'Aktifkan'} ${p.nama}`}
-                  >
-                    <Badge tone={p.aktif ? 'success' : 'neutral'}>{p.aktif ? 'Aktif' : 'Nonaktif'}</Badge>
-                  </button>
-                </Td>
-                <Td>
-                  <div className="flex">
-                    <Button variant="ghost" size="icon" aria-label={`Ubah ${p.nama}`} onClick={() => setEditing(p)}>
-                      <Pencil className="size-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" aria-label={`Hapus ${p.nama}`} onClick={() => setHapus(p)}>
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </div>
-                </Td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      )}
+      <Card>
+        <CardHeader>
+          <CardTitle>Cari Produk</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Input
+            aria-label="Cari produk"
+            placeholder="Cari nama produk…"
+            value={cari}
+            onChange={(e) => setCari(e.target.value)}
+            className="max-w-sm"
+          />
+        </CardContent>
+      </Card>
 
-      <Modal open={editing !== null} onClose={() => setEditing(null)} title={editing === 'baru' ? 'Produk baru' : 'Ubah produk'}>
-        {editing !== null ? (
-          <ProdukForm key={editing === 'baru' ? 'baru' : editing.id} produk={editing === 'baru' ? null : editing} onDone={() => setEditing(null)} />
-        ) : null}
-      </Modal>
-      <ConfirmDialog
-        open={hapus !== null}
-        title="Hapus produk?"
-        message={`"${hapus?.nama ?? ''}" akan dihapus permanen. Produk yang sudah pernah dipesan sebaiknya dinonaktifkan saja.`}
-        loading={hapusMut.isPending}
-        onClose={() => setHapus(null)}
-        onConfirm={() => hapus && hapusMut.mutate(hapus.id)}
-      />
-    </>
+      <Card>
+        <CardContent className="pt-6">
+          {produk.isPending ? (
+            <Spinner column label="Memuat produk…" />
+          ) : produk.error ? (
+            <ErrorLine message={errorMessage(produk.error)} />
+          ) : (
+            <TableShell>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Produk</TableHead>
+                    <TableHead>Kategori</TableHead>
+                    <TableHead>Harga</TableHead>
+                    <TableHead>Stok</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Aksi</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rows.map((p) => (
+                    <TableRow key={p.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          {p.foto_url ? (
+                            <img src={p.foto_url} alt="" loading="lazy" className="size-10 rounded-lg object-cover" />
+                          ) : (
+                            <div className="size-10 rounded-lg bg-muted" aria-hidden />
+                          )}
+                          <div>
+                            <p className="font-medium">{p.nama}</p>
+                            {p.sumber === 'erp' ? (
+                              <Badge variant="secondary" className="mt-0.5">
+                                Dari ERP
+                              </Badge>
+                            ) : null}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>{p.kategori_nama ?? '-'}</TableCell>
+                      <TableCell>{fmtRp(p.harga)}</TableCell>
+                      <TableCell>{p.stok}</TableCell>
+                      <TableCell>
+                        <Badge variant={p.aktif ? 'default' : 'secondary'}>{p.aktif ? 'Aktif' : 'Nonaktif'}</Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-1.5">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            disabled={aktifMut.isPending}
+                            aria-label={`${p.aktif ? 'Nonaktifkan' : 'Aktifkan'} ${p.nama}`}
+                            onClick={() => aktifMut.mutate(p)}
+                          >
+                            {p.aktif ? 'Nonaktifkan' : 'Aktifkan'}
+                          </Button>
+                          <Button size="sm" variant="ghost" aria-label={`Ubah ${p.nama}`} onClick={() => setEditing(p)}>
+                            Edit
+                          </Button>
+                          <Button size="sm" variant="destructive" aria-label={`Hapus ${p.nama}`} onClick={() => onDelete(p)}>
+                            Hapus
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {rows.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                        {cari ? 'Tidak ada produk yang cocok.' : 'Belum ada produk.'}
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableShell>
+          )}
+        </CardContent>
+      </Card>
+
+      <Dialog open={editing !== null} onOpenChange={(open) => !open && setEditing(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editing === 'baru' ? 'Tambah Produk' : 'Edit Produk'}</DialogTitle>
+          </DialogHeader>
+          {editing !== null ? (
+            <ProdukForm key={editing === 'baru' ? 'baru' : editing.id} produk={editing === 'baru' ? null : editing} onDone={() => setEditing(null)} />
+          ) : null}
+        </DialogContent>
+      </Dialog>
+    </div>
   )
 }

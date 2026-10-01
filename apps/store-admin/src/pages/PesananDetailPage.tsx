@@ -12,17 +12,21 @@ import {
   type StatusPengiriman,
   type StatusPesanan,
 } from '@store/shared'
-import { Button, Card, CardContent, CardHeader, CardTitle, ErrorNotice, Field, Input, Table, Td, Textarea, Th } from '@store/ui'
-import { PageSpinner } from '../components/Spinner'
+import Spinner from '@/components/Spinner'
+import TableShell from '@/components/TableShell'
+import { useConfirm } from '@/components/ConfirmProvider'
+import { ErrorLine, Field } from '@/components/erp'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Textarea } from '@/components/ui/textarea'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import { ConfirmDialog } from '../components/ConfirmDialog'
-import { PageHeader } from '../components/PageHeader'
 import { StatusPengirimanBadge, StatusPesananBadge } from '../components/StatusBadge'
 import { api, errorMessage } from '../lib/api'
 
@@ -88,8 +92,8 @@ function PengirimanForm({ pesananId }: { pesananId: string }) {
         <Textarea id="alamat" {...register('alamat_tujuan')} />
       </Field>
       <div className="sm:col-span-2">
-        <Button type="submit" loading={simpan.isPending}>
-          Simpan pengiriman
+        <Button type="submit" disabled={simpan.isPending}>
+          {simpan.isPending ? 'Menyimpan…' : 'Simpan pengiriman'}
         </Button>
       </div>
     </form>
@@ -116,9 +120,9 @@ function PengirimanPanel({ pesanan }: { pesanan: Pesanan }) {
     onError: (e) => toast.error(errorMessage(e)),
   })
 
-  if (pengiriman.isPending) return <PageSpinner />
+  if (pengiriman.isPending) return <Spinner column label="Memuat pengiriman…" />
   const missing = pengiriman.error instanceof ApiError && pengiriman.error.status === 404
-  if (pengiriman.error && !missing) return <ErrorNotice message={errorMessage(pengiriman.error)} />
+  if (pengiriman.error && !missing) return <ErrorLine message={errorMessage(pengiriman.error)} />
   if (missing || !pengiriman.data) {
     return pesanan.status === 'dibatalkan' ? (
       <p className="text-sm text-muted-foreground">Pesanan dibatalkan, tidak ada pengiriman.</p>
@@ -148,7 +152,7 @@ function PengirimanPanel({ pesanan }: { pesanan: Pesanan }) {
             <Input id="resi" value={tracking} onChange={(e) => setTracking(e.target.value)} />
           </Field>
           {TRANSISI_PENGIRIMAN[p.status].map((s) => (
-            <Button key={s} variant={s === 'bermasalah' ? 'outline' : 'primary'} loading={ubah.isPending} onClick={() => ubah.mutate(s)}>
+            <Button key={s} variant={s === 'bermasalah' ? 'outline' : 'default'} disabled={ubah.isPending} onClick={() => ubah.mutate(s)}>
               Tandai: {LABEL_PENGIRIMAN[s]}
             </Button>
           ))}
@@ -161,13 +165,12 @@ function PengirimanPanel({ pesanan }: { pesanan: Pesanan }) {
 export default function PesananDetailPage() {
   const { id = '' } = useParams()
   const qc = useQueryClient()
+  const confirm = useConfirm()
   const pesanan = useQuery({ queryKey: ['pesanan', id], queryFn: () => api.getPesanan(id) })
-  const [batal, setBatal] = useState(false)
 
   const ubah = useMutation({
     mutationFn: (status: StatusPesanan) => api.ubahStatusPesanan(id, status),
     onSuccess: () => {
-      setBatal(false)
       void qc.invalidateQueries({ queryKey: ['pesanan'] })
       void qc.invalidateQueries({ queryKey: ['laporan'] })
       void qc.invalidateQueries({ queryKey: ['produk'] })
@@ -176,99 +179,101 @@ export default function PesananDetailPage() {
     onError: (e) => toast.error(errorMessage(e)),
   })
 
-  if (pesanan.isPending) return <PageSpinner />
-  if (pesanan.error) return <ErrorNotice message={errorMessage(pesanan.error)} />
+  async function batalkan() {
+    const ok = await confirm({
+      title: 'Batalkan pesanan?',
+      description: 'Stok produk pada pesanan ini akan dikembalikan. Tindakan ini tidak bisa dibatalkan.',
+      confirmLabel: 'Ya, batalkan',
+      destructive: true,
+    })
+    if (ok) ubah.mutate('dibatalkan')
+  }
+
+  if (pesanan.isPending) return <Spinner column label="Memuat pesanan…" />
+  if (pesanan.error) return <ErrorLine message={errorMessage(pesanan.error)} />
   const p = pesanan.data
   const next = TRANSISI_PESANAN[p.status]
 
   return (
-    <>
-      <Link to="/pesanan" className="mb-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:underline">
-        <ArrowLeft className="size-4" /> Semua pesanan
-      </Link>
-      <PageHeader
-        title={`Pesanan ${p.id.slice(0, 8)}`}
-        description={fmtDateTime(p.created_at)}
-        actions={<StatusPesananBadge status={p.status} />}
-      />
-
-      <div className="grid gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Item</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <thead>
-                <tr>
-                  <Th>Produk</Th>
-                  <Th className="text-right">Harga</Th>
-                  <Th className="text-right">Qty</Th>
-                  <Th className="text-right">Subtotal</Th>
-                </tr>
-              </thead>
-              <tbody>
-                {p.items.map((i) => (
-                  <tr key={`${i.produk_id}`}>
-                    <Td>{i.nama_produk}</Td>
-                    <Td className="text-right">{fmtRp(i.harga_satuan)}</Td>
-                    <Td className="text-right">{i.qty}</Td>
-                    <Td className="text-right">{fmtRp(i.subtotal)}</Td>
-                  </tr>
-                ))}
-                <tr>
-                  <Td colSpan={3} className="text-right font-semibold">
-                    Total
-                  </Td>
-                  <Td className="text-right font-semibold">{fmtRp(p.total)}</Td>
-                </tr>
-              </tbody>
-            </Table>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Status pesanan</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            {next.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Status akhir, tidak bisa diubah lagi.</p>
-            ) : (
-              next.map((s) =>
-                s === 'dibatalkan' ? (
-                  <Button key={s} variant="danger" onClick={() => setBatal(true)}>
-                    Batalkan pesanan
-                  </Button>
-                ) : (
-                  <Button key={s} loading={ubah.isPending} onClick={() => ubah.mutate(s)}>
-                    Tandai: {LABEL_PESANAN[s]}
-                  </Button>
-                ),
-              )
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Pengiriman</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <PengirimanPanel pesanan={p} />
-          </CardContent>
-        </Card>
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <Link to="/pesanan" className="text-sm text-muted-foreground hover:underline">
+            ← Semua pesanan
+          </Link>
+          <h1 className="page-h1 font-heading text-2xl font-bold">Pesanan {p.id.slice(0, 8)}</h1>
+          <p className="text-sm text-muted-foreground">{fmtDateTime(p.created_at)}</p>
+        </div>
+        <StatusPesananBadge status={p.status} />
       </div>
 
-      <ConfirmDialog
-        open={batal}
-        title="Batalkan pesanan?"
-        message="Stok produk pada pesanan ini akan dikembalikan. Tindakan ini tidak bisa dibatalkan."
-        confirmLabel="Ya, batalkan"
-        loading={ubah.isPending}
-        onClose={() => setBatal(false)}
-        onConfirm={() => ubah.mutate('dibatalkan')}
-      />
-    </>
+      <Card>
+        <CardHeader>
+          <CardTitle>Item</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <TableShell minWidth={480}>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Produk</TableHead>
+                  <TableHead>Harga</TableHead>
+                  <TableHead>Qty</TableHead>
+                  <TableHead className="text-right">Subtotal</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {p.items.map((i) => (
+                  <TableRow key={`${i.produk_id}`}>
+                    <TableCell className="font-medium">{i.nama_produk}</TableCell>
+                    <TableCell>{fmtRp(i.harga_satuan)}</TableCell>
+                    <TableCell>{i.qty}</TableCell>
+                    <TableCell className="text-right">{fmtRp(i.subtotal)}</TableCell>
+                  </TableRow>
+                ))}
+                <TableRow>
+                  <TableCell colSpan={3} className="text-right font-semibold">
+                    Total
+                  </TableCell>
+                  <TableCell className="text-right font-semibold">{fmtRp(p.total)}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableShell>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Status Pesanan</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          {next.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Status akhir, tidak bisa diubah lagi.</p>
+          ) : (
+            next.map((s) =>
+              s === 'dibatalkan' ? (
+                <Button key={s} variant="destructive" onClick={batalkan}>
+                  Batalkan pesanan
+                </Button>
+              ) : (
+                <Button key={s} disabled={ubah.isPending} onClick={() => ubah.mutate(s)}>
+                  Tandai: {LABEL_PESANAN[s]}
+                </Button>
+              ),
+            )
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Pengiriman</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <PengirimanPanel pesanan={p} />
+        </CardContent>
+      </Card>
+    </div>
   )
 }

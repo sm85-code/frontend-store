@@ -1,11 +1,13 @@
 import { fmtDateTime } from '@store/shared'
-import { Button, EmptyState, ErrorNotice, Input, cn } from '@store/ui'
-import { PageSpinner } from '../components/Spinner'
+import Spinner from '@/components/Spinner'
+import { ErrorLine, PageTitle } from '@/components/erp'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Send } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
-import { PageHeader } from '../components/PageHeader'
 import { api, errorMessage } from '../lib/api'
 
 const POLL_MS = 10_000
@@ -30,12 +32,14 @@ function Thread({ id }: { id: string }) {
     bottom.current?.scrollIntoView?.({ block: 'end' })
   }, [count, id])
 
-  if (chat.isPending) return <PageSpinner />
-  if (chat.error) return <ErrorNotice message={errorMessage(chat.error)} />
+  if (chat.isPending) return <Spinner column label="Memuat percakapan…" />
+  if (chat.error) return <ErrorLine message={errorMessage(chat.error)} />
 
   return (
-    <div className="flex h-[60vh] flex-col rounded-lg border bg-card">
-      <div className="border-b px-4 py-2 font-medium">{chat.data.nama_pembeli ?? 'Pembeli'}</div>
+    <Card className="flex h-[60vh] flex-col">
+      <CardHeader className="border-b py-3">
+        <CardTitle>{chat.data.nama_pembeli ?? 'Pembeli'}</CardTitle>
+      </CardHeader>
       <ul className="flex flex-1 flex-col gap-2 overflow-y-auto p-4" aria-live="polite">
         {chat.data.pesan?.map((m) => (
           <li
@@ -60,11 +64,11 @@ function Thread({ id }: { id: string }) {
         }}
       >
         <Input aria-label="Pesan" value={isi} maxLength={2000} onChange={(e) => setIsi(e.target.value)} placeholder="Tulis balasan…" />
-        <Button type="submit" loading={kirim.isPending} disabled={!isi.trim()}>
-          <Send className="size-4" /> Kirim
+        <Button type="submit" disabled={kirim.isPending || !isi.trim()}>
+          {kirim.isPending ? 'Mengirim…' : 'Kirim'}
         </Button>
       </form>
-    </div>
+    </Card>
   )
 }
 
@@ -74,14 +78,18 @@ export default function ChatPage() {
   const [aktif, setAktif] = useState<string | null>(null)
 
   return (
-    <>
-      <PageHeader title="Chat pembeli" description="Diperbarui otomatis setiap 10 detik." />
+    <div className="space-y-4">
+      <PageTitle title="Chat Pembeli" description="Diperbarui otomatis setiap 10 detik." />
       {daftar.isPending ? (
-        <PageSpinner />
+        <Spinner column label="Memuat percakapan…" />
       ) : daftar.error ? (
-        <ErrorNotice message={errorMessage(daftar.error)} />
+        <ErrorLine message={errorMessage(daftar.error)} />
       ) : daftar.data.length === 0 ? (
-        <EmptyState title="Belum ada percakapan" description="Percakapan muncul setelah pembeli mengirim pesan pertama." />
+        <Card>
+          <CardContent className="py-10 text-center text-sm text-muted-foreground">
+            Belum ada percakapan. Percakapan muncul setelah pembeli mengirim pesan pertama.
+          </CardContent>
+        </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-[16rem_1fr]">
           <ul className="flex flex-col gap-1" aria-label="Daftar percakapan">
@@ -94,19 +102,25 @@ export default function ChatPage() {
                     void qc.invalidateQueries({ queryKey: ['chat', 'daftar'] })
                   }}
                   className={cn(
-                    'flex w-full items-center justify-between rounded-md border px-3 py-2 text-left text-sm hover:bg-muted',
+                    'flex w-full items-center justify-between rounded-lg border bg-card px-3 py-2 text-left text-sm hover:bg-muted/40',
                     aktif === c.id && 'border-primary bg-primary/15',
                   )}
                 >
                   <span className="truncate">{c.nama_pembeli ?? 'Pembeli'}</span>
-                  {c.unread_admin ? <span className="size-2 shrink-0 rounded-full bg-danger" aria-label="Belum dibaca" /> : null}
+                  {c.unread_admin ? <span className="size-2 shrink-0 rounded-full bg-destructive" aria-label="Belum dibaca" /> : null}
                 </button>
               </li>
             ))}
           </ul>
-          {aktif ? <Thread key={aktif} id={aktif} /> : <EmptyState title="Pilih percakapan" />}
+          {aktif ? (
+            <Thread key={aktif} id={aktif} />
+          ) : (
+            <Card>
+              <CardContent className="py-10 text-center text-sm text-muted-foreground">Pilih percakapan.</CardContent>
+            </Card>
+          )}
         </div>
       )}
-    </>
+    </div>
   )
 }

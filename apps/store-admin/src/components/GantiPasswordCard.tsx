@@ -1,5 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, Card, CardContent, CardHeader, CardTitle, Field, Input } from '@store/ui'
+import { Field } from '@/components/erp'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -34,10 +37,11 @@ export function GantiPasswordCard() {
   return (
     <Card className="max-w-xl">
       <CardHeader>
-        <CardTitle>Ganti password</CardTitle>
+        <CardTitle>Ganti Password</CardTitle>
+        <CardDescription>Perbarui password akun Anda.</CardDescription>
       </CardHeader>
       <CardContent>
-        <form className="flex flex-col gap-4" noValidate onSubmit={handleSubmit((v) => ganti.mutate(v))}>
+        <form className="space-y-4" noValidate onSubmit={handleSubmit((v) => ganti.mutate(v))}>
           <Field label="Password saat ini" htmlFor="pw-lama" error={errors.lama?.message}>
             <Input id="pw-lama" type="password" autoComplete="current-password" {...register('lama')} />
           </Field>
@@ -48,8 +52,8 @@ export function GantiPasswordCard() {
             <Input id="pw-ulang" type="password" autoComplete="new-password" {...register('ulang')} />
           </Field>
           <div className="flex justify-end">
-            <Button type="submit" loading={ganti.isPending}>
-              Ganti password
+            <Button type="submit" disabled={ganti.isPending}>
+              {ganti.isPending ? 'Menyimpan…' : 'Ganti password'}
             </Button>
           </div>
         </form>

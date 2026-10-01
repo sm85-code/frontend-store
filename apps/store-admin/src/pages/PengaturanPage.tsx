@@ -1,10 +1,10 @@
 import type { MetodeProsesPesanan } from '@store/shared'
-import { Card, CardContent, CardHeader, CardTitle, ErrorNotice } from '@store/ui'
-import { PageSpinner } from '../components/Spinner'
+import Spinner from '@/components/Spinner'
+import { ErrorLine, PageTitle } from '@/components/erp'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { GantiPasswordCard } from '../components/GantiPasswordCard'
-import { PageHeader } from '../components/PageHeader'
 import { api, errorMessage } from '../lib/api'
 
 const OPTIONS: { value: MetodeProsesPesanan; label: string; hint: string }[] = [
@@ -25,22 +25,23 @@ export default function PengaturanPage() {
   })
 
   return (
-    <div className="flex flex-col gap-6">
-      <PageHeader title="Pengaturan" />
+    <div className="space-y-4">
+      <PageTitle title="Pengaturan" />
       {pengaturan.isPending ? (
-        <PageSpinner />
+        <Spinner column label="Memuat pengaturan…" />
       ) : pengaturan.error ? (
-        <ErrorNotice message={errorMessage(pengaturan.error)} />
+        <ErrorLine message={errorMessage(pengaturan.error)} />
       ) : (
         <Card className="max-w-xl">
           <CardHeader>
-            <CardTitle>Metode proses pesanan</CardTitle>
+            <CardTitle>Metode Proses Pesanan</CardTitle>
+            <CardDescription>Cara paket Anda sampai ke kurir.</CardDescription>
           </CardHeader>
           <CardContent>
             <fieldset className="flex flex-col gap-3" disabled={simpan.isPending}>
               <legend className="sr-only">Metode proses pesanan</legend>
               {OPTIONS.map((o) => (
-                <label key={o.value} className="flex cursor-pointer items-start gap-3 rounded-md border p-3 has-[:checked]:border-primary has-[:checked]:bg-primary/10">
+                <label key={o.value} className="flex cursor-pointer items-start gap-3 rounded-lg border p-3 has-[:checked]:border-primary has-[:checked]:bg-primary/10">
                   <input
                     type="radio"
                     name="metode"
