@@ -1,15 +1,20 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { fmtDate, type Staff } from '@store/shared'
-import { Badge, Button, ErrorNotice, Field, Input, Modal, Table, Td, Th } from '@store/ui'
-import { PageSpinner } from '../components/Spinner'
+import Spinner from '@/components/Spinner'
+import TableShell from '@/components/TableShell'
+import { useConfirm } from '@/components/ConfirmProvider'
+import { ErrorLine, Field, PageTitle } from '@/components/erp'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import { ConfirmDialog } from '../components/ConfirmDialog'
-import { PageHeader } from '../components/PageHeader'
 import { api, errorMessage } from '../lib/api'
 import { useAuth } from '../lib/auth'
 
@@ -48,11 +53,11 @@ function StaffForm({ onDone }: { onDone: () => void }) {
         <Input id="s-pass" type="password" autoComplete="new-password" {...register('password')} />
       </Field>
       <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={onDone}>
+        <Button type="button" variant="outline" onClick={onDone}>
           Batal
         </Button>
-        <Button type="submit" loading={buat.isPending}>
-          Simpan
+        <Button type="submit" disabled={buat.isPending}>
+          {buat.isPending ? 'Menyimpan…' : 'Simpan'}
         </Button>
       </div>
     </form>
@@ -62,77 +67,89 @@ function StaffForm({ onDone }: { onDone: () => void }) {
 export default function StaffPage() {
   const { user } = useAuth()
   const qc = useQueryClient()
+  const confirm = useConfirm()
   const staff = useQuery({ queryKey: ['staff'], queryFn: api.listStaff })
   const [baru, setBaru] = useState(false)
-  const [hapus, setHapus] = useState<Staff | null>(null)
   const hapusMut = useMutation({
     mutationFn: (id: string) => api.deleteStaff(id),
     onSuccess: () => {
-      setHapus(null)
       void qc.invalidateQueries({ queryKey: ['staff'] })
       toast.success('Admin dihapus')
     },
     onError: (e) => toast.error(errorMessage(e)),
   })
 
+  async function onDelete(s: Staff) {
+    const ok = await confirm({
+      title: 'Hapus admin?',
+      description: `Akun ${s.nama} tidak akan bisa masuk lagi.`,
+      destructive: true,
+    })
+    if (ok) hapusMut.mutate(s.id)
+  }
+
   return (
-    <>
-      <PageHeader
-        title="Staff admin"
+    <div className="space-y-4">
+      <PageTitle
+        title="Staff Admin"
         description="Hanya owner yang bisa mengelola akun admin."
-        actions={
-          <Button onClick={() => setBaru(true)}>
-            <Plus className="size-4" /> Tambah admin
-          </Button>
-        }
+        actions={<Button onClick={() => setBaru(true)}>Tambah Admin</Button>}
       />
-      {staff.isPending ? (
-        <PageSpinner />
-      ) : staff.error ? (
-        <ErrorNotice message={errorMessage(staff.error)} />
-      ) : (
-        <Table>
-          <thead>
-            <tr>
-              <Th>Nama</Th>
-              <Th>Email</Th>
-              <Th>Peran</Th>
-              <Th>Dibuat</Th>
-              <Th className="w-16" />
-            </tr>
-          </thead>
-          <tbody>
-            {staff.data.map((s) => (
-              <tr key={s.id}>
-                <Td>{s.nama}</Td>
-                <Td>{s.email}</Td>
-                <Td>
-                  <Badge tone={s.role === 'owner' ? 'info' : 'neutral'}>{s.role}</Badge>
-                </Td>
-                <Td>{fmtDate(s.created_at)}</Td>
-                <Td>
-                  {s.role !== 'owner' && s.id !== user?.id ? (
-                    <Button variant="ghost" size="icon" aria-label={`Hapus ${s.nama}`} onClick={() => setHapus(s)}>
-                      <Trash2 className="size-4" />
-                    </Button>
-                  ) : null}
-                </Td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      )}
-      <Modal open={baru} onClose={() => setBaru(false)} title="Tambah admin">
-        {baru ? <StaffForm onDone={() => setBaru(false)} /> : null}
-      </Modal>
-      <ConfirmDialog
-        open={hapus !== null}
-        title="Hapus admin?"
-        message={`Akun ${hapus?.nama ?? ''} tidak akan bisa masuk lagi.`}
-        loading={hapusMut.isPending}
-        onClose={() => setHapus(null)}
-        onConfirm={() => hapus && hapusMut.mutate(hapus.id)}
-      />
-    </>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Daftar Admin</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {staff.isPending ? (
+            <Spinner column label="Memuat staff…" />
+          ) : staff.error ? (
+            <ErrorLine message={errorMessage(staff.error)} />
+          ) : (
+            <TableShell>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nama</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Peran</TableHead>
+                    <TableHead>Dibuat</TableHead>
+                    <TableHead className="text-right">Aksi</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {staff.data.map((s) => (
+                    <TableRow key={s.id}>
+                      <TableCell className="font-medium">{s.nama}</TableCell>
+                      <TableCell>{s.email}</TableCell>
+                      <TableCell>
+                        <Badge variant={s.role === 'owner' ? 'default' : 'secondary'}>{s.role}</Badge>
+                      </TableCell>
+                      <TableCell>{fmtDate(s.created_at)}</TableCell>
+                      <TableCell className="text-right">
+                        {s.role !== 'owner' && s.id !== user?.id ? (
+                          <Button size="sm" variant="destructive" aria-label={`Hapus ${s.nama}`} onClick={() => onDelete(s)}>
+                            Hapus
+                          </Button>
+                        ) : null}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableShell>
+          )}
+        </CardContent>
+      </Card>
+
+      <Dialog open={baru} onOpenChange={setBaru}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Tambah Admin</DialogTitle>
+          </DialogHeader>
+          {baru ? <StaffForm onDone={() => setBaru(false)} /> : null}
+        </DialogContent>
+      </Dialog>
+    </div>
   )
 }

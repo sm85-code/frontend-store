@@ -1,5 +1,5 @@
 import { useId, type SVGProps } from 'react'
-import { cn } from '@store/ui'
+import { cn } from '@/lib/utils'
 
 /** Adapted from Magic UI DotPattern (static SVG, no framer-motion). */
 export function DotPattern({

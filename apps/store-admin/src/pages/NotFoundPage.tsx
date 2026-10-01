@@ -1,14 +1,14 @@
-import { buttonVariants } from '@store/ui'
 import { Link } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
 
 export default function NotFoundPage() {
   return (
-    <div className="mx-auto mt-24 flex max-w-sm flex-col items-center gap-3 p-4 text-center">
-      <p className="text-5xl font-bold">404</p>
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-6 text-center">
+      <h1 className="font-heading text-3xl font-bold">404</h1>
       <p className="text-muted-foreground">Halaman tidak ditemukan.</p>
-      <Link to="/" className={buttonVariants()}>
-        Ke dashboard
-      </Link>
+      <Button asChild>
+        <Link to="/">Kembali ke Dashboard</Link>
+      </Button>
     </div>
   )
 }

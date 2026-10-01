@@ -1,5 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, Card, CardContent, CardHeader, CardTitle, ErrorNotice, Field, Input } from '@store/ui'
+import { ErrorLine, Field } from '@/components/erp'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
@@ -28,18 +31,23 @@ export default function LoginPage() {
   if (!loading && user) return <Navigate to={from} replace />
 
   return (
-    <main className="auth-bg grid min-h-screen place-items-center p-4">
-      <Card className="floating-card w-full max-w-sm">
+    <main className="auth-bg flex min-h-screen items-center justify-center p-4">
+      <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-2 flex size-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
+          <div
+            className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full text-lg font-bold text-white"
+            style={{ background: 'var(--primary)' }}
+          >
             T
           </div>
-          <CardTitle className="modern-brand-title text-xl">Masuk Admin Toko</CardTitle>
-          <p className="text-sm text-muted-foreground">Khusus pengelola toko.</p>
+          <CardTitle className="modern-brand-title text-xl" role="heading" aria-level={1}>
+            Masuk Admin Toko
+          </CardTitle>
+          <CardDescription>Khusus pengelola toko Ampel Kuning</CardDescription>
         </CardHeader>
         <CardContent>
           <form
-            className="flex flex-col gap-4"
+            className="space-y-4"
             noValidate
             onSubmit={handleSubmit(async ({ email, password }) => {
               setError(null)
@@ -51,7 +59,7 @@ export default function LoginPage() {
               }
             })}
           >
-            {error ? <ErrorNotice message={error} /> : null}
+            {error ? <ErrorLine message={error} /> : null}
             <Field label="Email" htmlFor="email" error={errors.email?.message}>
               <Input id="email" type="email" autoComplete="username" aria-invalid={!!errors.email} {...register('email')} />
             </Field>
@@ -64,8 +72,8 @@ export default function LoginPage() {
                 {...register('password')}
               />
             </Field>
-            <Button type="submit" loading={isSubmitting}>
-              Masuk
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? 'Memproses…' : 'Masuk'}
             </Button>
           </form>
         </CardContent>

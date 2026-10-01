@@ -1,5 +1,5 @@
 import type { CSSProperties, HTMLAttributes } from 'react'
-import { cn } from '@store/ui'
+import { cn } from '@/lib/utils'
 
 /** Adapted from Magic UI Ripple — pure CSS keyframes (see index.css). */
 export function Ripple({

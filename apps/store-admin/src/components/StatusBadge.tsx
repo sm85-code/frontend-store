@@ -1,11 +1,13 @@
-import { LABEL_PENGIRIMAN, LABEL_PESANAN, TONE_PESANAN, type StatusPengiriman, type StatusPesanan } from '@store/shared'
-import { Badge } from '@store/ui'
+import { LABEL_PENGIRIMAN, LABEL_PESANAN, type StatusPengiriman, type StatusPesanan } from '@store/shared'
+import { Badge } from '@/components/ui/badge'
 
+/** Same mapping the ERP uses: finished = primary tint, cancelled/problem = red, everything else neutral. */
 export function StatusPesananBadge({ status }: { status: StatusPesanan }) {
-  return <Badge tone={TONE_PESANAN[status]}>{LABEL_PESANAN[status]}</Badge>
+  const variant = status === 'selesai' ? 'default' : status === 'dibatalkan' ? 'destructive' : 'secondary'
+  return <Badge variant={variant}>{LABEL_PESANAN[status]}</Badge>
 }
 
 export function StatusPengirimanBadge({ status }: { status: StatusPengiriman }) {
-  const tone = status === 'diterima' ? 'success' : status === 'bermasalah' ? 'danger' : 'info'
-  return <Badge tone={tone}>{LABEL_PENGIRIMAN[status]}</Badge>
+  const variant = status === 'diterima' ? 'default' : status === 'bermasalah' ? 'destructive' : 'secondary'
+  return <Badge variant={variant}>{LABEL_PENGIRIMAN[status]}</Badge>
 }

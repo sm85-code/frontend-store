@@ -53,3 +53,5 @@ export function PageSpinner({ label = 'Memuat…' }: { label?: string }) {
     </div>
   )
 }
+
+export default Spinner

@@ -16,14 +16,14 @@ beforeEach(() => {
 })
 
 describe('appearance', () => {
-  it('starts like the ERP panel: Biru, Plus Jakarta Sans, plain background, light', () => {
+  it('starts like the ERP panel but in Rose: Plus Jakarta Sans, plain background, light', () => {
     render(
       <ThemeProvider>
         <Probe />
       </ThemeProvider>,
     )
-    expect(screen.getByTestId('probe')).toHaveTextContent('blue|jakarta|none|light')
-    expect(document.documentElement.getAttribute('data-theme')).toBe('blue')
+    expect(screen.getByTestId('probe')).toHaveTextContent('rose|jakarta|none|light')
+    expect(document.documentElement.getAttribute('data-theme')).toBe('rose')
     expect(document.documentElement.getAttribute('data-font')).toBe('jakarta')
   })
 
@@ -54,6 +54,6 @@ describe('appearance', () => {
         <Probe />
       </ThemeProvider>,
     )
-    expect(screen.getByTestId('probe')).toHaveTextContent('blue|')
+    expect(screen.getByTestId('probe')).toHaveTextContent('rose|')
   })
 })
