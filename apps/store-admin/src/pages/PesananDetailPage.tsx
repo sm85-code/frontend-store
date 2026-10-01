@@ -233,7 +233,11 @@ export default function PesananDetailPage() {
               <TableBody>
                 {p.items.map((i) => (
                   <TableRow key={`${i.produk_id}`}>
-                    <TableCell className="font-medium">{i.nama_produk}</TableCell>
+                    <TableCell className="font-medium">
+                      {i.nama_produk}
+                      {i.nama_varian ? <span className="font-normal text-muted-foreground"> — {i.nama_varian}</span> : null}
+                      {i.preorder ? <span className="block text-xs font-normal text-muted-foreground">Pre-order {i.hari_proses} hari</span> : null}
+                    </TableCell>
                     <TableCell>{fmtRp(i.harga_satuan)}</TableCell>
                     <TableCell>{i.qty}</TableCell>
                     <TableCell className="text-right">{fmtRp(i.subtotal)}</TableCell>

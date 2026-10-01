@@ -8,7 +8,7 @@ import { toast } from 'sonner'
 import { api, errorMessage } from '@/lib/api'
 import { CART_KEY } from '@/lib/queries'
 
-/** Round "+" on a product card: one tap puts one piece in the cart (signed-out visitors are sent to log in). */
+/** Square "+" on a product card: one tap puts one piece in the cart (signed-out visitors are sent to log in). */
 export function QuickAdd({ produkId, nama }: { produkId: string; nama: string }) {
   const router = useRouter()
   const pathname = usePathname()
@@ -33,7 +33,7 @@ export function QuickAdd({ produkId, nama }: { produkId: string; nama: string })
       aria-label={`Tambah ${nama} ke keranjang`}
       disabled={add.isPending}
       onClick={() => add.mutate()}
-      className="grid size-9 place-items-center rounded-full bg-primary text-primary-foreground shadow-[var(--shadow-card)] transition active:scale-90 disabled:opacity-60"
+      className="grid size-8 place-items-center rounded-md bg-primary text-primary-foreground transition active:scale-90 disabled:opacity-60"
     >
       {add.isSuccess ? <Check className="size-4.5" /> : <Plus className="size-5" strokeWidth={2.6} />}
     </button>

@@ -24,14 +24,14 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const namaKategori = kategoriList.find((k) => k.id === kategori)?.nama
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8">
       {mencari ? null : <Hero />}
 
       <KategoriRail kategori={kategoriList} aktif={kategori} q={q} />
 
       {terbatas.length > 0 ? (
         <section aria-labelledby="judul-terbatas">
-          <h2 id="judul-terbatas" className="mb-3 text-lg font-extrabold">
+          <h2 id="judul-terbatas" className="section-title mb-4">
             Segera habis <span aria-hidden>⏳</span>
           </h2>
           <ul className="scroll-x -mx-4 px-4 pb-1 sm:mx-0 sm:px-0">
@@ -45,8 +45,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       ) : null}
 
       <section id="produk" aria-labelledby="judul-produk" className="scroll-mt-32">
-        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-          <h2 id="judul-produk" className="text-lg font-extrabold">
+        <div className="mb-4 flex flex-col gap-1">
+          <h2 id="judul-produk" className="section-title">
             {q ? `Hasil untuk “${q}”` : namaKategori ?? 'Semua produk'}
           </h2>
           <p className="text-sm text-muted-foreground">

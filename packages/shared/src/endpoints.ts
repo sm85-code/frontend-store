@@ -20,6 +20,7 @@ import type {
   Staff,
   StatusPengiriman,
   StatusPesanan,
+  VarianInput,
 } from './types'
 
 export const ADMIN_PREFIX = '/api/store/admin'
@@ -44,6 +45,10 @@ export function adminEndpoints(c: Client) {
       form.append('file', file)
       return c.post<Produk>(`/produk/${id}/foto`, form)
     },
+
+    deleteFoto: (id: string, fotoId: string) => c.delete<Produk>(`/produk/${id}/foto/${fotoId}`),
+    urutkanFoto: (id: string, ids: string[]) => c.put<Produk>(`/produk/${id}/foto/urutan`, { ids }),
+    simpanVarian: (id: string, varian: VarianInput[]) => c.put<Produk>(`/produk/${id}/varian`, { varian }),
 
     listKategori: () => c.get<Kategori[]>('/kategori'),
     createKategori: (nama: string) => c.post<Kategori>('/kategori', { nama }),
@@ -94,9 +99,11 @@ export function buyerEndpoints(c: Client) {
     deleteAlamat: (id: string) => c.delete<{ ok: true }>(`/alamat/${id}`),
 
     getKeranjang: () => c.get<KeranjangItem[]>('/keranjang'),
-    tambahKeranjang: (produk_id: string, qty = 1) => c.post<KeranjangItem>('/keranjang', { produk_id, qty }),
-    ubahKeranjang: (produk_id: string, qty: number) => c.patch<KeranjangItem>(`/keranjang/${produk_id}`, { qty }),
-    hapusKeranjang: (produk_id: string) => c.delete<{ ok: true }>(`/keranjang/${produk_id}`),
+    tambahKeranjang: (produk_id: string, qty = 1, varian_id?: string | null) =>
+      c.post<KeranjangItem>('/keranjang', { produk_id, qty, varian_id: varian_id ?? null }),
+    /** `ref` is the cart line id (or the product id for a product without variants). */
+    ubahKeranjang: (ref: string, qty: number) => c.patch<KeranjangItem>(`/keranjang/${ref}`, { qty }),
+    hapusKeranjang: (ref: string) => c.delete<{ ok: true }>(`/keranjang/${ref}`),
 
     checkout: () => c.post<Pesanan>('/pesanan/checkout'),
     listPesanan: () => c.get<Pesanan[]>('/pesanan'),

@@ -26,7 +26,7 @@ export default function PesananSayaPage() {
         <ul className="flex flex-col gap-3">
           {pesanan.data.map((p) => (
             <li key={p.id}>
-              <Link href={`/pesanan/${p.id}`} className="flex flex-wrap items-center justify-between gap-2 card-lift rounded-2xl border bg-card p-4">
+              <Link href={`/pesanan/${p.id}`} className="flex flex-wrap items-center justify-between gap-2 card-lift rounded-lg border bg-card p-4">
                 <div>
                   <p className="font-mono text-xs text-muted-foreground">#{p.id.slice(0, 8)}</p>
                   <p className="text-sm">{fmtDateTime(p.created_at)} · {p.items.reduce((n, i) => n + i.qty, 0)} item</p>

@@ -31,7 +31,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400..800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600..800&family=Plus+Jakarta+Sans:wght@400..800&display=swap"
         />
       </head>
       <body className="flex min-h-screen flex-col">
@@ -40,7 +40,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             Lewati ke konten
           </a>
           <Header />
-          <main id="konten" className="mx-auto w-full max-w-6xl flex-1 px-4 py-5 pb-28 sm:px-6 md:pb-8">
+          <main id="konten" className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 pb-28 sm:px-6 md:py-8 md:pb-10">
             {children}
           </main>
           <Footer />

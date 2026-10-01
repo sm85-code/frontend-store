@@ -38,7 +38,8 @@ export function BottomNav() {
   const keranjang: Tab = { href: '/keranjang', label: 'Keranjang', icon: ShoppingCart, match: ['/keranjang', '/checkout'] }
   const active = activeTab(pathname, [...left, keranjang, ...right])
 
-  const item = (t: Tab) => {
+  const itemKeranjang = (t: Tab) => item(t, count)
+  const item = (t: Tab, badge = 0) => {
     const on = active === t.href
     const Icon = t.icon
     return (
@@ -46,13 +47,19 @@ export function BottomNav() {
         <Link
           href={t.href}
           aria-current={on ? 'page' : undefined}
+          aria-label={t.href === '/keranjang' ? `Keranjang, ${badge} item` : undefined}
           className={`relative flex h-full flex-col items-center justify-center gap-0.5 text-[0.7rem] font-medium transition-colors active:scale-95 ${
             on ? 'text-foreground' : 'text-muted-foreground'
           }`}
         >
-          {on ? <span className="absolute inset-x-5 top-0 h-0.5 rounded-full bg-primary" aria-hidden /> : null}
-          <span className={`grid size-8 place-items-center rounded-full transition-colors ${on ? 'bg-primary/25' : ''}`}>
-            <Icon className="size-5" strokeWidth={on ? 2.5 : 2} aria-hidden />
+          {on ? <span className="absolute inset-x-6 top-0 h-[3px] rounded-b bg-primary" aria-hidden /> : null}
+          <span className="relative grid size-7 place-items-center">
+            <Icon className="size-[1.35rem]" strokeWidth={on ? 2.5 : 2} aria-hidden />
+            {badge > 0 ? (
+              <span className="absolute -right-2 -top-1 grid min-w-4 place-items-center rounded-full bg-primary px-1 text-[0.62rem] font-bold text-primary-foreground">
+                {badge}
+              </span>
+            ) : null}
           </span>
           {t.label}
         </Link>
@@ -60,28 +67,16 @@ export function BottomNav() {
     )
   }
 
-  const kOn = active === keranjang.href
+  const all: Tab[] = [
+    left[0]!,
+    left[1]!,
+    keranjang,
+    ...right,
+  ]
   return (
     <nav aria-label="Navigasi utama" className="bottom-nav fixed inset-x-0 bottom-0 z-40 md:hidden">
       <ul className="mx-auto flex h-16 max-w-md items-stretch">
-        {left.map(item)}
-        <li className="relative flex-1">
-          <Link
-            href={keranjang.href}
-            aria-label={`Keranjang, ${count} item`}
-            aria-current={kOn ? 'page' : undefined}
-            className="absolute left-1/2 top-0 flex size-14 -translate-x-1/2 -translate-y-4 flex-col items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[var(--shadow-lift)] ring-4 ring-background transition active:scale-95"
-          >
-            <ShoppingCart className="size-6" strokeWidth={2.4} aria-hidden />
-            {count > 0 ? (
-              <span className="absolute -right-0.5 -top-0.5 grid min-w-5 place-items-center rounded-full bg-foreground px-1 text-[0.68rem] font-bold text-background">
-                {count}
-              </span>
-            ) : null}
-          </Link>
-          <span className="absolute inset-x-0 bottom-1 text-center text-[0.7rem] font-medium text-muted-foreground">Keranjang</span>
-        </li>
-        {right.map(item)}
+        {all.map((t) => (t.href === keranjang.href ? itemKeranjang(t) : item(t)))}
       </ul>
     </nav>
   )

@@ -12,11 +12,11 @@ export function SearchBar({ q, kategori, className = '' }: { q?: string; kategor
         defaultValue={q ?? ''}
         placeholder="Cari produk di Ampelkuning…"
         aria-label="Cari produk"
-        className="h-11 w-full rounded-full border border-input bg-card pl-10 pr-24 text-sm shadow-[var(--shadow-card)] outline-none transition focus:border-ring focus:ring-4 focus:ring-ring/20"
+        className="h-11 w-full rounded-lg border border-input bg-card pl-10 pr-24 text-sm outline-none transition focus:border-ring focus:ring-4 focus:ring-ring/20"
       />
       <button
         type="submit"
-        className="absolute right-1.5 top-1/2 h-8 -translate-y-1/2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition active:scale-95"
+        className="absolute right-1.5 top-1/2 h-8 -translate-y-1/2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition active:scale-95"
       >
         Cari
       </button>

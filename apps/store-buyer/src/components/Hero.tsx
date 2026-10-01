@@ -3,42 +3,45 @@ import Link from 'next/link'
 import { LogoMark } from '@/components/Logo'
 
 const PERKS = [
-  { icon: ShieldCheck, text: 'Masuk dengan Google, checkout cepat' },
-  { icon: MessageCircle, text: 'Chat langsung dengan penjual' },
-  { icon: PackageCheck, text: 'Pantau status pesanan kapan saja' },
+  { icon: ShieldCheck, title: 'Masuk dengan Google', text: 'Checkout cepat tanpa daftar panjang.' },
+  { icon: MessageCircle, title: 'Chat dengan penjual', text: 'Tanya stok dan ukuran sebelum membeli.' },
+  { icon: PackageCheck, title: 'Pantau pesanan', text: 'Status pesanan bisa dilihat kapan saja.' },
 ]
 
 export function Hero() {
   return (
-    <section className="hero rounded-3xl px-5 py-7 sm:px-9 sm:py-11" aria-labelledby="judul-hero">
-      <div className="flex items-center justify-between gap-6">
-        <div className="max-w-xl">
-          <p className="inline-flex items-center gap-1.5 rounded-full bg-white/55 px-3 py-1 text-xs font-bold uppercase tracking-wider backdrop-blur dark:bg-black/25">
-            <span className="size-1.5 rounded-full bg-[oklch(0.68_0.18_150)]" aria-hidden /> Toko online
-          </p>
-          <h1 id="judul-hero" className="mt-3 text-[1.75rem] font-extrabold leading-tight sm:text-4xl">
-            Belanja santai, <br className="sm:hidden" />
-            harga bersahabat.
+    <section className="hero rounded-xl" aria-labelledby="judul-hero">
+      <div className="grid md:grid-cols-[1.25fr_1fr]">
+        <div className="px-6 py-8 sm:px-10 sm:py-12">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Ampelkuning</p>
+          <h1 id="judul-hero" className="font-display mt-3 text-[2rem] leading-[1.1] sm:text-5xl">
+            Belanja santai, harga bersahabat.
           </h1>
-          <p className="mt-2 max-w-md text-sm font-medium opacity-80 sm:text-base">
-            Pilih produk favorit Anda, masukkan keranjang, dan pesan dalam hitungan detik.
+          <p className="prose-id mt-4 max-w-md text-[0.95rem] text-muted-foreground">
+            Pilih produk favorit Anda, masukkan keranjang, lalu pesan dalam hitungan detik. Setiap pesanan bisa dipantau dari awal sampai tiba.
           </p>
           <a
             href="#produk"
-            className="mt-5 inline-flex h-11 items-center gap-2 rounded-full bg-foreground px-6 text-sm font-bold text-background shadow-[var(--shadow-lift)] transition active:scale-95"
+            className="mt-6 inline-flex h-11 items-center gap-2 rounded-lg bg-foreground px-6 text-sm font-bold text-background transition active:scale-[0.98]"
           >
             Mulai belanja <ArrowRight className="size-4" aria-hidden />
           </a>
-          <ul className="mt-5 grid gap-1.5 text-xs font-semibold sm:grid-cols-3 sm:gap-3 sm:text-[0.8rem]">
-            {PERKS.map(({ icon: Icon, text }) => (
-              <li key={text} className="flex items-center gap-1.5">
-                <Icon className="size-4 shrink-0" aria-hidden /> {text}
-              </li>
-            ))}
-          </ul>
         </div>
-        <LogoMark className="hidden size-40 shrink-0 rotate-6 drop-shadow-xl sm:block" />
+        <div className="hero-panel hidden place-items-center p-8 md:grid" aria-hidden>
+          <LogoMark className="size-44 drop-shadow-lg" />
+        </div>
       </div>
+      <ul className="grid divide-y border-t sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+        {PERKS.map(({ icon: Icon, title, text }) => (
+          <li key={title} className="flex items-start gap-3 px-6 py-4 sm:px-6">
+            <Icon className="mt-0.5 size-5 shrink-0 text-[var(--brand-orange)]" aria-hidden />
+            <div>
+              <p className="text-sm font-bold">{title}</p>
+              <p className="text-xs text-muted-foreground">{text}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
     </section>
   )
 }
@@ -46,8 +49,8 @@ export function Hero() {
 export function KategoriRail({ kategori, aktif, q }: { kategori: { id: string; nama: string }[]; aktif?: string; q?: string }) {
   if (kategori.length === 0) return null
   const chip = (on: boolean) =>
-    `rounded-full border px-4 py-2 text-sm font-semibold transition active:scale-95 ${
-      on ? 'border-primary bg-primary text-primary-foreground shadow-[var(--shadow-card)]' : 'bg-card hover:bg-muted'
+    `rounded-md border px-3.5 py-2 text-sm font-semibold transition active:scale-[0.97] ${
+      on ? 'border-primary bg-primary text-primary-foreground' : 'bg-card hover:border-primary'
     }`
   return (
     <nav aria-label="Kategori" className="scroll-x -mx-4 px-4 sm:mx-0 sm:px-0">

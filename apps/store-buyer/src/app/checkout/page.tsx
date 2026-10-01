@@ -85,7 +85,7 @@ export default function CheckoutPage() {
           <fieldset className="flex flex-col gap-2">
             <legend className="sr-only">Pilih alamat</legend>
             {daftar.map((a) => (
-              <label key={a.id} className={cn('flex cursor-pointer items-start gap-3 rounded-2xl border bg-card p-3.5', aktif?.id === a.id && 'border-primary bg-primary/10')}>
+              <label key={a.id} className={cn('flex cursor-pointer items-start gap-3 rounded-lg border bg-card p-3.5', aktif?.id === a.id && 'border-primary bg-primary/10')}>
                 <input type="radio" name="alamat" className="mt-1" checked={aktif?.id === a.id} onChange={() => setPilih(a.id)} />
                 <span className="text-sm">
                   <span className="block font-medium">{a.label}{a.utama ? ' · utama' : ''}</span>
@@ -110,12 +110,12 @@ export default function CheckoutPage() {
         )}
       </section>
 
-      <aside className="h-fit rounded-2xl border bg-card p-5 shadow-[var(--shadow-card)] lg:sticky lg:top-24">
+      <aside className="h-fit rounded-lg border bg-card p-5 shadow-[var(--shadow-card)] lg:sticky lg:top-24">
         <h2 className="font-semibold">Pesanan Anda</h2>
         <ul className="mt-3 flex flex-col gap-1 text-sm">
           {items.map((i) => (
-            <li key={i.produk_id} className="flex justify-between gap-2">
-              <span className="truncate">{i.qty}× {i.nama}</span>
+            <li key={i.id ?? i.produk_id} className="flex justify-between gap-2">
+              <span className="truncate">{i.qty}× {i.nama}{i.nama_varian ? ` (${i.nama_varian})` : ''}</span>
               <span>{fmtRp(i.subtotal)}</span>
             </li>
           ))}
