@@ -39,7 +39,7 @@ export default function PesananDetailPage() {
     <div className="mx-auto flex max-w-2xl flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Pesanan #{p.id.slice(0, 8)}</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight">Pesanan #{p.id.slice(0, 8)}</h1>
           <p className="text-sm text-muted-foreground">{fmtDateTime(p.created_at)}</p>
         </div>
         <StatusBadge status={p.status} />

@@ -1,6 +1,7 @@
 import { THEME_INIT_SCRIPT } from '@store/ui'
 import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
+import { BottomNav } from '@/components/BottomNav'
 import { Footer } from '@/components/Footer'
 import { Header } from '@/components/Header'
 import { SITE_URL } from '@/lib/api'
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#fffdf7' },
+    { media: '(prefers-color-scheme: light)', color: '#fffbea' },
     { media: '(prefers-color-scheme: dark)', color: '#1c1a14' },
   ],
 }
@@ -26,6 +27,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="id" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400..800&display=swap"
+        />
       </head>
       <body className="flex min-h-screen flex-col">
         <Providers>
@@ -33,10 +40,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             Lewati ke konten
           </a>
           <Header />
-          <main id="konten" className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6">
+          <main id="konten" className="mx-auto w-full max-w-6xl flex-1 px-4 py-5 pb-28 sm:px-6 md:pb-8">
             {children}
           </main>
           <Footer />
+          <BottomNav />
         </Providers>
       </body>
     </html>

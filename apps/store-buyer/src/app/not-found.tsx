@@ -1,12 +1,14 @@
 import { buttonVariants } from '@store/ui'
 import Link from 'next/link'
+import { LogoMark } from '@/components/Logo'
 
 export default function NotFound() {
   return (
-    <div className="mx-auto mt-16 flex max-w-sm flex-col items-center gap-3 text-center">
-      <p className="text-5xl font-bold">404</p>
-      <p className="text-muted-foreground">Halaman tidak ditemukan.</p>
-      <Link href="/" className={buttonVariants()}>Ke beranda</Link>
+    <div className="mx-auto mt-12 flex max-w-sm flex-col items-center gap-3 text-center">
+      <LogoMark className="size-20" />
+      <h1 className="text-3xl font-extrabold">Halaman tidak ditemukan</h1>
+      <p className="text-muted-foreground">Lampunya masih kuning: tautan ini mungkin sudah berubah. Coba kembali ke beranda dan cari produknya.</p>
+      <Link href="/" className={buttonVariants({ size: 'lg', className: 'rounded-full font-bold' })}>Ke beranda</Link>
     </div>
   )
 }

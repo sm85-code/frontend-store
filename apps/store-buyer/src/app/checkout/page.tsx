@@ -74,7 +74,7 @@ export default function CheckoutPage() {
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
       <section aria-labelledby="judul-alamat" className="flex flex-col gap-4">
-        <h1 id="judul-alamat" className="text-2xl font-bold tracking-tight">Checkout</h1>
+        <h1 id="judul-alamat" className="text-2xl font-extrabold tracking-tight">Checkout</h1>
         {error ? <ErrorNotice message={error} /> : null}
         <h2 className="font-semibold">Alamat pengiriman</h2>
 
@@ -82,7 +82,7 @@ export default function CheckoutPage() {
           <fieldset className="flex flex-col gap-2">
             <legend className="sr-only">Pilih alamat</legend>
             {daftar.map((a) => (
-              <label key={a.id} className={cn('flex cursor-pointer items-start gap-3 rounded-lg border bg-card p-3', aktif?.id === a.id && 'border-primary bg-primary/10')}>
+              <label key={a.id} className={cn('flex cursor-pointer items-start gap-3 rounded-2xl border bg-card p-3.5', aktif?.id === a.id && 'border-primary bg-primary/10')}>
                 <input type="radio" name="alamat" className="mt-1" checked={aktif?.id === a.id} onChange={() => setPilih(a.id)} />
                 <span className="text-sm">
                   <span className="block font-medium">{a.label}{a.utama ? ' · utama' : ''}</span>
@@ -107,7 +107,7 @@ export default function CheckoutPage() {
         )}
       </section>
 
-      <aside className="h-fit rounded-lg border bg-card p-5">
+      <aside className="h-fit rounded-2xl border bg-card p-5 shadow-[var(--shadow-card)] lg:sticky lg:top-24">
         <h2 className="font-semibold">Pesanan Anda</h2>
         <ul className="mt-3 flex flex-col gap-1 text-sm">
           {items.map((i) => (
