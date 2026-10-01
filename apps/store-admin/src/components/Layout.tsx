@@ -1,4 +1,4 @@
-import { Button, ThemeToggle } from '@store/ui'
+import { Button } from '@store/ui'
 import {
   LayoutDashboard,
   LogOut,
@@ -14,6 +14,8 @@ import {
 import { useEffect, useState, type ReactNode } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
+import AppearancePopover from './appearance/AppearancePopover'
+import WallpaperLayer from './appearance/WallpaperLayer'
 
 interface NavItem {
   to: string
@@ -61,14 +63,15 @@ export default function Layout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="app-shell flex min-h-screen">
+      <WallpaperLayer />
       <div className="floating-card fixed inset-x-3 top-3 z-40 flex h-14 items-center gap-2 rounded-2xl px-4 lg:hidden">
         <div className="flex size-8 flex-shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
           T
         </div>
         <p className="truncate text-sm font-semibold">Admin Toko</p>
         <div className="ml-auto">
-          <ThemeToggle />
+          <AppearancePopover align="end" triggerClassName="gap-1.5" />
         </div>
       </div>
 
@@ -103,6 +106,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           </nav>
 
           <div className="shrink-0 p-4">
+            <AppearancePopover triggerClassName="mb-3 w-full justify-start gap-2" align="start" />
             <div className="mb-3 flex items-center gap-3">
               <div className="flex size-9 flex-shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
                 {user?.nama?.[0]?.toUpperCase()}
@@ -111,7 +115,6 @@ export default function Layout({ children }: { children: ReactNode }) {
                 <p className="truncate text-sm font-semibold">{user?.nama}</p>
                 <p className="text-xs text-muted-foreground capitalize">{user?.role}</p>
               </div>
-              <ThemeToggle />
             </div>
             <Button variant="outline" size="sm" className="w-full" onClick={keluar}>
               <LogOut className="size-4" /> Keluar

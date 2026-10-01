@@ -28,10 +28,13 @@ export default function LoginPage() {
   if (!loading && user) return <Navigate to={from} replace />
 
   return (
-    <main className="grid min-h-screen place-items-center p-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-xl">Masuk Admin Toko</CardTitle>
+    <main className="auth-bg grid min-h-screen place-items-center p-4">
+      <Card className="floating-card w-full max-w-sm">
+        <CardHeader className="text-center">
+          <div className="mx-auto mb-2 flex size-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
+            T
+          </div>
+          <CardTitle className="modern-brand-title text-xl">Masuk Admin Toko</CardTitle>
           <p className="text-sm text-muted-foreground">Khusus pengelola toko.</p>
         </CardHeader>
         <CardContent>

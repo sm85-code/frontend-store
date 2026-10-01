@@ -1,21 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { fmtRp, type Produk } from '@store/shared'
-import {
-  Badge,
-  Button,
-  EmptyState,
-  ErrorNotice,
-  Field,
-  Input,
-  Modal,
-  Notice,
-  PageSpinner,
-  Select,
-  Table,
-  Td,
-  Textarea,
-  Th,
-} from '@store/ui'
+import { Badge, Button, EmptyState, ErrorNotice, Field, Input, Modal, Notice, Select, Table, Td, Textarea, Th } from '@store/ui'
+import { PageSpinner } from '../components/Spinner'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ImageUp, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useMemo, useState } from 'react'

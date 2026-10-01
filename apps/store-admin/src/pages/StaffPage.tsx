@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { fmtDate, type Staff } from '@store/shared'
-import { Badge, Button, ErrorNotice, Field, Input, Modal, PageSpinner, Table, Td, Th } from '@store/ui'
+import { Badge, Button, ErrorNotice, Field, Input, Modal, Table, Td, Th } from '@store/ui'
+import { PageSpinner } from '../components/Spinner'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'

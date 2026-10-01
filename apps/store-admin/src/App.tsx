@@ -1,4 +1,4 @@
-import { PageSpinner } from '@store/ui'
+import { PageSpinner } from './components/Spinner'
 import { lazy, Suspense, type ReactNode } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import ErrorBoundary from './components/ErrorBoundary'
