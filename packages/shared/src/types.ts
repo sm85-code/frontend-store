@@ -34,6 +34,57 @@ export interface Produk {
   foto_url: string | null
   aktif: boolean
   sumber: 'manual' | 'erp'
+  /** Fields below come from a backend that supports gallery/variants; all optional so older responses still type-check. */
+  harga_min?: string
+  harga_max?: string
+  foto?: FotoProduk[]
+  berat_gram?: number
+  panjang_cm?: string
+  lebar_cm?: string
+  tinggi_cm?: string
+  preorder?: boolean
+  hari_proses?: number
+  varian?: Varian[]
+}
+
+export interface FotoProduk {
+  id: string | null
+  url: string | null
+}
+
+export interface Varian {
+  id: string
+  nama: string
+  sku: string
+  /** Effective price (own price, else the product's). */
+  harga: string
+  harga_sendiri: string | null
+  stok: number
+  berat_gram: number
+  panjang_cm: string
+  lebar_cm: string
+  tinggi_cm: string
+  berat_gram_sendiri: number | null
+  panjang_cm_sendiri: string | null
+  lebar_cm_sendiri: string | null
+  tinggi_cm_sendiri: string | null
+  foto_id: string | null
+  foto_url: string | null
+  aktif: boolean
+}
+
+export interface VarianInput {
+  id?: string
+  nama: string
+  sku: string
+  harga: string | null
+  stok: number
+  berat_gram: number | null
+  panjang_cm: string | null
+  lebar_cm: string | null
+  tinggi_cm: string | null
+  foto_id: string | null
+  aktif: boolean
 }
 
 export interface ProdukInput {
@@ -42,6 +93,12 @@ export interface ProdukInput {
   kategori_id: string | null
   harga: string
   stok: number
+  berat_gram?: number
+  panjang_cm?: string
+  lebar_cm?: string
+  tinggi_cm?: string
+  preorder?: boolean
+  hari_proses?: number
 }
 
 export type ProdukPatch = Partial<ProdukInput> & { aktif?: boolean }
@@ -52,7 +109,14 @@ export interface Kategori {
 }
 
 export interface KeranjangItem {
+  /** Cart line id; absent on a backend that predates variants (then produk_id addresses the line). */
+  id?: string
   produk_id: string
+  varian_id?: string | null
+  nama_varian?: string | null
+  preorder?: boolean
+  hari_proses?: number
+  foto_url?: string | null
   nama: string
   harga: string
   qty: number
@@ -70,6 +134,10 @@ export type StatusPesanan =
 
 export interface ItemPesanan {
   produk_id: string
+  varian_id?: string | null
+  nama_varian?: string | null
+  preorder?: boolean
+  hari_proses?: number
   nama_produk: string
   harga_satuan: string
   qty: number

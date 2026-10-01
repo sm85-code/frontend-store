@@ -11,8 +11,9 @@ import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Textarea } from '@/components/ui/textarea'
 import { ErrorLine, Field, PageTitle } from '@/components/erp'
+import FotoManager from '@/components/FotoManager'
+import VarianEditor from '@/components/VarianEditor'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ImageUp } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -28,10 +29,23 @@ const schema = z.object({
   kategori_id: z.string(),
   harga: z.string().refine((v) => v !== '' && Number(v) >= 0, 'Harga tidak valid'),
   stok: z.string().refine((v) => /^\d+$/.test(v), 'Stok harus bilangan bulat ≥ 0'),
+  berat_gram: z.string().refine((v) => /^\d+$/.test(v), 'Berat harus bilangan bulat (gram)'),
+  panjang_cm: z.string().refine((v) => v !== '' && Number(v) >= 0, 'Angka tidak valid'),
+  lebar_cm: z.string().refine((v) => v !== '' && Number(v) >= 0, 'Angka tidak valid'),
+  tinggi_cm: z.string().refine((v) => v !== '' && Number(v) >= 0, 'Angka tidak valid'),
+  preorder: z.boolean(),
+  hari_proses: z.string(),
+}).refine((v) => !v.preorder || (/^\d+$/.test(v.hari_proses) && Number(v.hari_proses) >= 3 && Number(v.hari_proses) <= 14), {
+  path: ['hari_proses'],
+  message: 'Pre-order 3 sampai 14 hari',
 })
 type Values = z.infer<typeof schema>
 
-const empty: Values = { nama: '', deskripsi: '', kategori_id: '', harga: '', stok: '0' }
+const empty: Values = {
+  nama: '', deskripsi: '', kategori_id: '', harga: '', stok: '0',
+  berat_gram: '0', panjang_cm: '0', lebar_cm: '0', tinggi_cm: '0', preorder: false, hari_proses: '2',
+}
+const num = (v: string | number | undefined) => String(Number(v ?? 0))
 
 function toValues(p: Produk): Values {
   return {
@@ -40,18 +54,29 @@ function toValues(p: Produk): Values {
     kategori_id: p.kategori_id ?? '',
     harga: String(Number(p.harga)),
     stok: String(p.stok),
+    berat_gram: num(p.berat_gram),
+    panjang_cm: num(p.panjang_cm),
+    lebar_cm: num(p.lebar_cm),
+    tinggi_cm: num(p.tinggi_cm),
+    preorder: p.preorder ?? false,
+    hari_proses: String(p.hari_proses ?? 2),
   }
 }
 
-function ProdukForm({ produk, onDone }: { produk: Produk | null; onDone: () => void }) {
+function ProdukForm({ produk: awal, onDone }: { produk: Produk | null; onDone: () => void }) {
   const qc = useQueryClient()
   const kategori = useQuery({ queryKey: ['kategori'], queryFn: api.listKategori })
-  const [fotoNotice, setFotoNotice] = useState<string | null>(null)
+  // Photos and variants save on their own and return the fresh product; keep it here so they stay in sync.
+  const [produk, setProduk] = useState<Produk | null>(awal)
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
-  } = useForm<Values>({ resolver: zodResolver(schema), defaultValues: produk ? toValues(produk) : empty })
+  } = useForm<Values>({ resolver: zodResolver(schema), defaultValues: awal ? toValues(awal) : empty })
+  const preorder = watch('preorder')
+  const [bp, bl, bt] = [watch('panjang_cm'), watch('lebar_cm'), watch('tinggi_cm')]
+  const volumetrik = Math.ceil((Number(bp) * Number(bl) * Number(bt)) / 6000 * 1000)
 
   const simpan = useMutation({
     mutationFn: (v: Values) => {
@@ -61,25 +86,21 @@ function ProdukForm({ produk, onDone }: { produk: Produk | null; onDone: () => v
         kategori_id: v.kategori_id || null,
         harga: v.harga,
         stok: Number(v.stok),
+        berat_gram: Number(v.berat_gram),
+        panjang_cm: v.panjang_cm,
+        lebar_cm: v.lebar_cm,
+        tinggi_cm: v.tinggi_cm,
+        preorder: v.preorder,
+        hari_proses: v.preorder ? Number(v.hari_proses) : 2,
       }
-      return produk ? api.patchProduk(produk.id, input) : api.createProduk(input)
+      return awal ? api.patchProduk(awal.id, input) : api.createProduk(input)
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['produk'] })
-      toast.success(produk ? 'Produk diperbarui' : 'Produk ditambahkan')
+      toast.success(awal ? 'Produk diperbarui' : 'Produk ditambahkan')
       onDone()
     },
     onError: (e) => toast.error(errorMessage(e)),
-  })
-
-  const foto = useMutation({
-    mutationFn: (file: File) => api.uploadFoto(produk!.id, file),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['produk'] })
-      toast.success('Foto diunggah')
-    },
-    onError: (e: Error & { isNotReady?: boolean }) =>
-      e.isNotReady ? setFotoNotice(e.message) : toast.error(errorMessage(e)),
   })
 
   return (
@@ -108,37 +129,51 @@ function ProdukForm({ produk, onDone }: { produk: Produk | null; onDone: () => v
           <Input id="p-stok" inputMode="numeric" aria-invalid={!!errors.stok} {...register('stok')} />
         </Field>
       </div>
+      {produk?.varian?.length ? (
+        <p className="-mt-2 text-xs text-muted-foreground">Produk ini punya varian, jadi stok yang dijual dihitung dari stok tiap varian.</p>
+      ) : null}
+
+      <div className="flex flex-col gap-3 rounded-lg border p-3">
+        <p className="text-sm font-medium">Berat &amp; dimensi (setelah dikemas)</p>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <Field label="Berat (gram)" htmlFor="p-berat" error={errors.berat_gram?.message}>
+            <Input id="p-berat" inputMode="numeric" aria-invalid={!!errors.berat_gram} {...register('berat_gram')} />
+          </Field>
+          <Field label="Panjang (cm)" htmlFor="p-pj" error={errors.panjang_cm?.message}>
+            <Input id="p-pj" inputMode="decimal" aria-invalid={!!errors.panjang_cm} {...register('panjang_cm')} />
+          </Field>
+          <Field label="Lebar (cm)" htmlFor="p-lb" error={errors.lebar_cm?.message}>
+            <Input id="p-lb" inputMode="decimal" aria-invalid={!!errors.lebar_cm} {...register('lebar_cm')} />
+          </Field>
+          <Field label="Tinggi (cm)" htmlFor="p-tg" error={errors.tinggi_cm?.message}>
+            <Input id="p-tg" inputMode="decimal" aria-invalid={!!errors.tinggi_cm} {...register('tinggi_cm')} />
+          </Field>
+        </div>
+        {volumetrik > 0 ? (
+          <p className="text-xs text-muted-foreground">Berat volumetrik (p × l × t ÷ 6000): {volumetrik} gram. Kurir memakai yang lebih besar.</p>
+        ) : null}
+      </div>
+
+      <div className="flex flex-col gap-3 rounded-lg border p-3">
+        <label className="flex items-center gap-2 text-sm font-medium">
+          <input type="checkbox" {...register('preorder')} /> Pre-order
+        </label>
+        {preorder ? (
+          <Field label="Lama proses (hari, 3–14)" htmlFor="p-hari" error={errors.hari_proses?.message}>
+            <Input id="p-hari" inputMode="numeric" className="max-w-28" aria-invalid={!!errors.hari_proses} {...register('hari_proses')} />
+          </Field>
+        ) : (
+          <p className="text-xs text-muted-foreground">Bukan pre-order: barang ready, diproses dalam 2 hari.</p>
+        )}
+      </div>
 
       {produk ? (
-        <div className="flex flex-col gap-2 rounded-lg border p-3">
-          <div className="flex items-center gap-3">
-            {produk.foto_url ? (
-              <img src={produk.foto_url} alt={`Foto ${produk.nama}`} className="size-16 rounded-lg object-cover" />
-            ) : (
-              <div className="grid size-16 place-items-center rounded-lg bg-muted text-xs text-muted-foreground">Belum ada</div>
-            )}
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border bg-card px-3 py-2 text-sm font-medium hover:bg-muted">
-              <ImageUp className="size-4" /> {foto.isPending ? 'Mengunggah…' : 'Unggah foto'}
-              <input
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                className="sr-only"
-                disabled={foto.isPending}
-                onChange={(e) => {
-                  const file = e.target.files?.[0]
-                  e.target.value = ''
-                  if (!file) return
-                  setFotoNotice(null)
-                  if (file.size > 5 * 1024 * 1024) return toast.error('Ukuran foto maksimal 5 MB')
-                  foto.mutate(file)
-                }}
-              />
-            </label>
-          </div>
-          {fotoNotice ? <p className="rounded-lg border px-3 py-2 text-sm" style={{ borderColor: 'var(--warning)', color: 'var(--warning)' }}>{fotoNotice}</p> : null}
-        </div>
+        <>
+          <FotoManager produk={produk} onChange={setProduk} />
+          <VarianEditor produk={produk} onChange={setProduk} />
+        </>
       ) : (
-        <p className="text-sm text-muted-foreground">Foto bisa diunggah setelah produk disimpan.</p>
+        <p className="text-sm text-muted-foreground">Foto dan varian bisa ditambahkan setelah produk disimpan.</p>
       )}
 
       <div className="flex justify-end gap-2">
@@ -239,6 +274,11 @@ export default function ProdukPage() {
                           )}
                           <div>
                             <p className="font-medium">{p.nama}</p>
+                            {p.preorder ? (
+                              <Badge variant="secondary" className="mr-1 mt-0.5">
+                                Pre-order {p.hari_proses} hari
+                              </Badge>
+                            ) : null}
                             {p.sumber === 'erp' ? (
                               <Badge variant="secondary" className="mt-0.5">
                                 Dari ERP
@@ -248,7 +288,7 @@ export default function ProdukPage() {
                         </div>
                       </TableCell>
                       <TableCell>{p.kategori_nama ?? '-'}</TableCell>
-                      <TableCell>{fmtRp(p.harga)}</TableCell>
+                      <TableCell>{p.harga_min && p.harga_max && p.harga_min !== p.harga_max ? `${fmtRp(p.harga_min)} – ${fmtRp(p.harga_max)}` : fmtRp(p.harga_min ?? p.harga)}</TableCell>
                       <TableCell>{p.stok}</TableCell>
                       <TableCell>
                         <Badge variant={p.aktif ? 'default' : 'secondary'}>{p.aktif ? 'Aktif' : 'Nonaktif'}</Badge>
