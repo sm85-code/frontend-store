@@ -32,6 +32,8 @@ export function adminEndpoints(c: Client) {
     login: (email: string, password: string) => c.post<Admin>('/auth/login', { email, password }),
     logout: () => c.post<{ ok: true }>('/auth/logout'),
     me: () => c.get<Admin>('/auth/me'),
+    gantiPassword: (current_password: string, new_password: string) =>
+      c.post<{ ok: true }>('/auth/ganti-password', { current_password, new_password }),
 
     listProduk: () => c.get<Produk[]>('/produk'),
     createProduk: (input: ProdukInput) => c.post<Produk>('/produk', input),
