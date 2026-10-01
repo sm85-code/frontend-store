@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { Button } from './button'
 import { Field, Input } from './form'
+import { Table, Td } from './misc'
 
 describe('Button', () => {
   it('is disabled and busy while loading, and does not fire clicks', async () => {
@@ -34,5 +35,23 @@ describe('Field', () => {
     )
     expect(screen.getByLabelText('Email')).toBeInTheDocument()
     expect(screen.getByRole('alert')).toHaveTextContent('Wajib diisi')
+  })
+})
+
+describe('Table', () => {
+  it('drops the bottom border only on the last row, not on the last cell of every row', () => {
+    const { container } = render(
+      <Table>
+        <tbody>
+          <tr>
+            <Td>a</Td>
+            <Td>b</Td>
+          </tr>
+        </tbody>
+      </Table>,
+    )
+    const cells = container.querySelectorAll('td')
+    for (const cell of cells) expect(cell.className).not.toContain('last:border-b-0')
+    expect(container.firstElementChild?.className).toContain('[&_tr:last-child>td]:border-b-0')
   })
 })

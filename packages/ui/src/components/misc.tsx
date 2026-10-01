@@ -43,7 +43,7 @@ export function Notice({ children, tone = 'info' }: { children: ReactNode; tone?
 
 export function Table({ className, ...props }: ComponentProps<'table'>) {
   return (
-    <div className="w-full overflow-x-auto rounded-lg border bg-card">
+    <div className="w-full overflow-x-auto rounded-lg border bg-card [&_tr:last-child>td]:border-b-0">
       <table className={cn('w-full text-sm', className)} {...props} />
     </div>
   )
@@ -54,5 +54,5 @@ export function Th({ className, ...props }: ComponentProps<'th'>) {
 }
 
 export function Td({ className, ...props }: ComponentProps<'td'>) {
-  return <td className={cn('border-b px-4 py-3 align-middle last:border-b-0', className)} {...props} />
+  return <td className={cn('border-b px-4 py-3 align-middle', className)} {...props} />
 }
