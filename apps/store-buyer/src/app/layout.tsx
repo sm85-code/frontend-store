@@ -40,7 +40,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             Lewati ke konten
           </a>
           <Header />
-          <main id="konten" className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 pb-28 sm:px-6 md:py-8 md:pb-10">
+          <main id="konten" className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 md:py-8 md:pb-10">
             {children}
           </main>
           <Footer />

@@ -3,11 +3,11 @@ import { Logo } from '@/components/Logo'
 
 export function Footer() {
   return (
-    <footer className="mt-10 border-t bg-card">
+    <footer className="mt-10 border-t bg-card pb-[calc(9rem+env(safe-area-inset-bottom))] md:pb-0">
       <div className="mx-auto grid max-w-6xl gap-6 px-4 py-8 text-sm sm:grid-cols-[1.3fr_1fr] sm:px-6">
         <div>
           <Logo />
-          <p className="prose-id mt-3 max-w-sm text-muted-foreground">
+          <p className="prose-id mt-3 text-muted-foreground sm:max-w-sm">
             Belanja produk pilihan dengan mudah: masuk dengan Google, simpan alamat, dan pantau pesanan Anda di satu tempat.
           </p>
         </div>
