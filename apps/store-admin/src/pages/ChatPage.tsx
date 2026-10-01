@@ -1,5 +1,6 @@
 import { fmtDateTime } from '@store/shared'
-import { Button, EmptyState, ErrorNotice, Input, PageSpinner, cn } from '@store/ui'
+import { Button, EmptyState, ErrorNotice, Input, cn } from '@store/ui'
+import { PageSpinner } from '../components/Spinner'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Send } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'

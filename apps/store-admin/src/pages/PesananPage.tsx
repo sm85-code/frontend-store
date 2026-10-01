@@ -1,5 +1,6 @@
 import { LABEL_PESANAN, STATUS_PESANAN_URUT, fmtDateTime, fmtRp, type StatusPesanan } from '@store/shared'
-import { Button, EmptyState, ErrorNotice, PageSpinner, Table, Td, Th, cn } from '@store/ui'
+import { Button, EmptyState, ErrorNotice, Table, Td, Th, cn } from '@store/ui'
+import { PageSpinner } from '../components/Spinner'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'

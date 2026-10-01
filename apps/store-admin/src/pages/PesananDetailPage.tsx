@@ -12,7 +12,8 @@ import {
   type StatusPengiriman,
   type StatusPesanan,
 } from '@store/shared'
-import { Button, Card, CardContent, CardHeader, CardTitle, ErrorNotice, Field, Input, PageSpinner, Table, Td, Textarea, Th } from '@store/ui'
+import { Button, Card, CardContent, CardHeader, CardTitle, ErrorNotice, Field, Input, Table, Td, Textarea, Th } from '@store/ui'
+import { PageSpinner } from '../components/Spinner'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft } from 'lucide-react'
 import { useState } from 'react'

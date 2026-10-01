@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { Kategori } from '@store/shared'
-import { Button, EmptyState, ErrorNotice, Field, Input, PageSpinner, Table, Td, Th } from '@store/ui'
+import { Button, EmptyState, ErrorNotice, Field, Input, Table, Td, Th } from '@store/ui'
+import { PageSpinner } from '../components/Spinner'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Trash2 } from 'lucide-react'
 import { useState } from 'react'

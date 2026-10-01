@@ -1,5 +1,6 @@
 import { LABEL_PESANAN, STATUS_PESANAN_URUT, fmtDate, fmtRp, toDateInput } from '@store/shared'
-import { Card, CardContent, CardHeader, CardTitle, EmptyState, ErrorNotice, Field, Input, PageSpinner, Table, Td, Th } from '@store/ui'
+import { Card, CardContent, CardHeader, CardTitle, EmptyState, ErrorNotice, Field, Input, Table, Td, Th } from '@store/ui'
+import { PageSpinner } from '../components/Spinner'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { PageHeader } from '../components/PageHeader'

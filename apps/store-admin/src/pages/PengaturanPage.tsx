@@ -1,5 +1,6 @@
 import type { MetodeProsesPesanan } from '@store/shared'
-import { Card, CardContent, CardHeader, CardTitle, ErrorNotice, PageSpinner } from '@store/ui'
+import { Card, CardContent, CardHeader, CardTitle, ErrorNotice } from '@store/ui'
+import { PageSpinner } from '../components/Spinner'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { GantiPasswordCard } from '../components/GantiPasswordCard'
