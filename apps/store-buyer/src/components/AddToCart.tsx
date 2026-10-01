@@ -58,7 +58,7 @@ export function ProdukDetail({ produk, children }: { produk: Produk; children?: 
   const nonaktif = habis || (dipilih !== null && stok <= 0)
 
   return (
-    <article className="grid gap-6 pb-24 md:grid-cols-2 md:gap-10 md:pb-0">
+    <article className="grid gap-6 md:grid-cols-2 md:gap-10 md:pb-0">
       <div className="md:sticky md:top-24 md:self-start">
         <Galeri foto={foto} nama={produk.nama} pilihId={dipilih?.foto_id} />
       </div>
