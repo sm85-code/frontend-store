@@ -85,7 +85,7 @@ export function buyerEndpoints(c: Client) {
     me: () => c.get<Pembeli>('/auth/me'),
 
     listProduk: (init?: RequestInit) => c.get<Produk[]>('/produk', { init }),
-    getProduk: (id: string, init?: RequestInit) => c.get<Produk>(`/produk/${id}`, { init }),
+    getProduk: (ref: string, init?: RequestInit) => c.get<Produk>(`/produk/${encodeURIComponent(ref)}`, { init }),
     listKategori: (init?: RequestInit) => c.get<Kategori[]>('/kategori', { init }),
 
     listAlamat: () => c.get<Alamat[]>('/alamat'),

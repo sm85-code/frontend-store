@@ -22,6 +22,8 @@ export interface Pembeli {
 
 export interface Produk {
   id: string
+  /** SEO URL segment (/produk/<slug>); absent on responses from a backend that predates slugs. */
+  slug?: string | null
   nama: string
   deskripsi: string
   kategori_id: string | null

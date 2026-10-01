@@ -1,3 +1,199 @@
 @import 'tailwindcss';
 @import '@store/ui/styles.css';
 @source '../../../../packages/ui/src';
+
+/* Storefront look. Token VALUES only (names stay @store/ui's); the admin has its own look. */
+:root {
+  --background: oklch(0.985 0.012 92);
+  --foreground: oklch(0.22 0.03 70);
+  --card: oklch(1 0.004 95);
+  --card-foreground: oklch(0.22 0.03 70);
+  --muted: oklch(0.955 0.02 92);
+  --muted-foreground: oklch(0.48 0.035 75);
+  --border: oklch(0.92 0.022 90);
+  --input: oklch(0.89 0.025 90);
+  --primary: oklch(0.84 0.172 86);
+  --primary-foreground: oklch(0.24 0.05 70);
+  --ring: oklch(0.74 0.17 80);
+  --radius: 1rem;
+  --brand-ink: oklch(0.3 0.06 70);
+  --brand-soft: oklch(0.96 0.07 95);
+  --nav-h: 4rem;
+  --shadow-card: 0 1px 2px oklch(0.3 0.05 70 / 6%), 0 8px 24px -8px oklch(0.3 0.05 70 / 14%);
+  --shadow-lift: 0 2px 4px oklch(0.3 0.05 70 / 8%), 0 18px 36px -12px oklch(0.3 0.05 70 / 24%);
+}
+
+.dark {
+  --background: oklch(0.17 0.015 80);
+  --foreground: oklch(0.96 0.012 92);
+  --card: oklch(0.22 0.016 80);
+  --card-foreground: oklch(0.96 0.012 92);
+  --muted: oklch(0.27 0.016 80);
+  --muted-foreground: oklch(0.74 0.02 85);
+  --border: oklch(0.33 0.016 80);
+  --input: oklch(0.37 0.018 80);
+  --primary: oklch(0.85 0.17 88);
+  --primary-foreground: oklch(0.22 0.04 70);
+  --ring: oklch(0.8 0.16 86);
+  --brand-ink: oklch(0.92 0.06 92);
+  --brand-soft: oklch(0.3 0.045 85);
+  --shadow-card: 0 1px 2px oklch(0 0 0 / 30%), 0 8px 24px -8px oklch(0 0 0 / 45%);
+  --shadow-lift: 0 2px 4px oklch(0 0 0 / 35%), 0 18px 36px -12px oklch(0 0 0 / 55%);
+}
+
+@theme inline {
+  --font-sans: 'Plus Jakarta Sans', 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3 {
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+/* Hero: warm gradient with soft moving glows (the "yellow light" of the brand). */
+.hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  color: var(--brand-ink);
+  background:
+    radial-gradient(120% 140% at 0% 0%, oklch(0.93 0.13 96) 0%, transparent 55%),
+    radial-gradient(90% 120% at 100% 100%, oklch(0.88 0.16 70) 0%, transparent 60%),
+    linear-gradient(135deg, oklch(0.9 0.15 92), oklch(0.84 0.172 84));
+}
+.dark .hero {
+  background:
+    radial-gradient(120% 140% at 0% 0%, oklch(0.42 0.1 92) 0%, transparent 55%),
+    radial-gradient(90% 120% at 100% 100%, oklch(0.38 0.1 68) 0%, transparent 60%),
+    linear-gradient(135deg, oklch(0.3 0.06 88), oklch(0.26 0.05 80));
+}
+.hero::before,
+.hero::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  border-radius: 9999px;
+  filter: blur(40px);
+  opacity: 0.55;
+  animation: drift 14s ease-in-out infinite;
+}
+.hero::before {
+  width: 16rem;
+  height: 16rem;
+  right: -4rem;
+  top: -5rem;
+  background: oklch(0.97 0.1 98);
+}
+.hero::after {
+  width: 12rem;
+  height: 12rem;
+  left: 30%;
+  bottom: -6rem;
+  background: oklch(0.8 0.17 62);
+  animation-delay: -6s;
+}
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-3%, 6%, 0) scale(1.1);
+  }
+}
+
+/* The yellow lamp of the logo pulses like a real amber light. */
+.lamp-glow {
+  animation: lamp 2.4s ease-in-out infinite;
+  transform-origin: center;
+}
+@keyframes lamp {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 2px oklch(0.84 0.172 86 / 70%));
+  }
+  50% {
+    filter: drop-shadow(0 0 7px oklch(0.84 0.172 86 / 100%));
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.fade-up {
+  animation: fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
+
+.card-lift {
+  box-shadow: var(--shadow-card);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s;
+}
+.card-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lift);
+}
+
+.scroll-x {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.scroll-x::-webkit-scrollbar {
+  display: none;
+}
+.scroll-x > * {
+  scroll-snap-align: start;
+  flex: 0 0 auto;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--muted) 25%, color-mix(in oklch, var(--muted) 55%, var(--card)) 50%, var(--muted) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.3s linear infinite;
+  border-radius: var(--radius);
+}
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* Bottom tab bar (phones). */
+.bottom-nav {
+  background: color-mix(in oklch, var(--card) 88%, transparent);
+  backdrop-filter: blur(14px) saturate(1.4);
+  border-top: 1px solid var(--border);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero::before,
+  .hero::after,
+  .lamp-glow,
+  .fade-up,
+  .skeleton {
+    animation: none;
+  }
+  .card-lift {
+    transition: none;
+  }
+}

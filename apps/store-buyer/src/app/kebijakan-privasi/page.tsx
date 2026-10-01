@@ -23,7 +23,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 export default function KebijakanPrivasiPage() {
   return (
     <article className="mx-auto max-w-3xl">
-      <h1 className="text-2xl font-bold tracking-tight">Kebijakan Privasi</h1>
+      <h1 className="text-2xl font-extrabold tracking-tight">Kebijakan Privasi</h1>
       <p className="mt-1 text-sm text-muted-foreground">Terakhir diperbarui: {UPDATED}</p>
       <p className="mt-4 text-sm leading-relaxed">
         Ampelkuning (&ldquo;kami&rdquo;) mengelola toko online di ampelkuning.com. Halaman ini menjelaskan data apa yang
