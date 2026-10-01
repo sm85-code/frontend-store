@@ -2,6 +2,7 @@ import type { MetodeProsesPesanan } from '@store/shared'
 import { Card, CardContent, CardHeader, CardTitle, ErrorNotice, PageSpinner } from '@store/ui'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { GantiPasswordCard } from '../components/GantiPasswordCard'
 import { PageHeader } from '../components/PageHeader'
 import { api, errorMessage } from '../lib/api'
 
@@ -23,7 +24,7 @@ export default function PengaturanPage() {
   })
 
   return (
-    <>
+    <div className="flex flex-col gap-6">
       <PageHeader title="Pengaturan" />
       {pengaturan.isPending ? (
         <PageSpinner />
@@ -57,6 +58,7 @@ export default function PengaturanPage() {
           </CardContent>
         </Card>
       )}
-    </>
+      <GantiPasswordCard />
+    </div>
   )
 }
