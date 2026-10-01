@@ -36,17 +36,25 @@ export default function CaraBerbelanjaPage() {
 
       <Bagian judul="Metode pembayaran">
         <p>
-          Pembayaran dilakukan di halaman pembayaran yang aman setelah Anda menekan tombol bayar. Metode yang tersedia
-          antara lain:
+          Pembayaran dilakukan di halaman pembayaran yang aman setelah Anda menekan tombol bayar. Metode yang tersedia:
         </p>
-        <ul className="list-disc pl-5">
-          <li>Transfer bank melalui Virtual Account</li>
-          <li>QRIS</li>
-          <li>Dompet digital</li>
+        <ul className="flex flex-col gap-2.5">
+          <li className="rounded-lg border bg-card p-3.5">
+            <p className="font-bold">Transfer Virtual Account</p>
+            <p className="text-muted-foreground">Bayar lewat ATM, mobile banking, atau internet banking dari bank-bank besar maupun bank daerah.</p>
+          </li>
+          <li className="rounded-lg border bg-card p-3.5">
+            <p className="font-bold">QRIS</p>
+            <p className="text-muted-foreground">Satu kode QR untuk berbagai aplikasi pembayaran, termasuk GoPay, OVO, DANA, LinkAja, ShopeePay, dan mobile banking.</p>
+          </li>
+          <li className="rounded-lg border bg-card p-3.5">
+            <p className="font-bold">Gerai minimarket</p>
+            <p className="text-muted-foreground">Bayar tunai di Alfamart atau Indomaret dengan kode pembayaran dari kami.</p>
+          </li>
         </ul>
         <p>
-          Pilihan yang tampil di halaman pembayaran dapat berbeda sewaktu-waktu sesuai metode yang sedang aktif. Pesanan
-          diproses setelah pembayaran kami terima. Kami tidak pernah meminta Anda mengirim PIN, OTP, atau password lewat chat.
+          Pilihan yang tampil di halaman pembayaran mengikuti metode yang sedang aktif. Pesanan diproses setelah pembayaran
+          kami terima. Kami tidak pernah meminta PIN, OTP, atau password Anda lewat chat.
         </p>
       </Bagian>
 
