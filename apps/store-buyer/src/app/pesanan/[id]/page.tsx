@@ -21,7 +21,8 @@ export default function PesananDetailPage() {
   const bayar = useMutation({
     mutationFn: () => api.bayar(id),
     onSuccess: ({ checkout_url }) => window.location.assign(checkout_url),
-    onError: (e) => (e instanceof ApiError && e.isNotReady ? setBelumAktif(e.message) : toast.error(errorMessage(e))),
+    // Not wired yet (501) or the server/gateway failed (5xx): the order is saved either way, so show a calm notice.
+    onError: (e) => (e instanceof ApiError && (e.isNotReady || e.isServerError) ? setBelumAktif(e.message) : toast.error(errorMessage(e))),
   })
 
   if (me.isPending) return <PageSpinner />
@@ -48,7 +49,7 @@ export default function PesananDetailPage() {
         <Card>
           <CardContent className="flex flex-col gap-3 p-5">
             <p className="text-sm">Selesaikan pembayaran agar pesanan Anda diproses.</p>
-            {belumAktif ? <Notice tone="warning">{belumAktif} Pesanan Anda tersimpan; silakan kembali lagi nanti.</Notice> : null}
+            {belumAktif ? <Notice tone="warning">{belumAktif} Pesanan Anda tersimpan dan tidak hilang.</Notice> : null}
             <Button className="self-start" loading={bayar.isPending} onClick={() => bayar.mutate()}>Bayar sekarang</Button>
           </CardContent>
         </Card>

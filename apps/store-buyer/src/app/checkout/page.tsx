@@ -59,8 +59,10 @@ export default function CheckoutPage() {
     } catch (e) {
       if (pesananId) {
         // The order exists: send the buyer to it instead of leaving them on a stale checkout.
-        const notReady = e instanceof ApiError && e.isNotReady
-        toast[notReady ? 'info' : 'error'](notReady ? 'Pesanan dibuat. Pembayaran online belum aktif.' : errorMessage(e))
+        const paymentUnavailable = e instanceof ApiError && (e.isNotReady || e.isServerError)
+        toast[paymentUnavailable ? 'info' : 'error'](
+          paymentUnavailable ? 'Pesanan dibuat. Pembayaran online belum bisa dilakukan saat ini.' : errorMessage(e),
+        )
         router.replace(`/pesanan/${pesananId}`)
         return
       }
