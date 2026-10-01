@@ -1,6 +1,6 @@
 'use client'
 
-import { ApiError, fmtDateTime, fmtRp } from '@store/shared'
+import { ApiError, fmtDateTime, fmtRp, formatAlamat } from '@store/shared'
 import { Button, Card, CardContent, CardHeader, CardTitle, EmptyState, ErrorNotice, Notice, PageSpinner, buttonVariants } from '@store/ui'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
@@ -78,7 +78,7 @@ export default function PesananDetailPage() {
               <PengirimanBadge status={pengiriman.data.status} />
               {pengiriman.data.tracking_id ? <span className="font-mono">Resi: {pengiriman.data.tracking_id}</span> : null}
             </div>
-            <p><strong>{pengiriman.data.nama_penerima}</strong> ({pengiriman.data.telepon_penerima})<br />{pengiriman.data.alamat_tujuan}</p>
+            <p><strong>{pengiriman.data.nama_penerima}</strong> ({pengiriman.data.telepon_penerima})<br />{formatAlamat({ alamat: pengiriman.data.alamat_tujuan, kelurahan: pengiriman.data.kelurahan_tujuan, kecamatan: pengiriman.data.kecamatan_tujuan, kota: pengiriman.data.kota_tujuan, provinsi: pengiriman.data.provinsi_tujuan, kodePos: pengiriman.data.kode_pos_tujuan })}</p>
           </CardContent>
         </Card>
       ) : null}

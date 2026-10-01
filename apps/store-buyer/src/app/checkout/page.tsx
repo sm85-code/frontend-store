@@ -1,6 +1,6 @@
 'use client'
 
-import { ApiError, fmtRp, type Alamat } from '@store/shared'
+import { ApiError, fmtRp, formatAlamat, type Alamat } from '@store/shared'
 import { Button, EmptyState, ErrorNotice, Notice, PageSpinner, buttonVariants, cn } from '@store/ui'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import Link from 'next/link'
@@ -53,6 +53,9 @@ export default function CheckoutPage() {
         kota_tujuan: tujuan.kota,
         provinsi_tujuan: tujuan.provinsi,
         kode_pos_tujuan: tujuan.kode_pos,
+        kecamatan_tujuan: tujuan.kecamatan ?? '',
+        kelurahan_tujuan: tujuan.kelurahan ?? '',
+        kode_wilayah_tujuan: tujuan.kode_wilayah ?? '',
       })
       const { checkout_url } = await api.bayar(pesanan.id)
       window.location.assign(checkout_url)
@@ -87,7 +90,7 @@ export default function CheckoutPage() {
                 <span className="text-sm">
                   <span className="block font-medium">{a.label}{a.utama ? ' · utama' : ''}</span>
                   {a.nama_penerima} ({a.telepon_penerima})<br />
-                  {a.alamat_lengkap}{a.kota ? `, ${a.kota}` : ''}{a.provinsi ? `, ${a.provinsi}` : ''} {a.kode_pos}
+                  {formatAlamat({ alamat: a.alamat_lengkap, kelurahan: a.kelurahan, kecamatan: a.kecamatan, kota: a.kota, provinsi: a.provinsi, kodePos: a.kode_pos })}
                 </span>
               </label>
             ))}

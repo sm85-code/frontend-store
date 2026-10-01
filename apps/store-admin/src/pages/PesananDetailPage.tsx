@@ -7,6 +7,7 @@ import {
   ApiError,
   fmtDateTime,
   fmtRp,
+  formatAlamat,
   type Pengiriman,
   type Pesanan,
   type StatusPengiriman,
@@ -144,7 +145,14 @@ function PengirimanPanel({ pesanan }: { pesanan: Pesanan }) {
       <p>
         <strong>{p.nama_penerima}</strong> ({p.telepon_penerima})
         <br />
-        {p.alamat_tujuan}
+        {formatAlamat({
+          alamat: p.alamat_tujuan,
+          kelurahan: p.kelurahan_tujuan,
+          kecamatan: p.kecamatan_tujuan,
+          kota: p.kota_tujuan,
+          provinsi: p.provinsi_tujuan,
+          kodePos: p.kode_pos_tujuan,
+        })}
       </p>
       {TRANSISI_PENGIRIMAN[p.status].length > 0 ? (
         <div className="flex flex-wrap items-end gap-2">
