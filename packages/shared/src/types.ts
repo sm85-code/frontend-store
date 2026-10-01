@@ -96,6 +96,13 @@ export interface Pengiriman {
   nama_penerima: string
   telepon_penerima: string
   alamat_tujuan: string
+  /** Structured destination; absent on responses from a backend that predates it. */
+  kelurahan_tujuan?: string
+  kecamatan_tujuan?: string
+  kota_tujuan?: string
+  provinsi_tujuan?: string
+  kode_pos_tujuan?: string
+  kode_wilayah_tujuan?: string
   tracking_id: string | null
   status: StatusPengiriman
 }
@@ -110,6 +117,9 @@ export interface PengirimanInput {
   kota_tujuan?: string
   provinsi_tujuan?: string
   kode_pos_tujuan?: string
+  kecamatan_tujuan?: string
+  kelurahan_tujuan?: string
+  kode_wilayah_tujuan?: string
 }
 
 export interface Alamat {
@@ -121,6 +131,11 @@ export interface Alamat {
   kota: string
   provinsi: string
   kode_pos: string
+  /** Added with the structured address; absent on rows/responses that predate it. */
+  kecamatan?: string
+  kelurahan?: string
+  /** Kemendagri village code, e.g. 32.73.01.1001. */
+  kode_wilayah?: string
   utama: boolean
 }
 

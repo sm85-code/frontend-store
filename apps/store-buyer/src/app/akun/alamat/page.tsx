@@ -1,5 +1,6 @@
 'use client'
 
+import { formatAlamat } from '@store/shared'
 import { Badge, Button, EmptyState, ErrorNotice, PageSpinner, buttonVariants } from '@store/ui'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Trash2 } from 'lucide-react'
@@ -33,7 +34,7 @@ export default function AlamatPage() {
               <div>
                 <p className="font-medium">{a.label} {a.utama ? <Badge tone="info">Utama</Badge> : null}</p>
                 <p>{a.nama_penerima} ({a.telepon_penerima})</p>
-                <p className="text-muted-foreground">{a.alamat_lengkap}{a.kota ? `, ${a.kota}` : ''}{a.provinsi ? `, ${a.provinsi}` : ''} {a.kode_pos}</p>
+                <p className="text-muted-foreground">{formatAlamat({ alamat: a.alamat_lengkap, kelurahan: a.kelurahan, kecamatan: a.kecamatan, kota: a.kota, provinsi: a.provinsi, kodePos: a.kode_pos })}</p>
               </div>
               <div className="flex shrink-0 gap-1">
                 {!a.utama ? <Button variant="outline" size="sm" loading={utama.isPending} onClick={() => utama.mutate(a.id)}>Jadikan utama</Button> : null}
