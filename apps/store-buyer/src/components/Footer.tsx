@@ -15,6 +15,8 @@ export function Footer() {
           <Link href="/" className="hover:text-foreground">Beranda</Link>
           <Link href="/pesanan" className="hover:text-foreground">Pesanan saya</Link>
           <Link href="/chat" className="hover:text-foreground">Chat penjual</Link>
+          <Link href="/cara-berbelanja" className="hover:text-foreground">Cara Berbelanja</Link>
+          <Link href="/kebijakan-retur" className="hover:text-foreground">Kebijakan Retur</Link>
           <Link href="/kebijakan-privasi" className="hover:text-foreground">Kebijakan Privasi</Link>
         </nav>
       </div>
