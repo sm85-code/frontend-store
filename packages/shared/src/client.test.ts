@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { ApiError, createClient, normalizeBaseUrl, parseDetail } from './client'
+import { ApiError, SERVER_BUSY_MESSAGE, createClient, normalizeBaseUrl, parseDetail } from './client'
 import { buyerEndpoints } from './endpoints'
 
 function jsonResponse(body: unknown, status = 200) {
@@ -64,15 +64,37 @@ describe('createClient', () => {
   })
 
   it('flags 401 and tolerates an empty or non-JSON error body', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(new Response('<html>bad gateway</html>', { status: 502 }))
+    const fetchMock = vi.fn().mockResolvedValue(new Response('<html>not found</html>', { status: 404 }))
     const client = createClient({ baseUrl: 'https://api.test', prefix: '/p', fetch: fetchMock })
 
     const error = (await client.get('/x').catch((e: unknown) => e)) as ApiError
-    expect(error.status).toBe(502)
-    expect(error.message).toContain('502')
+    expect(error.status).toBe(404)
+    expect(error.message).toContain('404')
 
     fetchMock.mockResolvedValue(jsonResponse({ detail: 'Sesi tidak valid' }, 401))
     expect(((await client.get('/x').catch((e: unknown) => e)) as ApiError).isUnauthorized).toBe(true)
+  })
+
+  it('shows a plain message (not "HTTP 504") when a gateway answers with an HTML error page', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response('<html>gateway timeout</html>', { status: 504 }))
+    const client = createClient({ baseUrl: 'https://api.test', prefix: '/p', fetch: fetchMock })
+
+    const error = (await client.post('/pesanan/x/bayar').catch((e: unknown) => e)) as ApiError
+
+    expect(error.status).toBe(504)
+    expect(error.message).toBe(SERVER_BUSY_MESSAGE)
+    expect(error.isServerError).toBe(true)
+    expect(error.isNotReady).toBe(false)
+  })
+
+  it('treats 501 and 503 as "not active yet", and keeps our JSON message', async () => {
+    for (const status of [501, 503]) {
+      const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ detail: 'Pembayaran belum aktif' }, status))
+      const client = createClient({ baseUrl: 'https://api.test', prefix: '/p', fetch: fetchMock })
+      const error = (await client.post('/x').catch((e: unknown) => e)) as ApiError
+      expect(error.isNotReady).toBe(true)
+      expect(error.message).toBe('Pembayaran belum aktif')
+    }
   })
 
   it('maps a network failure to ApiError status 0 with a friendly message', async () => {
@@ -83,6 +105,7 @@ describe('createClient', () => {
 
     expect(error).toBeInstanceOf(ApiError)
     expect(error.status).toBe(0)
+    expect(error.isServerError).toBe(true)
   })
 
   it('rethrows when the caller aborted the request', async () => {

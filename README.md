@@ -48,7 +48,7 @@ pnpm lint && pnpm typecheck && pnpm test && pnpm build
 | App | Variable | When | Meaning |
 |---|---|---|---|
 | admin | `VITE_BACKEND_URL` | build | Backend origin without `/api`, e.g. `https://api.ampelkuning.com`. Empty = same origin |
-| buyer | `BACKEND_URL` | run | Backend origin for server-side rendering and the `/api` rewrite |
+| buyer | `BACKEND_URL` | **build and run** | Backend origin. The `/api` rewrite is baked in at build time and server-side rendering reads it at run time, so it must be available to both (on DigitalOcean: scope *Build and Run time*) |
 | buyer | `NEXT_PUBLIC_BACKEND_URL` | build | Backend origin used by the browser. Empty = same origin (`/api` proxied to `BACKEND_URL`) |
 | buyer | `NEXT_PUBLIC_SITE_URL` | build | Public origin (canonical URLs, sitemap, robots) |
 | buyer | `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | build | Google OAuth Web client id. Empty hides "Masuk dengan Google" |
@@ -75,4 +75,4 @@ Add both origins to the backend `CORS_ORIGINS`.
 
 - Money values are decimal strings from the backend; format with `fmtRp`.
 - `TRANSISI_PESANAN` / `TRANSISI_PENGIRIMAN` in `packages/shared/src/status.ts` mirror the backend order flow. Keep them in sync.
-- Payment (iPaymu), shipping (Biteship) and photo storage are being wired in the backend; until then those calls answer HTTP 503 and the UI shows a plain "not active yet" message instead of failing.
+- Payment (iPaymu) and shipping (Biteship) are not wired in the backend yet; until then those calls answer HTTP 501 and the UI shows a plain "not active yet" message. The backend never answers 503 for this: DigitalOcean's edge replaces an application 503 with its own HTML 504 page.

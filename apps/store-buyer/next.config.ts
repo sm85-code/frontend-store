@@ -1,3 +1,4 @@
+import path from 'node:path'
 import type { NextConfig } from 'next'
 
 const backend = (process.env.BACKEND_URL ?? 'http://localhost:8000').replace(/\/+$/, '').replace(/\/api$/i, '')
@@ -12,6 +13,8 @@ const securityHeaders = [
 const config: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // The workspace root (two levels up) holds pnpm-workspace.yaml; without this Next warns on App Platform.
+  outputFileTracingRoot: path.join(import.meta.dirname, '../..'),
   transpilePackages: ['@store/shared', '@store/ui'],
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }]

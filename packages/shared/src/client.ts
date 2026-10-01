@@ -11,11 +11,20 @@ export class ApiError extends Error {
     return this.status === 401
   }
 
-  /** The backend answers 503 for integrations that are not wired yet (payment, shipping, photo storage). */
+  /** The backend answers 501 for integrations that are not wired yet (payment, shipping, photo storage).
+   *  503 is accepted too: on DigitalOcean App Platform an application 503 never reaches us as JSON (it is
+   *  replaced by a 504 page), but other hosts may pass it through. */
   get isNotReady() {
-    return this.status === 503
+    return this.status === 501 || this.status === 503
+  }
+
+  /** The server (or something in front of it) failed: 5xx, or no answer at all (status 0). */
+  get isServerError() {
+    return this.status === 0 || this.status >= 500
   }
 }
+
+export const SERVER_BUSY_MESSAGE = 'Layanan sedang sibuk atau belum bisa dihubungi. Coba lagi sebentar lagi.'
 
 export interface ClientOptions {
   /** Origin of sm85-arch, with or without a trailing "/api" or slash. */
@@ -103,7 +112,9 @@ export function createClient({ baseUrl, prefix, fetch: fetchImpl, timeoutMs = DE
       }
     }
     if (!response.ok) {
-      throw new ApiError(response.status, parseDetail(data, `Permintaan gagal (HTTP ${response.status})`))
+      // A 5xx without our JSON body comes from a proxy or gateway: show a plain message, not "HTTP 504".
+      const fallback = response.status >= 500 ? SERVER_BUSY_MESSAGE : `Permintaan gagal (HTTP ${response.status})`
+      throw new ApiError(response.status, parseDetail(data, fallback))
     }
     return data as T
   }
