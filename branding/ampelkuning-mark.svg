@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Ampelkuning">
+  <rect x="38" y="8" width="52" height="98" rx="20" fill="#2b1d0e"/>
+  <rect x="40.5" y="10.5" width="47" height="93" rx="17.5" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="1.5"/>
+  <rect x="58" y="104" width="12" height="16" rx="3" fill="#2b1d0e"/>
+  <circle cx="64" cy="33" r="11" fill="#e5483b" opacity=".5"/>
+  <circle cx="64" cy="57" r="19" fill="#ffc619" opacity=".28"/>
+  <circle cx="64" cy="57" r="12.5" fill="#ffc619"/>
+  <ellipse cx="60.5" cy="53" rx="4.2" ry="3" fill="#fff" opacity=".55"/>
+  <circle cx="64" cy="81" r="11" fill="#3fb56b" opacity=".5"/>
+</svg>
