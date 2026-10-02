@@ -24,7 +24,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-30 border-b bg-card/90 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:px-6 md:h-16">
+      <div className="mx-auto flex h-[4.25rem] max-w-6xl items-center gap-3 px-4 sm:px-6 md:h-[4.75rem]">
         <Link href="/" aria-label="Ampelkuning, ke beranda" className="mr-auto md:mr-0">
           <Logo />
         </Link>

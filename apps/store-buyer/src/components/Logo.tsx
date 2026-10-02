@@ -14,8 +14,8 @@ export function LogoMark({ className = 'size-9' }: { className?: string }) {
 export function Logo({ className = '' }: { className?: string }) {
   return (
     <span className={`inline-flex items-center ${className}`}>
-      <img src="/brand/logo-light.png" alt="Ampelkuning" width={461} height={240} className="h-11 w-auto dark:hidden md:h-12" />
-      <img src="/brand/logo-dark.png" alt="Ampelkuning" width={426} height={240} className="hidden h-11 w-auto dark:block md:h-12" />
+      <img src="/brand/logo-light.png" alt="Ampelkuning" width={461} height={240} className="h-[3.1rem] w-auto dark:hidden md:h-14" />
+      <img src="/brand/logo-dark.png" alt="Ampelkuning" width={426} height={240} className="hidden h-[3.1rem] w-auto dark:block md:h-14" />
     </span>
   )
 }
