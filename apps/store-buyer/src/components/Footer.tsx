@@ -20,7 +20,7 @@ export function Footer() {
           <Link href="/kebijakan-privasi" className="hover:text-foreground">Kebijakan Privasi</Link>
         </nav>
       </div>
-      <p className="border-t px-4 py-4 text-center text-xs text-muted-foreground">© {new Date().getFullYear()} Ampelkuning. Semua hak dilindungi.</p>
+      <p className="border-t px-4 py-4 text-center text-xs text-muted-foreground">© {new Date().getFullYear()} AmpelKuning. All rights reserved.</p>
     </footer>
   )
 }
