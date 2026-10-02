@@ -1,12 +1,34 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Bagian, Halaman } from '@/components/Halaman'
+import { LogoPembayaran, type MetodeLogo } from '@/components/LogoPembayaran'
 
 export const metadata: Metadata = {
   title: 'Cara Berbelanja',
   description: 'Langkah belanja di Ampelkuning, metode pembayaran, pengiriman, dan lama proses pesanan.',
   alternates: { canonical: '/cara-berbelanja' },
 }
+
+const BANK: MetodeLogo[] = [
+  { slug: 'bca', nama: 'BCA' },
+  { slug: 'mandiri', nama: 'Bank Mandiri' },
+  { slug: 'bri', nama: 'BRI', tinggi: 34 },
+  { slug: 'bni', nama: 'BNI' },
+  { slug: 'cimb-niaga', nama: 'CIMB Niaga', tinggi: 36 },
+  { slug: 'permata', nama: 'PermataBank', tinggi: 22 },
+]
+const DOMPET: MetodeLogo[] = [
+  { slug: 'qris', nama: 'QRIS', tinggi: 30 },
+  { slug: 'gopay', nama: 'GoPay', tinggi: 22 },
+  { slug: 'ovo', nama: 'OVO', tinggi: 22 },
+  { slug: 'dana', nama: 'DANA', tinggi: 24 },
+  { slug: 'linkaja', nama: 'LinkAja', tinggi: 36 },
+  { slug: 'shopee-pay', nama: 'ShopeePay', tinggi: 26 },
+]
+const GERAI: MetodeLogo[] = [
+  { slug: 'alfamart', nama: 'Alfamart' },
+  { slug: 'indomaret', nama: 'Indomaret', tinggi: 28 },
+]
 
 const LANGKAH = [
   ['Cari produk', 'Telusuri beranda, pilih kategori, atau ketik nama produk di kolom pencarian.'],
@@ -41,15 +63,18 @@ export default function CaraBerbelanjaPage() {
         <ul className="flex flex-col gap-2.5">
           <li className="rounded-lg border bg-card p-3.5">
             <p className="font-bold">Transfer Virtual Account</p>
-            <p className="text-muted-foreground">Bayar lewat ATM, mobile banking, atau internet banking dari bank-bank besar maupun bank daerah.</p>
+            <p className="mb-3 text-muted-foreground">Bayar lewat ATM, mobile banking, atau internet banking dari bank-bank besar maupun bank daerah.</p>
+            <LogoPembayaran metode={BANK} />
           </li>
           <li className="rounded-lg border bg-card p-3.5">
             <p className="font-bold">QRIS</p>
-            <p className="text-muted-foreground">Satu kode QR untuk berbagai aplikasi pembayaran, termasuk GoPay, OVO, DANA, LinkAja, ShopeePay, dan mobile banking.</p>
+            <p className="mb-3 text-muted-foreground">Satu kode QR untuk berbagai aplikasi pembayaran, termasuk GoPay, OVO, DANA, LinkAja, ShopeePay, dan mobile banking.</p>
+            <LogoPembayaran metode={DOMPET} />
           </li>
           <li className="rounded-lg border bg-card p-3.5">
             <p className="font-bold">Gerai minimarket</p>
-            <p className="text-muted-foreground">Bayar tunai di Alfamart atau Indomaret dengan kode pembayaran dari kami.</p>
+            <p className="mb-3 text-muted-foreground">Bayar tunai di Alfamart atau Indomaret dengan kode pembayaran dari kami.</p>
+            <LogoPembayaran metode={GERAI} />
           </li>
         </ul>
         <p>
