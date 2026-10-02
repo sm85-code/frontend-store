@@ -12,12 +12,12 @@ export function LogoPembayaran({ metode }: { metode: MetodeLogo[] }) {
       {metode.map((m) => (
         <li key={m.slug} className="grid h-14 min-w-24 place-items-center rounded-lg border bg-white px-4">
           <img
-            src={`/pembayaran/${m.slug}.svg`}
+            src={`/pembayaran/${m.slug}.png`}
             alt={m.nama}
             title={m.nama}
             loading="lazy"
             style={{ height: m.tinggi ?? 26 }}
-            className="w-auto max-w-28 object-contain"
+            className="w-auto max-w-32 object-contain"
           />
         </li>
       ))}

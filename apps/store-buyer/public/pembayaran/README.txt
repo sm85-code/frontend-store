@@ -1,2 +1,4 @@
-Logo metode pembayaran, disalin dari https://github.com/hafidznoor/idn-finlogos (lisensi aset: CC BY-NC 4.0, lihat LICENSE-ASSETS.txt).
-Merek dagang milik pemegang masing-masing. Pemakaian komersial memerlukan izin pemegang merek; periksa ketentuan penyedia pembayaran sebelum dipublikasikan.
+Logo kanal pembayaran. Sumber: dokumentasi API iPaymu (daftar payment channel, field "Logo"):
+https://documenter.getpostman.com/view/40296808/2sB3WtseBT (aset di storage.googleapis.com/ipaymu-docs/assets/).
+Logo ini disediakan penyedia pembayaran untuk ditampilkan oleh merchant di halaman pembayaran. Merek dagang milik pemegang masing-masing.
+Daftar kanal yang aktif sebenarnya mengikuti akun merchant; setelah akun aktif, daftar bisa diambil langsung dari endpoint payment-channels.

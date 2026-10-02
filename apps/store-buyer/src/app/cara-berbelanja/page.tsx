@@ -11,22 +11,18 @@ export const metadata: Metadata = {
 
 const BANK: MetodeLogo[] = [
   { slug: 'bca', nama: 'BCA' },
-  { slug: 'mandiri', nama: 'Bank Mandiri' },
-  { slug: 'bri', nama: 'BRI', tinggi: 34 },
-  { slug: 'bni', nama: 'BNI' },
-  { slug: 'cimb-niaga', nama: 'CIMB Niaga', tinggi: 36 },
-  { slug: 'permata', nama: 'PermataBank', tinggi: 22 },
+  { slug: 'mandiri', nama: 'Bank Mandiri', tinggi: 28 },
+  { slug: 'bri', nama: 'BRI', tinggi: 28 },
+  { slug: 'bni', nama: 'BNI', tinggi: 28 },
+  { slug: 'cimb-niaga', nama: 'CIMB Niaga', tinggi: 24 },
+  { slug: 'permata', nama: 'PermataBank', tinggi: 24 },
+  { slug: 'bsi', nama: 'Bank Syariah Indonesia', tinggi: 28 },
+  { slug: 'danamon', nama: 'Danamon', tinggi: 34 },
+  { slug: 'muamalat', nama: 'Bank Muamalat', tinggi: 32 },
 ]
-const DOMPET: MetodeLogo[] = [
-  { slug: 'qris', nama: 'QRIS', tinggi: 30 },
-  { slug: 'gopay', nama: 'GoPay', tinggi: 22 },
-  { slug: 'ovo', nama: 'OVO', tinggi: 22 },
-  { slug: 'dana', nama: 'DANA', tinggi: 24 },
-  { slug: 'linkaja', nama: 'LinkAja', tinggi: 36 },
-  { slug: 'shopee-pay', nama: 'ShopeePay', tinggi: 26 },
-]
+const QRIS: MetodeLogo[] = [{ slug: 'qris', nama: 'QRIS', tinggi: 40 }]
 const GERAI: MetodeLogo[] = [
-  { slug: 'alfamart', nama: 'Alfamart' },
+  { slug: 'alfamart', nama: 'Alfamart', tinggi: 28 },
   { slug: 'indomaret', nama: 'Indomaret', tinggi: 28 },
 ]
 
@@ -69,7 +65,7 @@ export default function CaraBerbelanjaPage() {
           <li className="rounded-lg border bg-card p-3.5">
             <p className="font-bold">QRIS</p>
             <p className="mb-3 text-muted-foreground">Satu kode QR untuk berbagai aplikasi pembayaran, termasuk GoPay, OVO, DANA, LinkAja, ShopeePay, dan mobile banking.</p>
-            <LogoPembayaran metode={DOMPET} />
+            <LogoPembayaran metode={QRIS} />
           </li>
           <li className="rounded-lg border bg-card p-3.5">
             <p className="font-bold">Gerai minimarket</p>
