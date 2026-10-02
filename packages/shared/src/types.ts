@@ -214,6 +214,9 @@ export interface PesanChat {
   pengirim_admin: boolean
   isi: string
   created_at: string
+  /** Optional on a backend that predates attachments. */
+  lampiran?: { jenis: 'gambar' | 'video'; url: string | null } | null
+  produk?: { id: string; slug: string | null; nama: string; harga: string; foto_url: string | null } | null
 }
 
 export interface Percakapan {

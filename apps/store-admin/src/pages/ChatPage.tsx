@@ -1,9 +1,8 @@
-import { fmtDateTime } from '@store/shared'
+import { fmtDateTime, type Percakapan } from '@store/shared'
+import { ChatBubble, ChatComposer } from '@store/ui'
 import Spinner from '@/components/Spinner'
 import { ErrorLine, PageTitle } from '@/components/erp'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
@@ -14,16 +13,21 @@ const POLL_MS = 10_000
 
 function Thread({ id }: { id: string }) {
   const qc = useQueryClient()
-  const [isi, setIsi] = useState('')
   const bottom = useRef<HTMLDivElement>(null)
   const chat = useQuery({ queryKey: ['chat', id], queryFn: () => api.getChat(id), refetchInterval: POLL_MS })
-  const kirim = useMutation({
-    mutationFn: (text: string) => api.kirimChat(id, text),
-    onSuccess: (data) => {
-      setIsi('')
-      qc.setQueryData(['chat', id], data)
-      void qc.invalidateQueries({ queryKey: ['chat', 'daftar'] })
-    },
+  const produk = useQuery({ queryKey: ['produk'], queryFn: api.listProduk, staleTime: 60_000 })
+  const simpan = (data: Percakapan) => {
+    qc.setQueryData(['chat', id], data)
+    void qc.invalidateQueries({ queryKey: ['chat', 'daftar'] })
+  }
+  const kirimTeks = useMutation({
+    mutationFn: ({ isi, produkId }: { isi: string; produkId: string | null }) => api.kirimChat(id, isi, produkId),
+    onSuccess: simpan,
+    onError: (e) => toast.error(errorMessage(e)),
+  })
+  const kirimFile = useMutation({
+    mutationFn: ({ file, isi }: { file: File; isi: string }) => api.kirimLampiranChat(id, file, isi),
+    onSuccess: simpan,
     onError: (e) => toast.error(errorMessage(e)),
   })
 
@@ -42,32 +46,17 @@ function Thread({ id }: { id: string }) {
       </CardHeader>
       <ul className="flex flex-1 flex-col gap-2 overflow-y-auto p-4" aria-live="polite">
         {chat.data.pesan?.map((m) => (
-          <li
-            key={m.id}
-            className={cn(
-              'max-w-[80%] rounded-lg px-3 py-2 text-sm',
-              m.pengirim_admin ? 'self-end bg-primary/25' : 'self-start bg-muted',
-            )}
-          >
-            <p className="whitespace-pre-wrap break-words">{m.isi}</p>
-            <p className="mt-1 text-[0.7rem] text-muted-foreground">{fmtDateTime(m.created_at)}</p>
-          </li>
+          <ChatBubble key={m.id} pesan={m} milik={m.pengirim_admin} waktu={fmtDateTime(m.created_at)} />
         ))}
         <div ref={bottom} />
       </ul>
-      <form
-        className="flex gap-2 border-t p-3"
-        onSubmit={(e) => {
-          e.preventDefault()
-          const text = isi.trim()
-          if (text) kirim.mutate(text)
-        }}
-      >
-        <Input aria-label="Pesan" value={isi} maxLength={2000} onChange={(e) => setIsi(e.target.value)} placeholder="Tulis balasan…" />
-        <Button type="submit" disabled={kirim.isPending || !isi.trim()}>
-          {kirim.isPending ? 'Mengirim…' : 'Kirim'}
-        </Button>
-      </form>
+      <ChatComposer
+        produk={(produk.data ?? []).filter((p) => p.aktif)}
+        placeholder="Tulis balasan…"
+        onKirimTeks={(isi, produkId) => kirimTeks.mutateAsync({ isi, produkId })}
+        onKirimFile={(file, isi) => kirimFile.mutateAsync({ file, isi })}
+        onTolak={(m) => toast.error(m)}
+      />
     </Card>
   )
 }
