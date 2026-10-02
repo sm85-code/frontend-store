@@ -12,7 +12,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: { default: 'Ampelkuning — Belanja Online', template: '%s · Ampelkuning' },
   description: 'Belanja produk pilihan dengan harga terbaik di Ampelkuning.',
-  openGraph: { type: 'website', siteName: 'Ampelkuning', locale: 'id_ID' },
+  openGraph: { type: 'website', siteName: 'Ampelkuning', locale: 'id_ID', images: [{ url: '/og.png', width: 1200, height: 630, alt: 'Ampelkuning' }] },
+  twitter: { card: 'summary_large_image', images: ['/og.png'] },
 }
 
 export const viewport: Viewport = {

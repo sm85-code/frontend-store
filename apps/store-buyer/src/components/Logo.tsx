@@ -1,22 +1,21 @@
-/** Ampelkuning mark: a traffic light with the amber lamp lit ("ampel kuning"). */
+/** Ampelkuning artwork (public/brand): one PNG per colour scheme, swapped with the `dark` class. */
+
+/** Bamboo mark only (no lettering), for large decorative use. */
 export function LogoMark({ className = 'size-9' }: { className?: string }) {
   return (
-    <svg viewBox="0 0 40 40" className={className} aria-hidden="true">
-      <rect x="9" y="2" width="22" height="36" rx="8" fill="oklch(0.27 0.03 70)" />
-      <circle cx="20" cy="11" r="4.2" fill="oklch(0.58 0.22 27)" opacity="0.35" />
-      <circle cx="20" cy="20" r="4.6" fill="oklch(0.84 0.172 86)" className="lamp-glow" />
-      <circle cx="20" cy="29" r="4.2" fill="oklch(0.68 0.18 150)" opacity="0.35" />
-    </svg>
+    <>
+      <img src="/brand/mark-light.png" alt="" width={327} height={360} className={`${className} object-contain dark:hidden`} aria-hidden="true" />
+      <img src="/brand/mark-dark.png" alt="" width={327} height={360} className={`${className} hidden object-contain dark:block`} aria-hidden="true" />
+    </>
   )
 }
 
+/** Full logo with lettering. Height comes from `className` (width follows the artwork). */
 export function Logo({ className = '' }: { className?: string }) {
   return (
-    <span className={`inline-flex items-center gap-2 ${className}`}>
-      <LogoMark />
-      <span className="text-xl font-extrabold tracking-tight">
-        Ampel<span className="text-[oklch(0.68_0.17_72)] dark:text-primary">kuning</span>
-      </span>
+    <span className={`inline-flex items-center ${className}`}>
+      <img src="/brand/logo-light.png" alt="Ampelkuning" width={461} height={240} className="h-[3.1rem] w-auto dark:hidden md:h-14" />
+      <img src="/brand/logo-dark.png" alt="Ampelkuning" width={426} height={240} className="hidden h-[3.1rem] w-auto dark:block md:h-14" />
     </span>
   )
 }

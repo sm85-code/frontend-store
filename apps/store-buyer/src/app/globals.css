@@ -108,12 +108,15 @@ h3 {
   background: var(--card);
 }
 .hero-panel {
-  color: oklch(0.24 0.05 62);
-  background: linear-gradient(145deg, oklch(0.88 0.15 90), oklch(0.78 0.17 72) 60%, oklch(0.72 0.18 55));
+  color: oklch(0.96 0.03 92);
+  background:
+    radial-gradient(70% 70% at 50% 45%, oklch(0.42 0.09 80 / 55%), transparent 70%),
+    linear-gradient(160deg, oklch(0.27 0.035 65), oklch(0.2 0.03 62));
 }
 .dark .hero-panel {
-  color: oklch(0.96 0.03 92);
-  background: linear-gradient(145deg, oklch(0.42 0.09 88), oklch(0.34 0.08 70));
+  background:
+    radial-gradient(70% 70% at 50% 45%, oklch(0.4 0.08 80 / 45%), transparent 70%),
+    linear-gradient(160deg, oklch(0.24 0.03 65), oklch(0.18 0.025 62));
 }
 
 /* The yellow lamp of the logo pulses like a real amber light. */

@@ -28,7 +28,7 @@ export function Hero() {
           </a>
         </div>
         <div className="hero-panel hidden place-items-center p-8 md:grid" aria-hidden>
-          <LogoMark className="size-44 drop-shadow-lg" />
+          <LogoMark className="h-56 w-auto" />
         </div>
       </div>
       <ul className="grid divide-y border-t sm:grid-cols-3 sm:divide-x sm:divide-y-0">
