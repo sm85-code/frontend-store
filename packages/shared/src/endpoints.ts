@@ -68,7 +68,14 @@ export function adminEndpoints(c: Client) {
 
     listChat: () => c.get<Percakapan[]>('/chat'),
     getChat: (id: string) => c.get<Percakapan>(`/chat/${id}`),
-    kirimChat: (id: string, isi: string) => c.post<Percakapan>(`/chat/${id}`, { isi }),
+    kirimChat: (id: string, isi: string, produk_id?: string | null) =>
+      c.post<Percakapan>(`/chat/${id}`, { isi, produk_id: produk_id ?? null }),
+    kirimLampiranChat: (id: string, file: File, isi = '') => {
+      const form = new FormData()
+      form.append('file', file)
+      form.append('isi', isi)
+      return c.post<Percakapan>(`/chat/${id}/lampiran`, form)
+    },
 
     getPengaturan: () => c.get<Pengaturan>('/pengaturan'),
     patchPengaturan: (metode_proses_pesanan: Pengaturan['metode_proses_pesanan']) =>
@@ -113,7 +120,13 @@ export function buyerEndpoints(c: Client) {
     bayar: (id: string) => c.post<{ checkout_url: string }>(`/pesanan/${id}/bayar`),
 
     getChat: () => c.get<Percakapan>('/chat'),
-    kirimChat: (isi: string) => c.post<Percakapan>('/chat', { isi }),
+    kirimChat: (isi: string, produk_id?: string | null) => c.post<Percakapan>('/chat', { isi, produk_id: produk_id ?? null }),
+    kirimLampiranChat: (file: File, isi = '') => {
+      const form = new FormData()
+      form.append('file', file)
+      form.append('isi', isi)
+      return c.post<Percakapan>('/chat/lampiran', form)
+    },
   }
 }
 
