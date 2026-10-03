@@ -108,6 +108,8 @@ function ProdukForm({ produk: awal, onDone }: { produk: Produk | null; onDone: (
 
   return (
     <form className="flex flex-col gap-4" noValidate onSubmit={handleSubmit((v) => simpan.mutate(v))}>
+      <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
+      <div className="flex min-w-0 flex-col gap-4">
       <Field label="Nama produk" htmlFor="p-nama" error={errors.nama?.message}>
         <Input id="p-nama" aria-invalid={!!errors.nama} {...register('nama')} />
       </Field>
@@ -157,6 +159,8 @@ function ProdukForm({ produk: awal, onDone }: { produk: Produk | null; onDone: (
         ) : null}
       </div>
 
+      </div>
+      <div className="flex min-w-0 flex-col gap-4">
       <div className="flex flex-col gap-3 rounded-lg border p-3">
         <label className="flex items-center gap-2 text-sm font-medium">
           <input type="checkbox" {...register('preorder')} /> Pre-order
@@ -187,8 +191,10 @@ function ProdukForm({ produk: awal, onDone }: { produk: Produk | null; onDone: (
       ) : (
         <p className="text-sm text-muted-foreground">Foto dan varian bisa ditambahkan setelah produk disimpan.</p>
       )}
+      </div>
+      </div>
 
-      <div className="flex justify-end gap-2">
+      <div className="sticky bottom-0 -mx-6 -mb-6 flex justify-end gap-2 border-t bg-background px-6 py-3">
         <Button type="button" variant="outline" onClick={onDone}>
           Batal
         </Button>
@@ -341,7 +347,7 @@ export default function ProdukPage() {
       </Card>
 
       <Dialog open={editing !== null} onOpenChange={(open) => !open && setEditing(null)}>
-        <DialogContent>
+        <DialogContent className="max-h-[92vh] max-w-5xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editing === 'baru' ? 'Tambah Produk' : 'Edit Produk'}</DialogTitle>
           </DialogHeader>
