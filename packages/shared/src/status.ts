@@ -30,7 +30,7 @@ export const LABEL_PESANAN: Record<StatusPesanan, string> = {
 }
 
 export const LABEL_PENGIRIMAN: Record<StatusPengiriman, string> = {
-  menunggu_pickup: 'Menunggu pickup',
+  menunggu_pickup: 'Menunggu penjemputan',
   dikirim: 'Dalam pengiriman',
   diterima: 'Diterima',
   bermasalah: 'Bermasalah',
@@ -71,3 +71,9 @@ export const KURIR_PILIHAN: { kode: string; nama: string }[] = [
   { kode: 'dash_express', nama: 'Dash Express' },
   { kode: 'jdl', nama: 'JD Logistics' },
 ]
+
+/** Readable courier name for a Biteship code ("jne" -> "JNE"); unknown codes are upper-cased. */
+export function namaKurir(kode: string | null | undefined): string {
+  const k = (kode ?? '').trim().toLowerCase()
+  return KURIR_PILIHAN.find((x) => x.kode === k)?.nama ?? (k ? k.toUpperCase() : '')
+}
