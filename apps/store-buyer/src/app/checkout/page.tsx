@@ -1,6 +1,6 @@
 'use client'
 
-import { ApiError, fmtRp, formatAlamat, type Alamat, type OpsiOngkir } from '@store/shared'
+import { ApiError, COD_BATAS, fmtRp, formatAlamat, type Alamat, type OpsiOngkir } from '@store/shared'
 import { Button, EmptyState, ErrorNotice, Notice, PageSpinner, buttonVariants, cn } from '@store/ui'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import Link from 'next/link'
@@ -23,13 +23,19 @@ export default function CheckoutPage() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [opsiDipilih, setOpsiDipilih] = useState<string | null>(null)
+  const [metode, setMetode] = useState<'online' | 'cod'>('online')
 
   const daftar = alamat.data ?? []
   const aktif: Alamat | undefined = daftar.find((a) => a.id === pilih) ?? daftar.find((a) => a.utama) ?? daftar[0]
   const kodePos = aktif?.kode_pos ?? ''
+  // COD: every item in the cart must be a COD product and the order must not exceed the limit.
+  const barang = cart.data ?? []
+  const subtotalBarang = cartTotal(barang)
+  const codBisa = barang.length > 0 && barang.every((i) => i.cod) && Number(subtotalBarang) <= COD_BATAS
+  const cod = metode === 'cod' && codBisa
   const ongkir = useQuery({
-    queryKey: ['ongkir', kodePos, (cart.data ?? []).map((i) => `${i.produk_id}:${i.varian_id ?? ''}:${i.qty}`).join(',')],
-    queryFn: () => api.cekOngkir(kodePos),
+    queryKey: ['ongkir', kodePos, cod, barang.map((i) => `${i.produk_id}:${i.varian_id ?? ''}:${i.qty}`).join(',')],
+    queryFn: () => api.cekOngkir(kodePos, cod),
     enabled: !!me.data && /^\d{5}$/.test(kodePos) && (cart.data ?? []).length > 0,
     retry: false,
     staleTime: 60_000,
@@ -40,6 +46,7 @@ export default function CheckoutPage() {
   const terpilih = opsi.find((o) => `${o.kurir}:${o.layanan}` === opsiDipilih)
   const butuhKurir = !ongkirBelumAktif
   const biayaKirim = terpilih ? Number(terpilih.ongkir) : 0
+  const biayaCod = cod && terpilih ? Number(terpilih.biaya_cod ?? 0) : 0
 
   if (me.isPending) return <PageSpinner />
   if (!me.data) {
@@ -56,7 +63,7 @@ export default function CheckoutPage() {
     setError(null)
     let pesananId: string | null = null
     try {
-      const pesanan = await api.checkout()
+      const pesanan = await api.checkout(cod)
       pesananId = pesanan.id
       void qc.invalidateQueries({ queryKey: CART_KEY })
       await api.isiPengiriman(pesanan.id, {
@@ -73,6 +80,11 @@ export default function CheckoutPage() {
         kelurahan_tujuan: tujuan.kelurahan ?? '',
         kode_wilayah_tujuan: tujuan.kode_wilayah ?? '',
       })
+      if (cod) {
+        toast.success('Pesanan dibuat. Menunggu konfirmasi penjual.')
+        router.replace(`/pesanan/${pesanan.id}`)
+        return
+      }
       const { checkout_url } = await api.bayar(pesanan.id)
       window.location.assign(checkout_url)
     } catch (e) {
@@ -125,6 +137,21 @@ export default function CheckoutPage() {
           <Button variant="outline" className="self-start" onClick={() => setTambah(true)}>Tambah alamat baru</Button>
         )}
 
+        {codBisa && !ongkirBelumAktif ? (
+          <fieldset className="flex flex-col gap-2">
+            <legend className="mb-1 font-semibold">Metode pembayaran</legend>
+            {([['online', 'Bayar online', 'QRIS, transfer bank / virtual account, dan lainnya.'], ['cod', 'Bayar di tempat (COD)', 'Bayar tunai ke kurir saat paket tiba. Ada biaya COD dari kurir.']] as const).map(([nilai, judul, ket]) => (
+              <label key={nilai} className={cn('flex cursor-pointer items-start gap-3 rounded-lg border bg-card p-3.5', metode === nilai && 'border-primary bg-primary/10')}>
+                <input type="radio" name="metode" className="mt-1" checked={metode === nilai} onChange={() => { setMetode(nilai); setOpsiDipilih(null) }} />
+                <span className="text-sm">
+                  <span className="block font-medium">{judul}</span>
+                  <span className="text-muted-foreground">{ket}</span>
+                </span>
+              </label>
+            ))}
+          </fieldset>
+        ) : null}
+
         {aktif ? (
           <div className="flex flex-col gap-2">
             <h2 className="font-semibold">Pengiriman</h2>
@@ -148,7 +175,10 @@ export default function CheckoutPage() {
                         <KurirLogo nama={o.kurir_nama} />
                         <span className="mt-1 block text-muted-foreground">{o.layanan_nama}{o.estimasi ? ` · ${o.estimasi}` : ''}</span>
                       </span>
-                      <span className="text-sm font-semibold">{fmtRp(o.ongkir)}</span>
+                      <span className="text-right text-sm font-semibold">
+                        {fmtRp(o.ongkir)}
+                        {cod && Number(o.biaya_cod) > 0 ? <span className="block text-xs font-normal text-muted-foreground">+ biaya COD {fmtRp(o.biaya_cod)}</span> : null}
+                      </span>
                     </label>
                   )
                 })}
@@ -172,12 +202,18 @@ export default function CheckoutPage() {
           <dt>Ongkir</dt>
           <dd>{terpilih ? fmtRp(terpilih.ongkir) : '–'}</dd>
         </dl>
+        {cod ? (
+          <dl className="mt-1 flex justify-between text-sm">
+            <dt>Biaya COD</dt>
+            <dd>{terpilih ? fmtRp(biayaCod) : '–'}</dd>
+          </dl>
+        ) : null}
         <dl className="mt-1 flex justify-between font-semibold">
-          <dt>Total</dt>
-          <dd>{fmtRp(Number(cartTotal(items)) + biayaKirim)}</dd>
+          <dt>Total{cod ? ' (dibayar ke kurir)' : ''}</dt>
+          <dd>{fmtRp(Number(cartTotal(items)) + biayaKirim + biayaCod)}</dd>
         </dl>
-        <Button className="mt-4 w-full" size="lg" loading={busy} disabled={!aktif || (butuhKurir && !terpilih)} onClick={() => aktif && void pesan(aktif)}>
-          Buat pesanan &amp; bayar
+        <Button className="mt-4 w-full" size="lg" loading={busy} disabled={!aktif || (butuhKurir && !terpilih) || (cod && ongkirBelumAktif)} onClick={() => aktif && void pesan(aktif)}>
+          {cod ? 'Buat pesanan (COD)' : 'Buat pesanan & bayar'}
         </Button>
         {!aktif ? <div className="mt-3"><Notice>Tambahkan alamat pengiriman terlebih dulu.</Notice></div> : null}
         {aktif && butuhKurir && !terpilih && !ongkir.isPending && !ongkir.error ? <p className="mt-2 text-xs text-muted-foreground">Pilih layanan pengiriman terlebih dulu.</p> : null}

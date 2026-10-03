@@ -2,6 +2,7 @@ import type { StatusPengiriman, StatusPesanan } from './types'
 
 /** Mirrors `_TRANSISI_STATUS` in the backend (store/application/services.py). Keep in sync. */
 export const TRANSISI_PESANAN: Record<StatusPesanan, StatusPesanan[]> = {
+  menunggu_konfirmasi: ['diproses', 'dibatalkan'],
   menunggu_pembayaran: ['dibayar', 'dibatalkan'],
   dibayar: ['diproses', 'dibatalkan'],
   diproses: ['dikirim'],
@@ -19,6 +20,7 @@ export const TRANSISI_PENGIRIMAN: Record<StatusPengiriman, StatusPengiriman[]> =
 }
 
 export const LABEL_PESANAN: Record<StatusPesanan, string> = {
+  menunggu_konfirmasi: 'Menunggu konfirmasi',
   menunggu_pembayaran: 'Menunggu pembayaran',
   dibayar: 'Dibayar',
   diproses: 'Diproses',
@@ -39,6 +41,7 @@ export const STATUS_PESANAN_URUT = Object.keys(TRANSISI_PESANAN) as StatusPesana
 export type Tone = 'neutral' | 'info' | 'success' | 'warning' | 'danger'
 
 export const TONE_PESANAN: Record<StatusPesanan, Tone> = {
+  menunggu_konfirmasi: 'warning',
   menunggu_pembayaran: 'warning',
   dibayar: 'info',
   diproses: 'info',
@@ -46,3 +49,6 @@ export const TONE_PESANAN: Record<StatusPesanan, Tone> = {
   selesai: 'success',
   dibatalkan: 'danger',
 }
+
+/** Largest order value (rupiah) that can be paid on delivery. Mirrors `COD_BATAS_TOTAL` in the backend. */
+export const COD_BATAS = 500_000

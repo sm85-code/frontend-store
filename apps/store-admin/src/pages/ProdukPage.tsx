@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { fmtRp, type Produk } from '@store/shared'
+import { COD_BATAS, fmtRp, type Produk } from '@store/shared'
 import Spinner from '@/components/Spinner'
 import TableShell from '@/components/TableShell'
 import { useConfirm } from '@/components/ConfirmProvider'
@@ -34,6 +34,7 @@ const schema = z.object({
   lebar_cm: z.string().refine((v) => v !== '' && Number(v) >= 0, 'Angka tidak valid'),
   tinggi_cm: z.string().refine((v) => v !== '' && Number(v) >= 0, 'Angka tidak valid'),
   preorder: z.boolean(),
+  cod: z.boolean(),
   hari_proses: z.string(),
 }).refine((v) => !v.preorder || (/^\d+$/.test(v.hari_proses) && Number(v.hari_proses) >= 3 && Number(v.hari_proses) <= 14), {
   path: ['hari_proses'],
@@ -43,7 +44,7 @@ type Values = z.infer<typeof schema>
 
 const empty: Values = {
   nama: '', deskripsi: '', kategori_id: '', harga: '', stok: '0',
-  berat_gram: '0', panjang_cm: '0', lebar_cm: '0', tinggi_cm: '0', preorder: false, hari_proses: '2',
+  berat_gram: '0', panjang_cm: '0', lebar_cm: '0', tinggi_cm: '0', preorder: false, cod: false, hari_proses: '2',
 }
 const num = (v: string | number | undefined) => String(Number(v ?? 0))
 
@@ -59,6 +60,7 @@ function toValues(p: Produk): Values {
     lebar_cm: num(p.lebar_cm),
     tinggi_cm: num(p.tinggi_cm),
     preorder: p.preorder ?? false,
+    cod: p.cod ?? false,
     hari_proses: String(p.hari_proses ?? 2),
   }
 }
@@ -91,6 +93,7 @@ function ProdukForm({ produk: awal, onDone }: { produk: Produk | null; onDone: (
         lebar_cm: v.lebar_cm,
         tinggi_cm: v.tinggi_cm,
         preorder: v.preorder,
+        cod: v.cod,
         hari_proses: v.preorder ? Number(v.hari_proses) : 2,
       }
       return awal ? api.patchProduk(awal.id, input) : api.createProduk(input)
@@ -165,6 +168,15 @@ function ProdukForm({ produk: awal, onDone }: { produk: Produk | null; onDone: (
         ) : (
           <p className="text-xs text-muted-foreground">Bukan pre-order: barang ready, diproses dalam 2 hari.</p>
         )}
+      </div>
+
+      <div className="flex flex-col gap-1 rounded-lg border p-3">
+        <label className="flex items-center gap-2 text-sm font-medium">
+          <input type="checkbox" {...register('cod')} /> Bisa COD (bayar di tempat)
+        </label>
+        <p className="text-xs text-muted-foreground">
+          Pembeli bisa memilih COD bila semua barang di keranjangnya COD dan nilai pesanan paling banyak {fmtRp(COD_BATAS)}.
+        </p>
       </div>
 
       {produk ? (

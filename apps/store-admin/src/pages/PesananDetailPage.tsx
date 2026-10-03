@@ -235,7 +235,8 @@ function PengirimanPanel({ pesanan }: { pesanan: Pesanan }) {
       <div className="flex flex-wrap items-center gap-2">
         <StatusPengirimanBadge status={p.status} />
         <span>
-          {p.kurir} · {p.layanan} · ongkir {fmtRp(p.ongkir)}
+          {p.kurir} · {p.layanan_nama || p.layanan} · ongkir {fmtRp(p.ongkir)}
+          {Number(p.biaya_cod) > 0 ? ` · biaya COD ${fmtRp(p.biaya_cod)}` : ''}
         </span>
         {p.tracking_id ? <span className="font-mono">Resi: {p.tracking_id}</span> : null}
       </div>
@@ -369,6 +370,12 @@ export default function PesananDetailPage() {
           <CardTitle>Status Pesanan</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
+          {p.metode_pembayaran === 'cod' ? (
+            <p className="w-full text-sm text-muted-foreground">
+              <strong>COD (bayar di tempat).</strong> Kurir menagih <strong>{fmtRp(p.total)}</strong> ke pembeli.
+              {p.status === 'menunggu_konfirmasi' ? ' Konfirmasi pesanan ini sebelum memesan kurir, atau batalkan bila mencurigakan.' : ''}
+            </p>
+          ) : null}
           {next.length === 0 ? (
             <p className="text-sm text-muted-foreground">Status akhir, tidak bisa diubah lagi.</p>
           ) : (
@@ -379,7 +386,7 @@ export default function PesananDetailPage() {
                 </Button>
               ) : (
                 <Button key={s} disabled={ubah.isPending} onClick={() => ubah.mutate(s)}>
-                  Tandai: {LABEL_PESANAN[s]}
+                  {p.status === 'menunggu_konfirmasi' && s === 'diproses' ? 'Konfirmasi pesanan' : `Tandai: ${LABEL_PESANAN[s]}`}
                 </Button>
               ),
             )

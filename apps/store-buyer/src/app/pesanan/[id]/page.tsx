@@ -47,6 +47,12 @@ export default function PesananDetailPage() {
         <StatusBadge status={p.status} />
       </div>
 
+      {p.status === 'menunggu_konfirmasi' ? (
+        <Notice>
+          Pesanan COD Anda menunggu konfirmasi penjual. Siapkan uang pas <strong>{fmtRp(p.total)}</strong> untuk dibayar ke kurir saat paket tiba.
+        </Notice>
+      ) : null}
+
       {p.status === 'menunggu_pembayaran' ? (
         <Card>
           <CardContent className="flex flex-col gap-3 p-5">
