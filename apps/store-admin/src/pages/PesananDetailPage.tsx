@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   LABEL_PESANAN,
+  namaKurir,
   TRANSISI_PENGIRIMAN,
   TRANSISI_PESANAN,
   LABEL_PENGIRIMAN,
@@ -235,7 +236,7 @@ function PengirimanPanel({ pesanan }: { pesanan: Pesanan }) {
       <div className="flex flex-wrap items-center gap-2">
         <StatusPengirimanBadge status={p.status} />
         <span>
-          {p.kurir} · {p.layanan_nama || p.layanan} · ongkir {fmtRp(p.ongkir)}
+          {namaKurir(p.kurir)} · {p.layanan_nama || p.layanan} · ongkir {fmtRp(p.ongkir)}
           {Number(p.biaya_cod) > 0 ? ` · biaya COD ${fmtRp(p.biaya_cod)}` : ''}
         </span>
         {p.tracking_id ? <span className="font-mono">Resi: {p.tracking_id}</span> : null}
