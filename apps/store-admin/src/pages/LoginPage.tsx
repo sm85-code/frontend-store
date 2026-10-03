@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Logo } from '../components/Logo'
 import { ErrorLine, Field } from '@/components/erp'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -34,11 +35,8 @@ export default function LoginPage() {
     <main className="auth-bg flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <div
-            className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full text-lg font-bold text-white"
-            style={{ background: 'var(--primary)' }}
-          >
-            T
+          <div className="mx-auto mb-2">
+            <Logo className="h-16" />
           </div>
           <CardTitle className="modern-brand-title text-xl" role="heading" aria-level={1}>
             Masuk Admin Toko

@@ -1,4 +1,5 @@
 import { LogOut } from 'lucide-react'
+import { Logo } from './Logo'
 import { useMemo, useState, type ReactNode } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import AppearancePopover from '@/components/appearance/AppearancePopover'
@@ -49,13 +50,8 @@ export default function Layout({ children }: { children: ReactNode }) {
         style={{ background: 'var(--surface)', border: '1px solid var(--legacy-border)', boxShadow: 'var(--shadow-soft)' }}
       >
         <div className="flex min-w-0 items-center gap-2">
-          <div
-            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
-            style={{ background: 'var(--primary)' }}
-          >
-            T
-          </div>
-          <span className="font-heading truncate text-sm font-semibold">Admin Toko</span>
+          <Logo className="h-9" />
+          <span className="font-heading truncate text-sm font-semibold">Admin</span>
         </div>
       </div>
 
@@ -69,18 +65,10 @@ export default function Layout({ children }: { children: ReactNode }) {
           className="m-0 flex h-full flex-col overflow-hidden rounded-none lg:m-4 lg:h-[calc(100dvh-2rem)] lg:rounded-2xl"
           style={{ background: 'var(--surface)', border: '1px solid var(--legacy-border)', boxShadow: 'var(--shadow-soft)' }}
         >
-          <div className="flex items-center gap-3 p-6">
-            <div
-              className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full text-base font-bold text-white"
-              style={{ background: 'var(--primary)' }}
-            >
-              T
-            </div>
-            <div>
-              <div className="font-heading text-base leading-tight font-semibold">Admin Toko</div>
-              <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                Ampel Kuning
-              </div>
+          <div className="flex flex-col items-start gap-1 px-6 pt-6 pb-4">
+            <Logo className="h-14" />
+            <div className="text-xs font-medium tracking-wide uppercase" style={{ color: 'var(--text-muted)' }}>
+              Admin Toko
             </div>
           </div>
           <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto p-3">
