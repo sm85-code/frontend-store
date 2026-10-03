@@ -285,6 +285,8 @@ export default function PesananDetailPage() {
   const qc = useQueryClient()
   const confirm = useConfirm()
   const pesanan = useQuery({ queryKey: ['pesanan', id], queryFn: () => api.getPesanan(id) })
+  // Same query as the shipping panel (shared cache): tells whether the courier was booked through Biteship.
+  const pengirimanQ = useQuery({ queryKey: ['pengiriman', id], queryFn: () => api.getPengiriman(id), retry: false })
 
   const ubah = useMutation({
     mutationFn: (status: StatusPesanan) => api.ubahStatusPesanan(id, status),
@@ -310,7 +312,8 @@ export default function PesananDetailPage() {
   if (pesanan.isPending) return <Spinner column label="Memuat pesanan…" />
   if (pesanan.error) return <ErrorLine message={errorMessage(pesanan.error)} />
   const p = pesanan.data
-  const next = TRANSISI_PESANAN[p.status]
+  // With a Biteship shipment the courier's own status moves the order to Dikirim and Selesai; no manual buttons for those.
+  const next = TRANSISI_PESANAN[p.status].filter((s) => !(pengirimanQ.data?.biteship && (s === 'dikirim' || s === 'selesai')))
 
   return (
     <div className="space-y-4">
@@ -376,7 +379,9 @@ export default function PesananDetailPage() {
               {p.status === 'menunggu_konfirmasi' ? ' Konfirmasi pesanan ini sebelum memesan kurir, atau batalkan bila mencurigakan.' : ''}
             </p>
           ) : null}
-          {next.length === 0 ? (
+          {next.length === 0 && pengirimanQ.data?.biteship && TRANSISI_PESANAN[p.status].length > 0 ? (
+            <p className="text-sm text-muted-foreground">Status berikutnya (Dikirim, Selesai) berubah otomatis mengikuti kurir.</p>
+          ) : next.length === 0 ? (
             <p className="text-sm text-muted-foreground">Status akhir, tidak bisa diubah lagi.</p>
           ) : (
             next.map((s) =>
