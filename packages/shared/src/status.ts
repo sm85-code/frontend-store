@@ -52,3 +52,22 @@ export const TONE_PESANAN: Record<StatusPesanan, Tone> = {
 
 /** Largest order value (rupiah) that can be paid on delivery. Mirrors `COD_BATAS_TOTAL` in the backend. */
 export const COD_BATAS = 500_000
+
+/** Couriers the store can offer (Biteship codes). Mirrors `KURIR_DIDUKUNG` in the backend; instant couriers need coordinates and are left out. */
+export const KURIR_PILIHAN: { kode: string; nama: string }[] = [
+  { kode: 'jne', nama: 'JNE' },
+  { kode: 'jnt', nama: 'J&T Express' },
+  { kode: 'jntcargo', nama: 'J&T Cargo' },
+  { kode: 'sicepat', nama: 'SiCepat' },
+  { kode: 'anteraja', nama: 'AnterAja' },
+  { kode: 'idexpress', nama: 'ID Express' },
+  { kode: 'ninja', nama: 'Ninja Xpress' },
+  { kode: 'lion', nama: 'Lion Parcel' },
+  { kode: 'tiki', nama: 'TIKI' },
+  { kode: 'pos', nama: 'POS Indonesia' },
+  { kode: 'wahana', nama: 'Wahana' },
+  { kode: 'rpx', nama: 'RPX' },
+  { kode: 'sentralcargo', nama: 'Sentral Cargo' },
+  { kode: 'dash_express', nama: 'Dash Express' },
+  { kode: 'jdl', nama: 'JD Logistics' },
+]
