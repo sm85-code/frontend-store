@@ -81,7 +81,7 @@ export default function PesananDetailPage() {
             {pengiriman.data.kurir ? (
               <div className="flex flex-wrap items-center gap-3">
                 <KurirLogo nama={pengiriman.data.kurir} />
-                {pengiriman.data.layanan ? <span className="text-muted-foreground">{pengiriman.data.layanan}</span> : null}
+                {pengiriman.data.layanan_nama || pengiriman.data.layanan ? <span className="text-muted-foreground">{pengiriman.data.layanan_nama || pengiriman.data.layanan}{Number(pengiriman.data.ongkir) > 0 ? ` · ongkir ${fmtRp(pengiriman.data.ongkir)}` : ''}</span> : null}
               </div>
             ) : null}
             <div className="flex flex-wrap items-center gap-2">
