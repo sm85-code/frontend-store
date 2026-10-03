@@ -101,6 +101,34 @@ function PengirimanForm({ pesananId }: { pesananId: string }) {
   )
 }
 
+function LacakPanel({ pesananId }: { pesananId: string }) {
+  const qc = useQueryClient()
+  const lacak = useQuery({ queryKey: ['lacak', pesananId], queryFn: () => api.lacakPengiriman(pesananId), retry: false, staleTime: 60_000 })
+  function perbarui() {
+    void qc.invalidateQueries({ queryKey: ['lacak', pesananId] })
+    void qc.invalidateQueries({ queryKey: ['pengiriman', pesananId] })
+    void qc.invalidateQueries({ queryKey: ['pesanan'] })
+  }
+  return (
+    <div className="flex flex-col gap-2 border-t pt-3">
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-medium">Riwayat kurir</span>
+        <Button variant="outline" size="sm" disabled={lacak.isFetching} onClick={perbarui}>
+          {lacak.isFetching ? 'Memuat…' : 'Perbarui'}
+        </Button>
+      </div>
+      {lacak.error ? <ErrorLine message={errorMessage(lacak.error)} /> : null}
+      {lacak.data && lacak.data.riwayat.length === 0 ? <p className="text-muted-foreground">Belum ada pembaruan dari kurir.</p> : null}
+      {lacak.data?.riwayat.map((r, i) => (
+        <p key={`${r.waktu}-${i}`}>
+          <span className={i === 0 ? 'font-medium' : ''}>{r.catatan || r.status}</span>
+          <span className="block text-xs text-muted-foreground">{fmtDateTime(r.waktu)}</span>
+        </p>
+      ))}
+    </div>
+  )
+}
+
 function PengirimanPanel({ pesanan }: { pesanan: Pesanan }) {
   const qc = useQueryClient()
   const [tracking, setTracking] = useState('')
@@ -109,6 +137,16 @@ function PengirimanPanel({ pesanan }: { pesanan: Pesanan }) {
     queryFn: () => api.getPengiriman(pesanan.id),
     // 404 = no shipment recorded yet; that is a normal state, not an error to retry.
     retry: false,
+  })
+  const pesanKurir = useMutation({
+    mutationFn: () => api.buatPengirimanBiteship(pesanan.id),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['pengiriman', pesanan.id] })
+      void qc.invalidateQueries({ queryKey: ['lacak', pesanan.id] })
+      void qc.invalidateQueries({ queryKey: ['pesanan'] })
+      toast.success('Kurir dipesan, nomor resi tersimpan')
+    },
+    onError: (e) => toast.error(errorMessage(e)),
   })
   const ubah = useMutation({
     mutationFn: (status: StatusPengiriman) => api.ubahStatusPengiriman(pesanan.id, status, tracking.trim() || undefined),
@@ -154,7 +192,16 @@ function PengirimanPanel({ pesanan }: { pesanan: Pesanan }) {
           kodePos: p.kode_pos_tujuan,
         })}
       </p>
-      {TRANSISI_PENGIRIMAN[p.status].length > 0 ? (
+      {!p.biteship && (pesanan.status === 'dibayar' || pesanan.status === 'diproses') ? (
+        <div className="flex flex-col items-start gap-1">
+          <Button disabled={pesanKurir.isPending} onClick={() => pesanKurir.mutate()}>
+            {pesanKurir.isPending ? 'Memesan kurir…' : 'Pesan kurir (Biteship)'}
+          </Button>
+          <span className="text-xs text-muted-foreground">Membuat pengiriman di Biteship dan menyimpan nomor resi otomatis.</span>
+        </div>
+      ) : null}
+      {p.biteship ? <LacakPanel pesananId={pesanan.id} /> : null}
+      {!p.biteship && TRANSISI_PENGIRIMAN[p.status].length > 0 ? (
         <div className="flex flex-wrap items-end gap-2">
           <Field label="Nomor resi (opsional)" htmlFor="resi">
             <Input id="resi" value={tracking} onChange={(e) => setTracking(e.target.value)} />

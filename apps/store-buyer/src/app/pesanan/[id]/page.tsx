@@ -8,6 +8,7 @@ import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { KurirLogo } from '@/components/KurirLogo'
+import { LacakPaket } from '@/components/LacakPaket'
 import { PengirimanBadge, StatusBadge } from '@/components/StatusBadge'
 import { api, errorMessage } from '@/lib/api'
 import { useMe } from '@/lib/queries'
@@ -89,6 +90,7 @@ export default function PesananDetailPage() {
               {pengiriman.data.tracking_id ? <span className="font-mono">Resi: {pengiriman.data.tracking_id}</span> : null}
             </div>
             <p><strong>{pengiriman.data.nama_penerima}</strong> ({pengiriman.data.telepon_penerima})<br />{formatAlamat({ alamat: pengiriman.data.alamat_tujuan, kelurahan: pengiriman.data.kelurahan_tujuan, kecamatan: pengiriman.data.kecamatan_tujuan, kota: pengiriman.data.kota_tujuan, provinsi: pengiriman.data.provinsi_tujuan, kodePos: pengiriman.data.kode_pos_tujuan })}</p>
+            {pengiriman.data.biteship ? <LacakPaket pesananId={id} /> : null}
           </CardContent>
         </Card>
       ) : null}
