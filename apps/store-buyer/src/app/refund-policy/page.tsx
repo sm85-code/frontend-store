@@ -3,17 +3,17 @@ import Link from 'next/link'
 import { Bagian, Halaman } from '@/components/Halaman'
 
 export const metadata: Metadata = {
-  title: 'Kebijakan Retur',
-  description: 'Syarat dan cara mengajukan retur, penukaran, atau pengembalian dana di Ampelkuning.',
-  alternates: { canonical: '/kebijakan-retur' },
+  title: 'Refund Policy',
+  description: 'Syarat dan cara mengajukan retur, penukaran, atau pengembalian dana (refund) di AmpelKuning.',
+  alternates: { canonical: '/refund-policy' },
 }
 
-export default function KebijakanReturPage() {
+export default function RefundPolicyPage() {
   return (
     <Halaman
-      judul="Kebijakan Retur"
+      judul="Refund Policy"
       ringkas="Barang yang rusak, cacat, atau tidak sesuai pesanan berhak Anda tukar atau kembalikan dananya, sesuai Undang-Undang Perlindungan Konsumen. Berikut ketentuan dan caranya."
-      diperbarui="2 Oktober 2026"
+      diperbarui="3 Oktober 2026"
     >
       <Bagian judul="Barang yang dapat diretur">
         <p>Anda dapat mengajukan retur bila barang yang diterima:</p>

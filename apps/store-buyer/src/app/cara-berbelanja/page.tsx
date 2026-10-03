@@ -98,7 +98,7 @@ export default function CaraBerbelanjaPage() {
       <Bagian judul="Butuh bantuan?">
         <p>
           Tanyakan stok, ukuran, atau status pesanan lewat <Link className="underline" href="/chat">halaman Chat</Link>. Untuk
-          barang yang bermasalah, lihat <Link className="underline" href="/kebijakan-retur">Kebijakan Retur</Link>.
+          barang yang bermasalah, lihat <Link className="underline" href="/refund-policy">Refund Policy</Link>.
         </p>
       </Bagian>
     </Halaman>

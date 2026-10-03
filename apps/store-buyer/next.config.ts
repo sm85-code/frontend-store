@@ -19,6 +19,10 @@ const config: NextConfig = {
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }]
   },
+  async redirects() {
+    // The return policy page was renamed; keep old links and search results working.
+    return [{ source: '/kebijakan-retur', destination: '/refund-policy', permanent: true }]
+  },
   async rewrites() {
     // Leave NEXT_PUBLIC_BACKEND_URL empty and the browser calls this origin; /api is forwarded to the
     // backend, so the buyer cookie stays first-party (also the simplest dev setup).
