@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { KONTAK } from '@/lib/kontak'
 
 export const metadata: Metadata = {
   title: 'Kebijakan Privasi',
@@ -8,8 +9,7 @@ export const metadata: Metadata = {
 }
 
 const UPDATED = '1 Oktober 2026'
-// Optional: set NEXT_PUBLIC_CONTACT_EMAIL (build time) to show a contact address; otherwise the chat is the contact channel.
-const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL
+const CONTACT_EMAIL: string = KONTAK.email
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
