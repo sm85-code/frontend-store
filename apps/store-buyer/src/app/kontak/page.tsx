@@ -2,6 +2,7 @@ import { Clock, Mail, MapPin, MessageCircle, Phone } from 'lucide-react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Bagian, Halaman } from '@/components/Halaman'
+import { IkonTikTok } from '@/components/IkonTikTok'
 import { SITE_URL } from '@/lib/api'
 import { ALAMAT_LENGKAP, KONTAK, MAPS_LINK, WA_LINK } from '@/lib/kontak'
 
@@ -17,6 +18,7 @@ const jsonLd = {
   name: KONTAK.nama,
   url: SITE_URL,
   email: KONTAK.email,
+  sameAs: [KONTAK.tiktok],
   telephone: `+${KONTAK.whatsapp}`,
   address: {
     '@type': 'PostalAddress',
@@ -59,6 +61,13 @@ export default function KontakPage() {
             <div>
               <p className="font-bold">Jam layanan</p>
               <p>{KONTAK.jam}</p>
+            </div>
+          </li>
+          <li className={KARTU}>
+            <IkonTikTok className={IKON} />
+            <div>
+              <p className="font-bold">TikTok</p>
+              <a className="underline underline-offset-2" href={KONTAK.tiktok} rel="noopener noreferrer" target="_blank">{KONTAK.tiktokNama}</a>
             </div>
           </li>
           <li className={KARTU}>
