@@ -36,6 +36,14 @@ export default function PesananDetailPage() {
       : <ErrorNotice message={errorMessage(pesanan.error)} />
   }
   const p = pesanan.data
+  // Shipping and COD fee are part of the total; list them only when the lines add up to it (older orders may not).
+  const subtotalBarang = p.items.reduce((jumlah, i) => jumlah + Number(i.subtotal), 0)
+  const ongkir = Number(pengiriman.data?.ongkir ?? 0)
+  const biayaCod = Number(pengiriman.data?.biaya_cod ?? 0)
+  const rincianBiaya: [string, number][] =
+    subtotalBarang + ongkir + biayaCod === Number(p.total)
+      ? ([['Ongkir', ongkir], ['Biaya COD', biayaCod]] as [string, number][]).filter(([, nilai]) => nilai > 0)
+      : []
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4">
@@ -77,6 +85,13 @@ export default function PesananDetailPage() {
               </li>
             ))}
           </ul>
+          {rincianBiaya.length > 0 ? (
+            <ul className="mt-2 flex flex-col gap-1 border-t pt-2 text-sm">
+              {rincianBiaya.map(([label, nilai]) => (
+                <li key={label} className="flex justify-between gap-2"><span>{label}</span><span>{fmtRp(nilai)}</span></li>
+              ))}
+            </ul>
+          ) : null}
           <p className="mt-3 flex justify-between border-t pt-3 font-semibold"><span>Total</span><span>{fmtRp(p.total)}</span></p>
         </CardContent>
       </Card>
