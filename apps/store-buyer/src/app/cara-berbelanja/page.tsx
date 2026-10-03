@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Bagian, Halaman } from '@/components/Halaman'
+import { DaftarKurir } from '@/components/KurirLogo'
 import { LogoPembayaran, type MetodeLogo } from '@/components/LogoPembayaran'
+import { KURIR } from '@/lib/kurir'
 
 export const metadata: Metadata = {
   title: 'Cara Berbelanja',
@@ -89,6 +91,8 @@ export default function CaraBerbelanjaPage() {
           </li>
           <li>Ongkos kirim dan layanan kurir ditampilkan saat checkout. Nomor resi muncul di detail pesanan setelah barang dikirim.</li>
         </ul>
+        <p>Kurir yang dapat tersedia (tergantung alamat tujuan, berat, dan ukuran paket):</p>
+        <DaftarKurir kurir={KURIR} />
       </Bagian>
 
       <Bagian judul="Butuh bantuan?">
