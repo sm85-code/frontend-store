@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { GantiPasswordCard } from '../components/GantiPasswordCard'
+import { PengaturanPengirimanCard } from '../components/PengaturanPengirimanCard'
 import { api, errorMessage } from '../lib/api'
 
 const OPTIONS: { value: MetodeProsesPesanan; label: string; hint: string }[] = [
@@ -60,6 +61,7 @@ export default function PengaturanPage() {
           </CardContent>
         </Card>
       )}
+      {pengaturan.data ? <PengaturanPengirimanCard key={pengaturan.data.updated_at} pengaturan={pengaturan.data} /> : null}
       <GantiPasswordCard />
     </div>
   )

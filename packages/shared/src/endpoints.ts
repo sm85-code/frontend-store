@@ -8,6 +8,7 @@ import type {
   LaporanPenjualan,
   Pembeli,
   Pengaturan,
+  PengaturanPengirimanInput,
   LacakPengiriman,
   OpsiOngkir,
   Pengiriman,
@@ -85,6 +86,7 @@ export function adminEndpoints(c: Client) {
     },
 
     getPengaturan: () => c.get<Pengaturan>('/pengaturan'),
+    patchPengaturanPengiriman: (input: PengaturanPengirimanInput) => c.patch<Pengaturan>('/pengaturan/pengiriman', input),
     patchPengaturan: (metode_proses_pesanan: Pengaturan['metode_proses_pesanan']) =>
       c.patch<Pengaturan>('/pengaturan', { metode_proses_pesanan }),
 

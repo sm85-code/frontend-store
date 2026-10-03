@@ -290,5 +290,19 @@ export type MetodeProsesPesanan = 'pickup' | 'drop_off'
 
 export interface Pengaturan {
   metode_proses_pesanan: MetodeProsesPesanan
+  /** Biteship courier codes offered at checkout; empty = the server default. */
+  kurir_aktif: string[]
+  asal_nama: string
+  asal_telepon: string
+  asal_alamat: string
+  asal_kode_pos: string
   updated_at: string
+}
+
+export interface PengaturanPengirimanInput {
+  kurir_aktif: string[]
+  asal_nama: string
+  asal_telepon: string
+  asal_alamat: string
+  asal_kode_pos: string
 }
