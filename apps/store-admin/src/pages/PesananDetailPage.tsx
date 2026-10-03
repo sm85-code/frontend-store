@@ -32,6 +32,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import { StatusPengirimanBadge, StatusPesananBadge } from '../components/StatusBadge'
 import { api, errorMessage } from '../lib/api'
+import { cetakResi } from '../lib/cetakResi'
 
 const pengirimanSchema = z.object({
   kurir: z.string().trim().min(1, 'Kurir wajib diisi'),
@@ -208,6 +209,13 @@ function PengirimanPanel({ pesanan }: { pesanan: Pesanan }) {
     },
     onError: (e) => toast.error(errorMessage(e)),
   })
+  const cetak = useMutation({
+    mutationFn: () => api.labelPengiriman(pesanan.id),
+    onSuccess: (label) => {
+      if (!cetakResi(label)) toast.error('Jendela cetak diblokir browser. Izinkan pop-up untuk situs ini, lalu coba lagi.')
+    },
+    onError: (e) => toast.error(errorMessage(e)),
+  })
   const ubah = useMutation({
     mutationFn: (status: StatusPengiriman) => api.ubahStatusPengiriman(pesanan.id, status, tracking.trim() || undefined),
     onSuccess: () => {
@@ -240,6 +248,11 @@ function PengirimanPanel({ pesanan }: { pesanan: Pesanan }) {
           {Number(p.biaya_cod) > 0 ? ` · biaya COD ${fmtRp(p.biaya_cod)}` : ''}
         </span>
         {p.tracking_id ? <span className="font-mono">Resi: {p.tracking_id}</span> : null}
+        {p.tracking_id ? (
+          <Button variant="outline" size="sm" disabled={cetak.isPending} onClick={() => cetak.mutate()}>
+            {cetak.isPending ? 'Menyiapkan…' : 'Cetak resi'}
+          </Button>
+        ) : null}
       </div>
       <p>
         <strong>{p.nama_penerima}</strong> ({p.telepon_penerima})

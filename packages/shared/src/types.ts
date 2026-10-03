@@ -190,6 +190,21 @@ export interface Pengiriman {
   status: StatusPengiriman
 }
 
+/** Everything printed on the shipping label (resi) of an order. */
+export interface LabelPengiriman {
+  pesanan_id: string
+  resi: string
+  kurir: string
+  layanan: string
+  /** Amount the courier collects (rupiah); 0 for an order paid online. */
+  cod: number
+  penerima: { nama: string; telepon: string; alamat: string; kelurahan: string; kecamatan: string; kota: string; provinsi: string; kode_pos: string }
+  pengirim: { nama: string; telepon: string; alamat: string; kode_pos: string }
+  barang: { nama: string; qty: number; berat_gram: number }[]
+  berat_gram: number
+  catatan: string
+}
+
 export interface RiwayatLacak {
   status: string
   catatan: string
