@@ -174,7 +174,23 @@ export interface Pengiriman {
   kode_pos_tujuan?: string
   kode_wilayah_tujuan?: string
   tracking_id: string | null
+  /** The courier has been booked through Biteship, so the parcel can be tracked. */
+  biteship?: boolean
   status: StatusPengiriman
+}
+
+export interface RiwayatLacak {
+  status: string
+  catatan: string
+  waktu: string
+}
+
+export interface LacakPengiriman {
+  status_kurir: string
+  status: StatusPengiriman
+  tracking_id: string | null
+  /** Newest first. */
+  riwayat: RiwayatLacak[]
 }
 
 /** One courier service offered for the cart; the price is computed by the backend. */

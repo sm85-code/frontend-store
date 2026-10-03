@@ -8,6 +8,7 @@ import type {
   LaporanPenjualan,
   Pembeli,
   Pengaturan,
+  LacakPengiriman,
   OpsiOngkir,
   Pengiriman,
   PengirimanInput,
@@ -60,6 +61,8 @@ export function adminEndpoints(c: Client) {
     ubahStatusPesanan: (id: string, status: StatusPesanan) => c.patch<Pesanan>(`/pesanan/${id}/status`, { status }),
     getPengiriman: (id: string) => c.get<Pengiriman>(`/pesanan/${id}/pengiriman`),
     buatPengiriman: (id: string, input: PengirimanInput) => c.post<Pengiriman>(`/pesanan/${id}/pengiriman`, input),
+    buatPengirimanBiteship: (id: string) => c.post<Pengiriman>(`/pesanan/${id}/pengiriman/biteship`),
+    lacakPengiriman: (id: string) => c.get<LacakPengiriman>(`/pesanan/${id}/pengiriman/lacak`),
     ubahStatusPengiriman: (id: string, status: StatusPengiriman, tracking_id?: string) =>
       c.patch<Pengiriman>(`/pesanan/${id}/pengiriman/status`, { status, tracking_id: tracking_id || null }),
 
@@ -119,6 +122,7 @@ export function buyerEndpoints(c: Client) {
     cekOngkir: (kode_pos_tujuan: string) => c.post<OpsiOngkir[]>('/pengiriman/cek-ongkir', { kode_pos_tujuan }),
     isiPengiriman: (id: string, input: PengirimanInput) => c.post<Pengiriman>(`/pesanan/${id}/pengiriman`, input),
     getPengiriman: (id: string) => c.get<Pengiriman>(`/pesanan/${id}/pengiriman`),
+    lacakPengiriman: (id: string) => c.get<LacakPengiriman>(`/pesanan/${id}/pengiriman/lacak`),
     bayar: (id: string) => c.post<{ checkout_url: string }>(`/pesanan/${id}/bayar`),
 
     getChat: () => c.get<Percakapan>('/chat'),
