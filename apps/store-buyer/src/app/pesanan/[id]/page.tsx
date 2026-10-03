@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { KurirLogo } from '@/components/KurirLogo'
 import { PengirimanBadge, StatusBadge } from '@/components/StatusBadge'
 import { api, errorMessage } from '@/lib/api'
 import { useMe } from '@/lib/queries'
@@ -77,6 +78,12 @@ export default function PesananDetailPage() {
         <Card>
           <CardHeader><CardTitle>Pengiriman</CardTitle></CardHeader>
           <CardContent className="flex flex-col gap-2 text-sm">
+            {pengiriman.data.kurir ? (
+              <div className="flex flex-wrap items-center gap-3">
+                <KurirLogo nama={pengiriman.data.kurir} />
+                {pengiriman.data.layanan ? <span className="text-muted-foreground">{pengiriman.data.layanan}</span> : null}
+              </div>
+            ) : null}
             <div className="flex flex-wrap items-center gap-2">
               <PengirimanBadge status={pengiriman.data.status} />
               {pengiriman.data.tracking_id ? <span className="font-mono">Resi: {pengiriman.data.tracking_id}</span> : null}
