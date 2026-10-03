@@ -211,8 +211,8 @@ function PengirimanPanel({ pesanan }: { pesanan: Pesanan }) {
   })
   const cetak = useMutation({
     mutationFn: () => api.labelPengiriman(pesanan.id),
-    onSuccess: (label) => {
-      if (!cetakResi(label)) toast.error('Jendela cetak diblokir browser. Izinkan pop-up untuk situs ini, lalu coba lagi.')
+    onSuccess: async (label) => {
+      if (!(await cetakResi(label))) toast.error('Jendela cetak diblokir browser. Izinkan pop-up untuk situs ini, lalu coba lagi.')
     },
     onError: (e) => toast.error(errorMessage(e)),
   })
