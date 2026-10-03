@@ -9,6 +9,7 @@ import type {
   Pembeli,
   Pengaturan,
   PengaturanPengirimanInput,
+  LabelPengiriman,
   LacakPengiriman,
   OpsiOngkir,
   Pengiriman,
@@ -62,6 +63,7 @@ export function adminEndpoints(c: Client) {
     ubahStatusPesanan: (id: string, status: StatusPesanan) => c.patch<Pesanan>(`/pesanan/${id}/status`, { status }),
     getPengiriman: (id: string) => c.get<Pengiriman>(`/pesanan/${id}/pengiriman`),
     buatPengiriman: (id: string, input: PengirimanInput) => c.post<Pengiriman>(`/pesanan/${id}/pengiriman`, input),
+    labelPengiriman: (id: string) => c.get<LabelPengiriman>(`/pesanan/${id}/pengiriman/label`),
     opsiKurir: (id: string) => c.get<OpsiOngkir[]>(`/pesanan/${id}/pengiriman/opsi-kurir`),
     gantiKurir: (id: string, kurir: string, layanan: string) =>
       c.put<Pengiriman>(`/pesanan/${id}/pengiriman/kurir`, { kurir, layanan }),
