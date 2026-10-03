@@ -1,6 +1,7 @@
 import { Clock, Mail, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 import type { ReactNode } from 'react'
+import { IkonInstagram } from '@/components/IkonInstagram'
 import { IkonTikTok } from '@/components/IkonTikTok'
 import { Logo } from '@/components/Logo'
 import { KONTAK, WA_LINK } from '@/lib/kontak'
@@ -43,6 +44,10 @@ export function Footer() {
             <a href={WA_LINK} rel="noopener noreferrer" target="_blank" className={`${tautan} gap-2.5`}>
               <MessageCircle className="size-4 shrink-0 text-[var(--brand-orange)]" aria-hidden />
               WhatsApp {KONTAK.telepon}
+            </a>
+            <a href={KONTAK.instagram} rel="noopener noreferrer" target="_blank" className={`${tautan} gap-2.5`}>
+              <IkonInstagram className="size-4 shrink-0 text-[var(--brand-orange)]" />
+              Instagram {KONTAK.instagramNama}
             </a>
             <a href={KONTAK.tiktok} rel="noopener noreferrer" target="_blank" className={`${tautan} gap-2.5`}>
               <IkonTikTok className="size-4 shrink-0 text-[var(--brand-orange)]" />

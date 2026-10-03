@@ -12,6 +12,8 @@ export const KONTAK = {
   provinsi: 'Jawa Barat',
   kodePos: '46396',
   jam: 'Senin – Sabtu, pukul 08.00 – 16.00 WIB',
+  instagram: 'https://www.instagram.com/ampelkuningdotcom',
+  instagramNama: '@ampelkuningdotcom',
   tiktok: 'https://www.tiktok.com/@ampelkuningdotcom',
   tiktokNama: '@ampelkuningdotcom',
 } as const

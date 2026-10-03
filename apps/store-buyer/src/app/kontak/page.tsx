@@ -2,6 +2,7 @@ import { Clock, Mail, MapPin, MessageCircle, Phone } from 'lucide-react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Bagian, Halaman } from '@/components/Halaman'
+import { IkonInstagram } from '@/components/IkonInstagram'
 import { IkonTikTok } from '@/components/IkonTikTok'
 import { SITE_URL } from '@/lib/api'
 import { ALAMAT_LENGKAP, KONTAK, MAPS_LINK, WA_LINK } from '@/lib/kontak'
@@ -18,7 +19,7 @@ const jsonLd = {
   name: KONTAK.nama,
   url: SITE_URL,
   email: KONTAK.email,
-  sameAs: [KONTAK.tiktok],
+  sameAs: [KONTAK.instagram, KONTAK.tiktok],
   telephone: `+${KONTAK.whatsapp}`,
   address: {
     '@type': 'PostalAddress',
@@ -61,6 +62,13 @@ export default function KontakPage() {
             <div>
               <p className="font-bold">Jam layanan</p>
               <p>{KONTAK.jam}</p>
+            </div>
+          </li>
+          <li className={KARTU}>
+            <IkonInstagram className={IKON} />
+            <div>
+              <p className="font-bold">Instagram</p>
+              <a className="underline underline-offset-2" href={KONTAK.instagram} rel="noopener noreferrer" target="_blank">{KONTAK.instagramNama}</a>
             </div>
           </li>
           <li className={KARTU}>
