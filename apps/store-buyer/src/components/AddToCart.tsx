@@ -88,6 +88,12 @@ export function ProdukDetail({ produk, children }: { produk: Produk; children?: 
           </div>
         </div>
 
+        {produk.cod ? (
+          <p className="inline-flex items-center gap-2 self-start rounded-md bg-primary/10 px-3 py-1.5 text-sm font-semibold text-primary">
+            Bisa COD · bayar di tempat
+          </p>
+        ) : null}
+
         <div
           className={`flex items-start gap-3 rounded-lg border p-3.5 text-sm ${produk.preorder ? 'border-[var(--brand-orange)] bg-[var(--brand-soft)]' : 'bg-card'}`}
         >

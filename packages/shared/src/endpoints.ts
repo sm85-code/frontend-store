@@ -119,10 +119,11 @@ export function buyerEndpoints(c: Client) {
     ubahKeranjang: (ref: string, qty: number) => c.patch<KeranjangItem>(`/keranjang/${ref}`, { qty }),
     hapusKeranjang: (ref: string) => c.delete<{ ok: true }>(`/keranjang/${ref}`),
 
-    checkout: () => c.post<Pesanan>('/pesanan/checkout'),
+    checkout: (cod = false) => c.post<Pesanan>('/pesanan/checkout', cod ? { cod: true } : undefined),
     listPesanan: () => c.get<Pesanan[]>('/pesanan'),
     getPesanan: (id: string) => c.get<Pesanan>(`/pesanan/${id}`),
-    cekOngkir: (kode_pos_tujuan: string) => c.post<OpsiOngkir[]>('/pengiriman/cek-ongkir', { kode_pos_tujuan }),
+    cekOngkir: (kode_pos_tujuan: string, cod = false) =>
+      c.post<OpsiOngkir[]>('/pengiriman/cek-ongkir', { kode_pos_tujuan, cod }),
     isiPengiriman: (id: string, input: PengirimanInput) => c.post<Pengiriman>(`/pesanan/${id}/pengiriman`, input),
     getPengiriman: (id: string) => c.get<Pengiriman>(`/pesanan/${id}/pengiriman`),
     lacakPengiriman: (id: string) => c.get<LacakPengiriman>(`/pesanan/${id}/pengiriman/lacak`),

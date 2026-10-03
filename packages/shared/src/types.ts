@@ -43,6 +43,8 @@ export interface Produk {
   lebar_cm?: string
   tinggi_cm?: string
   preorder?: boolean
+  /** Can be paid on delivery (COD). */
+  cod?: boolean
   hari_proses?: number
   varian?: Varian[]
 }
@@ -98,6 +100,8 @@ export interface ProdukInput {
   lebar_cm?: string
   tinggi_cm?: string
   preorder?: boolean
+  /** Can be paid on delivery (COD). */
+  cod?: boolean
   hari_proses?: number
 }
 
@@ -115,6 +119,8 @@ export interface KeranjangItem {
   varian_id?: string | null
   nama_varian?: string | null
   preorder?: boolean
+  /** Can be paid on delivery (COD). */
+  cod?: boolean
   hari_proses?: number
   foto_url?: string | null
   nama: string
@@ -125,6 +131,7 @@ export interface KeranjangItem {
 }
 
 export type StatusPesanan =
+  | 'menunggu_konfirmasi'
   | 'menunggu_pembayaran'
   | 'dibayar'
   | 'diproses'
@@ -137,6 +144,8 @@ export interface ItemPesanan {
   varian_id?: string | null
   nama_varian?: string | null
   preorder?: boolean
+  /** Can be paid on delivery (COD). */
+  cod?: boolean
   hari_proses?: number
   nama_produk: string
   harga_satuan: string
@@ -163,6 +172,8 @@ export interface Pengiriman {
   /** Readable service name ("Reguler"); absent on responses from a backend that predates it. */
   layanan_nama?: string
   ongkir: string
+  /** COD fee charged to the buyer; absent/'0.00' for an online-paid order. */
+  biaya_cod?: string
   nama_penerima: string
   telepon_penerima: string
   alamat_tujuan: string
@@ -200,6 +211,8 @@ export interface OpsiOngkir {
   layanan: string
   layanan_nama: string
   ongkir: string
+  /** COD fee (rupiah) when the options were asked for COD. */
+  biaya_cod?: string
   estimasi: string
 }
 
