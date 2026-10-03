@@ -8,6 +8,7 @@ import {
   fmtDateTime,
   fmtRp,
   formatAlamat,
+  type OpsiOngkir,
   type Pengiriman,
   type Pesanan,
   type StatusPengiriman,
@@ -98,6 +99,64 @@ function PengirimanForm({ pesananId }: { pesananId: string }) {
         </Button>
       </div>
     </form>
+  )
+}
+
+/** Switch to another courier (before booking, or after a booking that failed). What the buyer paid for shipping is unchanged. */
+function GantiKurir({ pesananId }: { pesananId: string }) {
+  const qc = useQueryClient()
+  const [buka, setBuka] = useState(false)
+  const [pilih, setPilih] = useState<string | null>(null)
+  const opsi = useQuery({ queryKey: ['opsi-kurir', pesananId], queryFn: () => api.opsiKurir(pesananId), enabled: buka, retry: false, staleTime: 60_000 })
+  const ganti = useMutation({
+    mutationFn: (o: OpsiOngkir) => api.gantiKurir(pesananId, o.kurir, o.layanan),
+    onSuccess: () => {
+      setBuka(false)
+      setPilih(null)
+      void qc.invalidateQueries({ queryKey: ['pengiriman', pesananId] })
+      void qc.invalidateQueries({ queryKey: ['lacak', pesananId] })
+      void qc.invalidateQueries({ queryKey: ['pesanan'] })
+      toast.success('Kurir diganti')
+    },
+    onError: (e) => toast.error(errorMessage(e)),
+  })
+  const terpilih = opsi.data?.find((o) => `${o.kurir}:${o.layanan}` === pilih)
+
+  if (!buka) {
+    return (
+      <Button variant="outline" className="self-start" onClick={() => setBuka(true)}>
+        Ganti kurir
+      </Button>
+    )
+  }
+  return (
+    <div className="flex flex-col gap-2 rounded-md border p-3">
+      <span className="font-medium">Pilih kurir pengganti</span>
+      <span className="text-xs text-muted-foreground">Ongkir yang sudah dibayar pembeli tidak berubah. Harga di bawah hanya sebagai acuan.</span>
+      {opsi.isPending ? <Spinner column label="Memuat kurir…" /> : null}
+      {opsi.error ? <ErrorLine message={errorMessage(opsi.error)} /> : null}
+      <div className="flex max-h-72 flex-col gap-1 overflow-y-auto">
+        {opsi.data?.map((o) => {
+          const id = `${o.kurir}:${o.layanan}`
+          return (
+            <label key={id} className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 hover:bg-muted">
+              <input type="radio" name="kurir-ganti" checked={pilih === id} onChange={() => setPilih(id)} />
+              <span className="flex-1">
+                <strong>{o.kurir_nama}</strong> · {o.layanan_nama}
+                {o.estimasi ? <span className="text-muted-foreground"> · {o.estimasi}</span> : null}
+              </span>
+              <span>{fmtRp(o.ongkir)}</span>
+            </label>
+          )
+        })}
+      </div>
+      <div className="flex gap-2">
+        <Button disabled={!terpilih || ganti.isPending} onClick={() => terpilih && ganti.mutate(terpilih)}>
+          {ganti.isPending ? 'Menyimpan…' : 'Pakai kurir ini'}
+        </Button>
+        <Button variant="outline" onClick={() => setBuka(false)}>Batal</Button>
+      </div>
+    </div>
   )
 }
 
@@ -192,6 +251,9 @@ function PengirimanPanel({ pesanan }: { pesanan: Pesanan }) {
           kodePos: p.kode_pos_tujuan,
         })}
       </p>
+      {(pesanan.status === 'dibayar' || pesanan.status === 'diproses') && (!p.biteship || p.status === 'bermasalah') ? (
+        <GantiKurir pesananId={pesanan.id} />
+      ) : null}
       {!p.biteship && (pesanan.status === 'dibayar' || pesanan.status === 'diproses') ? (
         <div className="flex flex-col items-start gap-1">
           <Button disabled={pesanKurir.isPending} onClick={() => pesanKurir.mutate()}>

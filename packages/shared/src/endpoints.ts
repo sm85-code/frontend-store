@@ -61,6 +61,9 @@ export function adminEndpoints(c: Client) {
     ubahStatusPesanan: (id: string, status: StatusPesanan) => c.patch<Pesanan>(`/pesanan/${id}/status`, { status }),
     getPengiriman: (id: string) => c.get<Pengiriman>(`/pesanan/${id}/pengiriman`),
     buatPengiriman: (id: string, input: PengirimanInput) => c.post<Pengiriman>(`/pesanan/${id}/pengiriman`, input),
+    opsiKurir: (id: string) => c.get<OpsiOngkir[]>(`/pesanan/${id}/pengiriman/opsi-kurir`),
+    gantiKurir: (id: string, kurir: string, layanan: string) =>
+      c.put<Pengiriman>(`/pesanan/${id}/pengiriman/kurir`, { kurir, layanan }),
     buatPengirimanBiteship: (id: string) => c.post<Pengiriman>(`/pesanan/${id}/pengiriman/biteship`),
     lacakPengiriman: (id: string) => c.get<LacakPengiriman>(`/pesanan/${id}/pengiriman/lacak`),
     ubahStatusPengiriman: (id: string, status: StatusPengiriman, tracking_id?: string) =>
