@@ -160,6 +160,8 @@ export interface Pengiriman {
   pesanan_id: string
   kurir: string
   layanan: string
+  /** Readable service name ("Reguler"); absent on responses from a backend that predates it. */
+  layanan_nama?: string
   ongkir: string
   nama_penerima: string
   telepon_penerima: string
@@ -173,6 +175,16 @@ export interface Pengiriman {
   kode_wilayah_tujuan?: string
   tracking_id: string | null
   status: StatusPengiriman
+}
+
+/** One courier service offered for the cart; the price is computed by the backend. */
+export interface OpsiOngkir {
+  kurir: string
+  kurir_nama: string
+  layanan: string
+  layanan_nama: string
+  ongkir: string
+  estimasi: string
 }
 
 export interface PengirimanInput {
