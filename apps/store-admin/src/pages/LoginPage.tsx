@@ -10,10 +10,11 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 import { errorMessage } from '../lib/api'
 import { useAuth } from '../lib/auth'
+import { currentPasswordSchema } from '../lib/validation'
 
 const schema = z.object({
   email: z.email('Email tidak valid'),
-  password: z.string().min(1, 'Password wajib diisi'),
+  password: currentPasswordSchema,
 })
 type Values = z.infer<typeof schema>
 
