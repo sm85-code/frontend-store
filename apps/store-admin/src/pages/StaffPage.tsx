@@ -17,11 +17,12 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import { api, errorMessage } from '../lib/api'
 import { useAuth } from '../lib/auth'
+import { nameSchema, passwordSchema } from '../lib/validation'
 
 const schema = z.object({
-  nama: z.string().trim().min(1, 'Nama wajib diisi'),
+  nama: nameSchema,
   email: z.email('Email tidak valid'),
-  password: z.string().min(8, 'Minimal 8 karakter').max(72, 'Maksimal 72 karakter'),
+  password: passwordSchema,
 })
 type Values = z.infer<typeof schema>
 
@@ -64,12 +65,45 @@ function StaffForm({ onDone }: { onDone: () => void }) {
   )
 }
 
+const editSchema = z.object({ nama: nameSchema })
+
+function EditStaffForm({ staff, onDone }: { staff: Staff; onDone: () => void }) {
+  const qc = useQueryClient()
+  const { register, handleSubmit, formState: { errors } } = useForm<z.infer<typeof editSchema>>({
+    resolver: zodResolver(editSchema), defaultValues: { nama: staff.nama },
+  })
+  const simpan = useMutation({
+    mutationFn: ({ nama }: z.infer<typeof editSchema>) => api.patchStaff(staff.id, nama),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['staff'] })
+      if (staff.id === qc.getQueryData<Staff>(['me'])?.id) void qc.invalidateQueries({ queryKey: ['me'] })
+      toast.success('Nama admin diperbarui')
+      onDone()
+    },
+    onError: (e) => toast.error(errorMessage(e)),
+  })
+  return (
+    <form className="space-y-4" noValidate onSubmit={handleSubmit((v) => simpan.mutate(v))}>
+      <Field label="Nama" htmlFor="edit-nama" error={errors.nama?.message}>
+        <Input id="edit-nama" autoComplete="name" aria-invalid={!!errors.nama} {...register('nama')} />
+      </Field>
+      <p className="text-sm text-muted-foreground">Email dan peran akun: {staff.email} · {staff.role}</p>
+      <div className="flex justify-end gap-2">
+        <Button type="button" variant="outline" disabled={simpan.isPending} onClick={onDone}>Batal</Button>
+        <Button type="submit" disabled={simpan.isPending}>{simpan.isPending ? 'Menyimpan…' : 'Simpan perubahan'}</Button>
+      </div>
+    </form>
+  )
+}
+
 export default function StaffPage() {
   const { user } = useAuth()
   const qc = useQueryClient()
   const confirm = useConfirm()
   const staff = useQuery({ queryKey: ['staff'], queryFn: api.listStaff })
   const [baru, setBaru] = useState(false)
+  const [editing, setEditing] = useState<Staff | null>(null)
+  const [search, setSearch] = useState('')
   const hapusMut = useMutation({
     mutationFn: (id: string) => api.deleteStaff(id),
     onSuccess: () => {
@@ -101,10 +135,11 @@ export default function StaffPage() {
           <CardTitle>Daftar Admin</CardTitle>
         </CardHeader>
         <CardContent>
+          <Input className="mb-4" aria-label="Cari admin" placeholder="Cari nama atau email admin…" value={search} onChange={(e) => setSearch(e.target.value)} />
           {staff.isPending ? (
             <Spinner column label="Memuat staff…" />
           ) : staff.error ? (
-            <ErrorLine message={errorMessage(staff.error)} />
+            <div className="space-y-2"><ErrorLine message={errorMessage(staff.error)} /><Button variant="outline" disabled={staff.isFetching} onClick={() => void staff.refetch()}>Coba lagi</Button></div>
           ) : (
             <TableShell>
               <Table>
@@ -118,7 +153,8 @@ export default function StaffPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {staff.data.map((s) => (
+                  {staff.data.filter((s) => `${s.nama} ${s.email}`.toLowerCase().includes(search.trim().toLowerCase())).length === 0 ? <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground">Tidak ada admin yang cocok.</TableCell></TableRow> : null}
+                  {staff.data.filter((s) => `${s.nama} ${s.email}`.toLowerCase().includes(search.trim().toLowerCase())).map((s) => (
                     <TableRow key={s.id}>
                       <TableCell className="font-medium">{s.nama}</TableCell>
                       <TableCell>{s.email}</TableCell>
@@ -127,8 +163,9 @@ export default function StaffPage() {
                       </TableCell>
                       <TableCell>{fmtDate(s.created_at)}</TableCell>
                       <TableCell className="text-right">
+                        <Button className="mr-2" size="sm" variant="outline" aria-label={`Edit ${s.nama}`} onClick={() => setEditing(s)}>Edit</Button>
                         {s.role !== 'owner' && s.id !== user?.id ? (
-                          <Button size="sm" variant="destructive" aria-label={`Hapus ${s.nama}`} onClick={() => onDelete(s)}>
+                          <Button size="sm" variant="destructive" aria-label={`Hapus ${s.nama}`} disabled={hapusMut.isPending} onClick={() => onDelete(s)}>
                             Hapus
                           </Button>
                         ) : null}
@@ -141,6 +178,13 @@ export default function StaffPage() {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={!!editing} onOpenChange={(open) => { if (!open) setEditing(null) }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Edit Admin</DialogTitle></DialogHeader>
+          {editing ? <EditStaffForm key={editing.id} staff={editing} onDone={() => setEditing(null)} /> : null}
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={baru} onOpenChange={setBaru}>
         <DialogContent>

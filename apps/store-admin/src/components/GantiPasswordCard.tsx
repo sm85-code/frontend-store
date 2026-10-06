@@ -8,11 +8,12 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { api, errorMessage } from '../lib/api'
+import { passwordSchema, currentPasswordSchema } from '../lib/validation'
 
 export const gantiPasswordSchema = z
   .object({
-    lama: z.string().min(1, 'Password saat ini wajib diisi'),
-    baru: z.string().min(8, 'Minimal 8 karakter').max(72, 'Maksimal 72 karakter'),
+    lama: currentPasswordSchema,
+    baru: passwordSchema,
     ulang: z.string(),
   })
   .refine((v) => v.baru === v.ulang, { path: ['ulang'], message: 'Password baru tidak sama' })
@@ -38,7 +39,7 @@ export function GantiPasswordCard() {
     <Card className="max-w-xl">
       <CardHeader>
         <CardTitle>Ganti Password</CardTitle>
-        <CardDescription>Perbarui password akun Anda.</CardDescription>
+        <CardDescription>Perbarui password akun Anda. Sesi lain akan dicabut.</CardDescription>
       </CardHeader>
       <CardContent>
         <form className="space-y-4" noValidate onSubmit={handleSubmit((v) => ganti.mutate(v))}>
