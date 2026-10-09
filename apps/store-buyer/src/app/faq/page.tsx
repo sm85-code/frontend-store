@@ -37,7 +37,7 @@ const FAQ: Kelompok[] = [
     judul: 'Pembayaran',
     daftar: [
       { q: 'Metode pembayaran apa saja yang tersedia?', a: 'Transfer Virtual Account dari berbagai bank, QRIS (dapat dibayar dari GoPay, OVO, DANA, LinkAja, ShopeePay, atau mobile banking), dan gerai minimarket Alfamart atau Indomaret. Pilihan yang tampil mengikuti metode yang sedang aktif.' },
-      { q: 'Berapa lama batas waktu pembayaran?', a: 'Batas waktu tertera di halaman pembayaran. Pesanan yang tidak dibayar sampai batas waktu dapat dibatalkan otomatis.' },
+      { q: 'Berapa lama batas waktu pembayaran?', a: 'Batas waktu tertera di halaman pembayaran. Jika batas waktu pembayaran lewat, hubungi penjual untuk memeriksa status pembayaran dan pembatalan pesanan.' },
       { q: 'Saya sudah bayar tetapi status pesanan belum berubah.', a: 'Status biasanya berubah dalam beberapa menit setelah pembayaran terkonfirmasi. Jika belum berubah dalam satu jam, hubungi kami lewat Chat dan sertakan bukti pembayaran.' },
       { q: 'Apakah pembayaran di AmpelKuning aman?', a: 'Pembayaran dilakukan di halaman pembayaran yang aman. Kami tidak menyimpan data kartu atau rekening Anda dan tidak pernah meminta PIN, OTP, atau password.' },
     ],

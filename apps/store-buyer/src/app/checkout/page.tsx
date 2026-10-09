@@ -1,6 +1,6 @@
 'use client'
 
-import { ApiError, COD_BATAS, fmtRp, formatAlamat, type Alamat, type OpsiOngkir } from '@store/shared'
+import { ApiError, fmtRp, formatAlamat, type Alamat, type OpsiOngkir } from '@store/shared'
 import { Button, EmptyState, ErrorNotice, Notice, PageSpinner, buttonVariants, cn } from '@store/ui'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import Link from 'next/link'
@@ -17,6 +17,7 @@ export default function CheckoutPage() {
   const qc = useQueryClient()
   const me = useMe()
   const cart = useCart()
+  const kemampuan = useQuery({ queryKey: ["kemampuan"], queryFn: api.kemampuan })
   const alamat = useQuery({ queryKey: ALAMAT_KEY, queryFn: api.listAlamat, enabled: !!me.data })
   const [pilih, setPilih] = useState<string | null>(null)
   const [tambah, setTambah] = useState(false)
@@ -31,7 +32,7 @@ export default function CheckoutPage() {
   // COD: every item in the cart must be a COD product and the order must not exceed the limit.
   const barang = cart.data ?? []
   const subtotalBarang = cartTotal(barang)
-  const codBisa = barang.length > 0 && barang.every((i) => i.cod) && Number(subtotalBarang) <= COD_BATAS
+  const codBisa = barang.length > 0 && barang.every((i) => i.cod) && Number(subtotalBarang) <= (kemampuan.data?.cod_batas ?? 0) && !!kemampuan.data?.pengiriman_aktif
   const cod = metode === 'cod' && codBisa
   const ongkir = useQuery({
     queryKey: ['ongkir', kodePos, cod, barang.map((i) => `${i.produk_id}:${i.varian_id ?? ''}:${i.qty}`).join(',')],
@@ -63,10 +64,7 @@ export default function CheckoutPage() {
     setError(null)
     let pesananId: string | null = null
     try {
-      const pesanan = await api.checkout(cod)
-      pesananId = pesanan.id
-      void qc.invalidateQueries({ queryKey: CART_KEY })
-      await api.isiPengiriman(pesanan.id, {
+      const pesanan = await api.checkout(cod, {
         // The price is never sent: the backend looks it up again for this courier service.
         kurir: terpilih?.kurir ?? 'Menunggu konfirmasi',
         layanan: terpilih?.layanan ?? '-',
@@ -80,6 +78,8 @@ export default function CheckoutPage() {
         kelurahan_tujuan: tujuan.kelurahan ?? '',
         kode_wilayah_tujuan: tujuan.kode_wilayah ?? '',
       })
+      pesananId = pesanan.id
+      void qc.invalidateQueries({ queryKey: CART_KEY })
       if (cod) {
         toast.success('Pesanan dibuat. Menunggu konfirmasi penjual.')
         router.replace(`/pesanan/${pesanan.id}`)
@@ -103,8 +103,8 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
-      <section aria-labelledby="judul-alamat" className="flex flex-col gap-4">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+      <section aria-labelledby="judul-alamat" className="flex min-w-0 flex-col gap-4">
         <h1 id="judul-alamat" className="text-2xl font-extrabold tracking-tight">Checkout</h1>
         {error ? <ErrorNotice message={error} /> : null}
         <h2 className="font-semibold">Alamat pengiriman</h2>
@@ -115,7 +115,7 @@ export default function CheckoutPage() {
             {daftar.map((a) => (
               <label key={a.id} className={cn('flex cursor-pointer items-start gap-3 rounded-lg border bg-card p-3.5', aktif?.id === a.id && 'border-primary bg-primary/10')}>
                 <input type="radio" name="alamat" className="mt-1" checked={aktif?.id === a.id} onChange={() => setPilih(a.id)} />
-                <span className="text-sm">
+                <span className="min-w-0 break-words text-sm">
                   <span className="block font-medium">{a.label}{a.utama ? ' · utama' : ''}</span>
                   {a.nama_penerima} ({a.telepon_penerima})<br />
                   {formatAlamat({ alamat: a.alamat_lengkap, kelurahan: a.kelurahan, kecamatan: a.kecamatan, kota: a.kota, provinsi: a.provinsi, kodePos: a.kode_pos })}
@@ -143,7 +143,7 @@ export default function CheckoutPage() {
             {([['online', 'Bayar online', 'QRIS, transfer bank / virtual account, dan lainnya.'], ['cod', 'Bayar di tempat (COD)', 'Bayar tunai ke kurir saat paket tiba. Ada biaya COD dari kurir.']] as const).map(([nilai, judul, ket]) => (
               <label key={nilai} className={cn('flex cursor-pointer items-start gap-3 rounded-lg border bg-card p-3.5', metode === nilai && 'border-primary bg-primary/10')}>
                 <input type="radio" name="metode" className="mt-1" checked={metode === nilai} onChange={() => { setMetode(nilai); setOpsiDipilih(null) }} />
-                <span className="text-sm">
+                <span className="min-w-0 break-words text-sm">
                   <span className="block font-medium">{judul}</span>
                   <span className="text-muted-foreground">{ket}</span>
                 </span>
@@ -171,7 +171,7 @@ export default function CheckoutPage() {
                   return (
                     <label key={id} className={cn('flex cursor-pointer items-center gap-3 rounded-lg border bg-card p-3.5', opsiDipilih === id && 'border-primary bg-primary/10')}>
                       <input type="radio" name="kurir" checked={opsiDipilih === id} onChange={() => setOpsiDipilih(id)} />
-                      <span className="flex-1 text-sm">
+                      <span className="min-w-0 flex-1 text-sm">
                         <KurirLogo nama={o.kurir_nama} />
                         <span className="mt-1 block text-muted-foreground">{o.layanan_nama}{o.estimasi ? ` · ${o.estimasi}` : ''}</span>
                       </span>
@@ -188,13 +188,13 @@ export default function CheckoutPage() {
         ) : null}
       </section>
 
-      <aside className="h-fit rounded-lg border bg-card p-5 shadow-[var(--shadow-card)] lg:sticky lg:top-24">
+      <aside className="min-w-0 h-fit rounded-lg border bg-card p-5 shadow-[var(--shadow-card)] lg:sticky lg:top-24">
         <h2 className="font-semibold">Pesanan Anda</h2>
         <ul className="mt-3 flex flex-col gap-1 text-sm">
           {items.map((i) => (
             <li key={i.id ?? i.produk_id} className="flex justify-between gap-2">
-              <span className="truncate">{i.qty}× {i.nama}{i.nama_varian ? ` (${i.nama_varian})` : ''}</span>
-              <span>{fmtRp(i.subtotal)}</span>
+              <span className="min-w-0 flex-1 truncate">{i.qty}× {i.nama}{i.nama_varian ? ` (${i.nama_varian})` : ''}</span>
+              <span className="shrink-0 whitespace-nowrap">{fmtRp(i.subtotal)}</span>
             </li>
           ))}
         </ul>

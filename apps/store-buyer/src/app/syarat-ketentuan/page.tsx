@@ -46,7 +46,7 @@ export default function SyaratKetentuanPage() {
             Pembayaran dilakukan di halaman pembayaran yang aman melalui metode yang tersedia (Virtual Account, QRIS, dan gerai minimarket). Rinciannya ada di{' '}
             <Link className="underline" href="/cara-berbelanja">Cara Berbelanja</Link>.
           </li>
-          <li>Pembayaran harus diselesaikan sebelum batas waktu yang tertera. Pesanan yang tidak dibayar sampai batas waktu dapat dibatalkan otomatis.</li>
+          <li>Pembayaran harus diselesaikan sebelum batas waktu yang tertera. Jika batas waktu pembayaran lewat, hubungi penjual untuk memeriksa status pembayaran dan pembatalan pesanan.</li>
           <li>Kami tidak pernah meminta PIN, OTP, atau password Anda. Jangan membagikannya kepada siapa pun, termasuk yang mengaku sebagai kami.</li>
         </ul>
       </Bagian>

@@ -36,7 +36,7 @@ export default function PengaturanPage() {
         <Card className="max-w-xl">
           <CardHeader>
             <CardTitle>Metode Proses Pesanan</CardTitle>
-            <CardDescription>Cara paket Anda sampai ke kurir.</CardDescription>
+            <CardDescription>Preferensi penanganan paket oleh tim toko. Pilihan ini tidak mengubah metode pemesanan kurir Biteship; penyerahan ke gerai tetap mengikuti ketentuan kurir.</CardDescription>
           </CardHeader>
           <CardContent>
             <fieldset className="flex flex-col gap-3" disabled={simpan.isPending}>

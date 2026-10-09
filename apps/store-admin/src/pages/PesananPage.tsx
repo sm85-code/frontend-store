@@ -12,12 +12,21 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { StatusPesananBadge } from '../components/StatusBadge'
 import { api, errorMessage } from '../lib/api'
 
-export default function PesananPage() {
-  const pesanan = useQuery({ queryKey: ['pesanan'], queryFn: api.listPesanan, refetchInterval: 30_000 })
-  const [filter, setFilter] = useState<StatusPesanan | 'semua'>('semua')
+import { Input } from '@/components/ui/input'
+import { ListPagination } from '../components/ListPagination'
 
-  const rows = (pesanan.data ?? []).filter((p) => filter === 'semua' || p.status === filter)
-  const count = (s: StatusPesanan) => (pesanan.data ?? []).filter((p) => p.status === s).length
+export default function PesananPage() {
+  const [filter, setFilter] = useState<StatusPesanan | 'semua'>('semua')
+  const [cari, setCari] = useState('')
+  const [page, setPage] = useState(1)
+  const [dari, setDari] = useState('')
+  const [sampai, setSampai] = useState('')
+  const [sort, setSort] = useState('terbaru')
+  const pesanan = useQuery({ queryKey: ['pesanan', page, filter, cari, dari, sampai, sort],
+    queryFn: () => api.daftarPesanan({ halaman: page, cari, status_filter: filter === 'semua' ? undefined : filter,
+      dari: dari || undefined, sampai: sampai || undefined, urutan: sort }), refetchInterval: 30_000 })
+  const rows = pesanan.data?.items ?? []
+
 
   return (
     <div className="space-y-4">
@@ -31,12 +40,18 @@ export default function PesananPage() {
         }
       />
 
-      <Tabs value={filter} onValueChange={(v) => setFilter(v as StatusPesanan | 'semua')}>
+      <div className="grid gap-3 sm:grid-cols-4">
+        <Input aria-label="Cari pesanan atau pembeli" placeholder="Nomor pesanan / pembeli" value={cari} onChange={(e) => { setCari(e.target.value); setPage(1) }} />
+        <label className="text-xs">Dari (WIB)<Input type="date" value={dari} onChange={(e) => { setDari(e.target.value); setPage(1) }} /></label>
+        <label className="text-xs">Sampai (WIB)<Input type="date" value={sampai} onChange={(e) => { setSampai(e.target.value); setPage(1) }} /></label>
+        <select aria-label="Urutan pesanan" className="rounded-lg border bg-card px-3" value={sort} onChange={(e) => { setSort(e.target.value); setPage(1) }}><option value="terbaru">Terbaru</option><option value="terlama">Terlama</option><option value="total">Total tertinggi</option></select>
+      </div>
+      <Tabs value={filter} onValueChange={(v) => { setFilter(v as StatusPesanan | 'semua'); setPage(1) }}>
         <TabsList className="tab-strip" aria-label="Filter status">
-          <TabsTrigger value="semua">Semua ({pesanan.data?.length ?? 0})</TabsTrigger>
+          <TabsTrigger value="semua">Semua</TabsTrigger>
           {STATUS_PESANAN_URUT.map((s) => (
             <TabsTrigger key={s} value={s}>
-              {LABEL_PESANAN[s]} ({count(s)})
+              {LABEL_PESANAN[s]}
             </TabsTrigger>
           ))}
         </TabsList>
@@ -68,7 +83,7 @@ export default function PesananPage() {
                   {rows.map((p) => (
                     <TableRow key={p.id}>
                       <TableCell>{fmtDateTime(p.created_at)}</TableCell>
-                      <TableCell className="font-mono text-xs">{p.id.slice(0, 8)}</TableCell>
+                      <TableCell className="font-mono text-xs">{p.id.slice(0, 8)}<p className="font-sans">{p.nama_pembeli}</p></TableCell>
                       <TableCell>{p.items.reduce((n, i) => n + i.qty, 0)}</TableCell>
                       <TableCell>{fmtRp(p.total)}</TableCell>
                       <TableCell>
@@ -94,6 +109,7 @@ export default function PesananPage() {
           )}
         </CardContent>
       </Card>
+      <ListPagination page={page} total={pesanan.data?.total ?? 0} onChange={setPage} />
     </div>
   )
 }

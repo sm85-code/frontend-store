@@ -15,6 +15,7 @@ import {
   type StatusPengiriman,
   type StatusPesanan,
 } from '@store/shared'
+import { ProviderRecovery } from '../components/ProviderRecovery'
 import Spinner from '@/components/Spinner'
 import TableShell from '@/components/TableShell'
 import { useConfirm } from '@/components/ConfirmProvider'
@@ -331,6 +332,7 @@ export default function PesananDetailPage() {
 
   return (
     <div className="space-y-4">
+      <ProviderRecovery id={id} payment={p.status === "menunggu_pembayaran" && (p.payment_state === "sending" || p.metode_pembayaran === "gateway")} uncertain={p.payment_state === "sending" || pengirimanQ.data?.booking_state === "sending"} shipping={pengirimanQ.data?.booking_state === "sending"} />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <Link to="/pesanan" className="text-sm text-muted-foreground hover:underline">

@@ -28,7 +28,7 @@ const schema = z.object({
 })
 type Values = z.infer<typeof schema>
 
-export function AlamatForm({ onSaved, onCancel }: { onSaved?: (a: Alamat) => void; onCancel?: () => void }) {
+export function AlamatForm({ awal, onSaved, onCancel }: { awal?: Alamat; onSaved?: (a: Alamat) => void; onCancel?: () => void }) {
   const qc = useQueryClient()
   const {
     register,
@@ -38,12 +38,15 @@ export function AlamatForm({ onSaved, onCancel }: { onSaved?: (a: Alamat) => voi
     formState: { errors },
   } = useForm<Values>({
     resolver: zodResolver(schema),
-    defaultValues: {
+    defaultValues: awal ?? {
       label: 'Rumah', nama_penerima: '', telepon_penerima: '', alamat_lengkap: '',
       provinsi: '', kota: '', kecamatan: '', kelurahan: '', kode_pos: '', kode_wilayah: '',
     },
   })
-  const [wilayah, setWilayah] = useState<PilihanWilayah>(KOSONG)
+  const [wilayah, setWilayah] = useState<PilihanWilayah>(() => awal?.kode_wilayah ? {
+    provinsi: awal.kode_wilayah.slice(0, 2), kota: awal.kode_wilayah.slice(0, 5),
+    kecamatan: awal.kode_wilayah.slice(0, 8), desa: awal.kode_wilayah,
+  } : KOSONG)
   const pilihWilayah = (pilihan: PilihanWilayah, hasil: HasilWilayah) => {
     setWilayah(pilihan)
     for (const [field, value] of Object.entries(hasil) as [keyof HasilWilayah, string][]) {
@@ -51,7 +54,7 @@ export function AlamatForm({ onSaved, onCancel }: { onSaved?: (a: Alamat) => voi
     }
   }
   const simpan = useMutation({
-    mutationFn: (v: Values) => api.createAlamat({ ...v, utama: false }),
+    mutationFn: (v: Values) => awal ? api.patchAlamat(awal.id, v) : api.createAlamat({ ...v, utama: false }),
     onSuccess: (alamat) => {
       reset()
       setWilayah(KOSONG)
