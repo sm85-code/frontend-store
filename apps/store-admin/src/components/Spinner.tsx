@@ -19,7 +19,7 @@ export function Spinner({
 
   return (
     <span
-      className={`spinner-wrap ${column ? 'spinner-wrap--column' : ''} ${className}`.trim()}
+      className={`spinner-wrap ${column ? 'spinner-wrap--column w-full min-h-32 justify-center py-6' : ''} ${className}`.trim()}
       role="status"
       aria-live="polite"
       data-testid="spinner"

@@ -1,3 +1,4 @@
+import { BulkActions, useBulkSelection } from '@/components/BulkActions'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { Kategori } from '@store/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -20,6 +21,7 @@ export default function KategoriPage() {
   const qc = useQueryClient()
   const confirm = useConfirm()
   const kategori = useQuery({ queryKey: ['kategori'], queryFn: api.listKategori })
+  const bulk = useBulkSelection('kategori', (kategori.data ?? []).map((p) => p.id))
   const {
     register,
     handleSubmit,
@@ -57,7 +59,7 @@ export default function KategoriPage() {
 
   return (
     <div className="space-y-4">
-      <PageTitle title="Kategori" description="Produk pada kategori yang dihapus tidak ikut terhapus, hanya kehilangan kategorinya." />
+      <PageTitle title="Kategori"  />
 
       <Card>
         <CardHeader>
@@ -77,6 +79,8 @@ export default function KategoriPage() {
         </CardContent>
       </Card>
 
+      <BulkActions ids={(kategori.data ?? []).map((p) => p.id)} selected={bulk.selected} setSelected={bulk.setSelected} actions={[{ label: 'Hapus', destructive: true, run: api.deleteKategori }]} onComplete={() => { for (const key of ['kategori', 'produk']) void qc.invalidateQueries({ queryKey: [key] }) }} />
+
       <Card>
         <CardContent className="pt-6">
           {kategori.isPending ? (
@@ -88,13 +92,13 @@ export default function KategoriPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nama</TableHead>
+                    <TableHead><span className="sr-only">Pilih</span></TableHead><TableHead>Nama</TableHead>
                     <TableHead className="text-right">Aksi</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {kategori.data.map((k) => (
-                    <TableRow key={k.id}>
+                    <TableRow key={k.id}><TableCell><input type="checkbox" aria-label={`Pilih ${k.nama}`} checked={bulk.selected.includes(k.id)} onChange={() => bulk.toggle(k.id)} /></TableCell>
                       <TableCell className="font-medium">{k.nama}</TableCell>
                       <TableCell className="text-right">
                         <Button size="sm" variant="destructive" aria-label={`Hapus ${k.nama}`} onClick={() => onDelete(k)}>
@@ -105,7 +109,7 @@ export default function KategoriPage() {
                   ))}
                   {kategori.data.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={2} className="py-8 text-center text-muted-foreground">
+                      <TableCell colSpan={3} className="py-8 text-center text-muted-foreground">
                         Belum ada kategori.
                       </TableCell>
                     </TableRow>

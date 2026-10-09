@@ -34,6 +34,7 @@ type Range = { dari: string; sampai: string }
 
 export function adminEndpoints(c: Client) {
   return {
+    kemampuan: () => c.get<{ cod_batas: number }>('/kemampuan'),
     login: (email: string, password: string) => c.post<Admin>('/auth/login', { email, password }),
     logout: () => c.post<{ ok: true }>('/auth/logout'),
     me: () => c.get<Admin>('/auth/me'),
