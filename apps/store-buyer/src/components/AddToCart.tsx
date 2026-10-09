@@ -158,7 +158,7 @@ export function ProdukDetail({ produk, children }: { produk: Produk; children?: 
       </div>
 
       {/* Phones: price and the main action stay within reach above the tab bar. */}
-      <div className="bottom-nav fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 border-t px-4 py-2.5 md:hidden">
+      <div className="purchase-bar fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 border-t px-4 py-3 md:hidden">
         <div className="mx-auto flex max-w-md items-center gap-3">
           <div className="min-w-0">
             <p className="text-[0.7rem] font-medium text-muted-foreground">Harga</p>
