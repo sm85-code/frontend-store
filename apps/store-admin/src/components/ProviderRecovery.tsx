@@ -10,7 +10,7 @@ export function ProviderRecovery({ id, payment, shipping, uncertain }: { id: str
   const [booking, setBooking] = useState('')
   const qc = useQueryClient()
   const check = useMutation({ mutationFn: async () => { if (payment) await api.verifikasiPembayaran(id, transaction.trim()); else await api.rekonsiliasiKurir(id, booking.trim()) },
-    onSuccess: () => { void qc.invalidateQueries({ queryKey: ['pesanan'] }); void qc.invalidateQueries({ queryKey: ['pengiriman', id] }); toast.success('Hasil verifikasi diperbarui') },
+    onSuccess: () => { void qc.invalidateQueries({ queryKey: ['pesanan'] }); void qc.invalidateQueries({ queryKey: ['laporan'] }); void qc.invalidateQueries({ queryKey: ['pengiriman', id] }); toast.success('Hasil verifikasi diperbarui') },
     onError: (error) => toast.error(errorMessage(error)) })
   if (!payment && !shipping) return null
   return <details open={uncertain} className="space-y-3 rounded-lg border border-amber-500 bg-card p-4">

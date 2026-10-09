@@ -1,6 +1,8 @@
 import { LABEL_PESANAN, STATUS_PESANAN_URUT, fmtDate, fmtRp, toDateInput } from '@store/shared'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import Spinner from '@/components/Spinner'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -62,35 +64,31 @@ export default function DashboardPage() {
     <div className="space-y-4">
       <div>
         <h1 className="page-h1 font-heading text-2xl font-bold">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">Ringkasan penjualan toko web.</p>
+
       </div>
 
-      {ringkasan.error ? <ErrorLine error={ringkasan.error} /> : null}
-      <section aria-label="Pesanan per status" className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-        {STATUS_PESANAN_URUT.map((s) => (
-          <Card key={s}>
-            <CardContent className="pt-6">
-              <div className="text-xs text-muted-foreground">{LABEL_PESANAN[s]}</div>
-              <div className="text-2xl font-bold">{ringkasan.data?.[s] ?? 0}</div>
-            </CardContent>
-          </Card>
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {(['menunggu_konfirmasi', 'dibayar', 'diproses', 'dikirim'] as const).map((status) => (
+          <Card key={status}><CardContent className="p-4">
+            <p className="text-xs text-muted-foreground">{LABEL_PESANAN[status]}</p>
+            <p className="mt-2 text-2xl font-semibold tabular-nums">{ringkasan.isPending || ringkasan.error ? '—' : ringkasan.data?.[status] ?? 0}</p>
+          </CardContent></Card>
         ))}
-      </section>
-
+      </div>
+      {ringkasan.error ? <div className="space-y-2"><ErrorLine error={ringkasan.error} /><Button variant="outline" size="sm" onClick={() => void ringkasan.refetch()}>Coba lagi</Button></div> : null}
+      <details className="rounded-xl border bg-card">
+        <summary className="cursor-pointer p-3 text-sm font-medium">Semua status pesanan</summary>
+        <div className="grid grid-cols-2 gap-3 border-t p-3 sm:grid-cols-3">
+          {STATUS_PESANAN_URUT.map((status) => <div key={status} className="flex justify-between gap-2 text-sm"><span className="text-muted-foreground">{LABEL_PESANAN[status]}</span><strong>{ringkasan.isPending || ringkasan.error ? '—' : ringkasan.data?.[status] ?? 0}</strong></div>)}
+        </div>
+      </details>
+      <Button asChild variant="outline"><Link to="/pesanan">Lihat pesanan</Link></Button>
       <Card>
-        <CardHeader>
-          <CardTitle>Rentang Tanggal</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="dari">Dari</Label>
-              <Input id="dari" type="date" value={dari} max={sampai} onChange={(e) => setDari(e.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="sampai">Sampai</Label>
-              <Input id="sampai" type="date" value={sampai} min={dari} onChange={(e) => setSampai(e.target.value)} />
-            </div>
+        <CardHeader className="p-4"><CardTitle>Periode penjualan</CardTitle></CardHeader>
+        <CardContent className="px-4 pb-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="min-w-0 space-y-1.5"><Label htmlFor="dari">Dari</Label><Input className="min-w-0 w-full" id="dari" type="date" value={dari} max={sampai} onChange={(e) => setDari(e.target.value)} /></div>
+            <div className="min-w-0 space-y-1.5"><Label htmlFor="sampai">Sampai</Label><Input className="min-w-0 w-full" id="sampai" type="date" value={sampai} min={dari} onChange={(e) => setSampai(e.target.value)} /></div>
           </div>
           {!rangeValid ? <p className="mt-3 text-sm text-destructive">Rentang tanggal tidak valid.</p> : null}
         </CardContent>
@@ -100,16 +98,16 @@ export default function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>Nilai Pesanan Harian (WIB)</CardTitle>
-            {penjualan.data ? <CardDescription>Total {fmtRp(penjualan.data.grand_total)} · Termasuk ongkir dan biaya COD; bukan saldo dana cair.</CardDescription> : null}
+            {penjualan.data ? <CardDescription>Total {fmtRp(penjualan.data.grand_total)}</CardDescription> : null}
           </CardHeader>
           <CardContent>
             {penjualan.isPending && rangeValid ? (
               <Spinner column label="Memuat penjualan…" />
             ) : penjualan.error ? (
-              <ErrorLine error={penjualan.error} />
+              <div className="space-y-3"><ErrorLine error={penjualan.error} /><Button variant="outline" size="sm" onClick={() => void penjualan.refetch()}>Coba lagi</Button></div>
             ) : hariChart.length === 0 ? (
               <p className="py-10 text-center text-sm text-muted-foreground">
-                Belum ada penjualan. Hanya pesanan berstatus dibayar ke atas yang dihitung.
+                Belum ada penjualan.
               </p>
             ) : (
               <div className="h-64 w-full" role="img" aria-label="Grafik penjualan harian">
@@ -132,8 +130,10 @@ export default function DashboardPage() {
             <CardTitle>Produk Terlaris</CardTitle>
           </CardHeader>
           <CardContent>
-            {terlaris.error ? (
-              <ErrorLine error={terlaris.error} />
+            {terlaris.isPending && rangeValid ? (
+              <Spinner column label="Memuat produk terlaris…" />
+            ) : terlaris.error ? (
+              <div className="space-y-3"><ErrorLine error={terlaris.error} /><Button variant="outline" size="sm" onClick={() => void terlaris.refetch()}>Coba lagi</Button></div>
             ) : produkChart.length === 0 ? (
               <p className="py-10 text-center text-sm text-muted-foreground">Belum ada penjualan pada periode ini.</p>
             ) : (

@@ -126,7 +126,7 @@ export default function StaffPage() {
     <div className="space-y-4">
       <PageTitle
         title="Staff Admin"
-        description="Hanya owner yang bisa mengelola akun admin."
+
         actions={<Button onClick={() => setBaru(true)}>Tambah Admin</Button>}
       />
 

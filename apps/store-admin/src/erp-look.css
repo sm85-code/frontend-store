@@ -1,6 +1,6 @@
 /* Admin look = the Marketplace ERP panel, 1:1: ERP tokens, presets (colour/base/font), wallpapers,
  * shell, ring spinner. Generated from the ERP's index.css + theme-extras.css; the only intended
- * difference is the default colour theme (Rose, see lib/appearance.tsx and index.html).
+ * difference is the default colour theme (green, see lib/appearance.tsx and index.html).
  * Admin-only: the buyer storefront keeps the tokens from @store/ui. */
 
 

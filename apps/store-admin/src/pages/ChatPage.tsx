@@ -87,7 +87,7 @@ export default function ChatPage() {
 
   return (
     <div className="space-y-4">
-      <PageTitle title="Chat Pembeli" description="Diperbarui otomatis setiap 10 detik." />
+      <PageTitle title="Chat Pembeli"  />
       <div className="flex flex-wrap items-center gap-3 text-sm"><input aria-label="Cari pembeli" placeholder="Cari pembeli" className="rounded-lg border bg-card px-3 py-2" value={cari} onChange={(e) => { setCari(e.target.value); setPage(1) }} /><label className="flex items-center gap-2"><input type="checkbox" checked={unread} onChange={(e) => { setUnread(e.target.checked); setPage(1) }} />Belum dibaca</label><label className="flex items-center gap-2"><input type="checkbox" checked={unanswered} onChange={(e) => { setUnanswered(e.target.checked); setPage(1) }} />Belum dibalas</label></div>
       {daftar.isPending ? (
         <Spinner column label="Memuat percakapan…" />

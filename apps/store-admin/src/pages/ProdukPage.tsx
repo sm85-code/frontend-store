@@ -1,11 +1,14 @@
+import { BulkActions, useBulkSelection } from '@/components/BulkActions'
+import { SlidersHorizontal, Plus } from 'lucide-react'
+import { DropdownMenu } from 'radix-ui'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { COD_BATAS, fmtRp, type Produk } from '@store/shared'
+import { fmtRp, type Produk } from '@store/shared'
 import Spinner from '@/components/Spinner'
 import TableShell from '@/components/TableShell'
 import { useConfirm } from '@/components/ConfirmProvider'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -70,6 +73,7 @@ function toValues(p: Produk): Values {
 function ProdukForm({ produk: awal, onDone }: { produk: Produk | null; onDone: () => void }) {
   const qc = useQueryClient()
   const kategori = useQuery({ queryKey: ['kategori'], queryFn: api.listKategori })
+  const kemampuan = useQuery({ queryKey: ['kemampuan'], queryFn: api.kemampuan })
   // Photos and variants save on their own and return the fresh product; keep it here so they stay in sync.
   const [produk, setProduk] = useState<Produk | null>(awal)
   const {
@@ -182,7 +186,7 @@ function ProdukForm({ produk: awal, onDone }: { produk: Produk | null; onDone: (
           <input type="checkbox" {...register('cod')} /> Bisa COD (bayar di tempat)
         </label>
         <p className="text-xs text-muted-foreground">
-          Pembeli bisa memilih COD bila semua barang di keranjangnya COD dan nilai pesanan paling banyak {fmtRp(COD_BATAS)}.
+          Pembeli bisa memilih COD bila semua barang di keranjangnya COD dan nilai pesanan paling banyak {kemampuan.data ? fmtRp(kemampuan.data.cod_batas) : '—'}.
         </p>
       </div>
 
@@ -212,6 +216,7 @@ function ProdukForm({ produk: awal, onDone }: { produk: Produk | null; onDone: (
 export default function ProdukPage() {
   const qc = useQueryClient()
   const confirm = useConfirm()
+  const [filterOpen, setFilterOpen] = useState(false)
   const [cari, setCari] = useState('')
   const [page, setPage] = useState(1)
   const [sort, setSort] = useState('terbaru')
@@ -234,6 +239,7 @@ export default function ProdukPage() {
   })
 
   const rows = produk.data?.items ?? []
+  const bulk = useBulkSelection(`${page}:${cari}:${sort}`, rows.map((p) => p.id))
 
   async function onDelete(p: Produk) {
     const ok = await confirm({
@@ -246,36 +252,73 @@ export default function ProdukPage() {
 
   return (
     <div className="space-y-4">
-      <PageTitle title="Produk" actions={<Button onClick={() => setEditing('baru')}>Tambah Produk</Button>} />
+      <PageTitle title="Produk" actions={<Button size="sm" onClick={() => setEditing('baru')}><Plus className="size-4" />Tambah<span className="hidden sm:inline"> Produk</span></Button>} />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Cari Produk</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Input
-            aria-label="Cari produk"
-            placeholder="Cari nama produk…"
-            value={cari}
-            onChange={(e) => { setCari(e.target.value); setPage(1) }}
-            className="max-w-sm"
-          />
-          <select aria-label="Urutan produk" className={selectClass + " mt-3 max-w-sm"} value={sort} onChange={(e) => { setSort(e.target.value); setPage(1) }}><option value="terbaru">Terbaru</option><option value="nama">Nama A–Z</option><option value="harga">Harga tertinggi</option></select>
-        </CardContent>
-      </Card>
+      <div className="flex items-center gap-2">
+        <Input className="min-w-0 flex-1" aria-label="Cari produk" placeholder="Cari produk…" value={cari} onChange={(e) => { setCari(e.target.value); setPage(1) }} />
+        <Button variant="outline" onClick={() => setFilterOpen(true)}><SlidersHorizontal className="size-4" />Urutan{sort !== 'terbaru' ? ' · aktif' : ''}</Button>
+      </div>
+      <Dialog open={filterOpen} onOpenChange={setFilterOpen}>
+        <DialogContent><DialogHeader><DialogTitle>Urutan produk</DialogTitle></DialogHeader>
+          <select aria-label="Urutan produk" className={selectClass} value={sort} onChange={(e) => { setSort(e.target.value); setPage(1); setFilterOpen(false) }}><option value="terbaru">Terbaru</option><option value="nama">Nama A–Z</option><option value="harga">Harga tertinggi</option></select>
+          <Button onClick={() => setFilterOpen(false)}>Selesai</Button>
+        </DialogContent>
+      </Dialog>
 
-      <Card>
-        <CardContent className="pt-6">
+      <BulkActions ids={rows.map((p) => p.id)} selected={bulk.selected} setSelected={bulk.setSelected} actions={[{ label: 'Aktifkan', run: (id) => api.patchProduk(id, { aktif: true }) }, { label: 'Nonaktifkan', run: (id) => api.patchProduk(id, { aktif: false }) }, { label: 'Hapus', destructive: true, run: api.deleteProduk }]} onComplete={() => { for (const key of ['produk']) void qc.invalidateQueries({ queryKey: [key] }) }} />
+
+      <Card className="border-0 bg-transparent shadow-none md:border md:bg-card md:shadow-sm">
+        <CardContent className="p-0 md:p-6">
           {produk.isPending ? (
             <Spinner column label="Memuat produk…" />
           ) : produk.error ? (
             <ErrorLine message={errorMessage(produk.error)} />
           ) : (
-            <TableShell>
+            <>
+            <ul className="space-y-3 md:hidden" aria-label="Daftar produk">
+              {rows.map((p) => (
+                <li key={p.id} className="space-y-3 rounded-xl border bg-card p-3 shadow-sm">
+                  <div className="flex items-start gap-3"><input type="checkbox" className="mt-1 shrink-0" aria-label={`Pilih ${p.nama}`} checked={bulk.selected.includes(p.id)} onChange={() => bulk.toggle(p.id)} />
+                    {p.foto_url ? <img src={p.foto_url} alt="" loading="lazy" className="size-16 shrink-0 rounded-lg object-cover" /> : <div className="size-16 shrink-0 rounded-lg bg-muted" aria-hidden />}
+                    <div className="min-w-0 flex-1 space-y-1.5">
+                      <p className="break-words font-medium leading-snug">{p.nama}</p>
+                      <p className="text-sm text-muted-foreground">{p.kategori_nama ?? 'Tanpa kategori'}</p>
+                      {p.preorder ? <p className="text-xs text-muted-foreground">Pre-order · {p.hari_proses} hari</p> : null}
+                      {p.sumber === 'erp' ? <p className="text-xs text-muted-foreground">Dari ERP</p> : null}
+                    </div>
+                  </div>
+                  <div className="flex items-start justify-between gap-3 border-t pt-3">
+                    <div className="flex flex-wrap gap-x-2 font-semibold tabular-nums">
+                      <span className="whitespace-nowrap">{fmtRp(p.harga_min ?? p.harga)}</span>
+                      {p.harga_min && p.harga_max && p.harga_min !== p.harga_max ? <span className="whitespace-nowrap">– {fmtRp(p.harga_max)}</span> : null}
+                    </div>
+                    <span className="whitespace-nowrap text-sm text-muted-foreground">Stok {p.stok}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 border-t pt-3">
+                    <Badge variant={p.aktif ? 'default' : 'secondary'}>{p.aktif ? 'Aktif' : 'Nonaktif'}</Badge>
+                    <div className="flex items-center gap-2">
+                    <Button size="sm" variant="outline" aria-label={`Ubah ${p.nama}`} onClick={() => setEditing(p)}>Ubah</Button>
+                    <DropdownMenu.Root>
+                      <DropdownMenu.Trigger asChild><Button size="sm" variant="outline" aria-label={`Aksi lainnya ${p.nama}`}>•••</Button></DropdownMenu.Trigger>
+                      <DropdownMenu.Portal>
+                        <DropdownMenu.Content align="end" sideOffset={6} className="z-50 min-w-40 rounded-xl border bg-card p-1.5 shadow-lg">
+                          <DropdownMenu.Item disabled={aktifMut.isPending} onSelect={() => aktifMut.mutate(p)} className="cursor-pointer rounded-lg px-3 py-2 text-sm outline-none focus:bg-muted data-[disabled]:opacity-50">{p.aktif ? 'Nonaktifkan' : 'Aktifkan'}</DropdownMenu.Item>
+                          <DropdownMenu.Item disabled={hapusMut.isPending} onSelect={() => onDelete(p)} className="cursor-pointer rounded-lg px-3 py-2 text-sm text-destructive outline-none focus:bg-muted data-[disabled]:opacity-50">Hapus</DropdownMenu.Item>
+                        </DropdownMenu.Content>
+                      </DropdownMenu.Portal>
+                    </DropdownMenu.Root>
+                    </div>
+                  </div>
+                </li>
+              ))}
+              {rows.length === 0 ? <li className="py-8 text-center text-sm text-muted-foreground">{cari ? 'Tidak ada produk yang cocok.' : 'Belum ada produk.'}</li> : null}
+            </ul>
+            <div className="hidden md:block">
+            <TableShell minWidth={1000}>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Produk</TableHead>
+                    <TableHead><span className="sr-only">Pilih</span></TableHead><TableHead>Produk</TableHead>
                     <TableHead>Kategori</TableHead>
                     <TableHead>Harga</TableHead>
                     <TableHead>Stok</TableHead>
@@ -285,16 +328,16 @@ export default function ProdukPage() {
                 </TableHeader>
                 <TableBody>
                   {rows.map((p) => (
-                    <TableRow key={p.id}>
+                    <TableRow key={p.id}><TableCell><input type="checkbox" aria-label={`Pilih ${p.nama}`} checked={bulk.selected.includes(p.id)} onChange={() => bulk.toggle(p.id)} /></TableCell>
                       <TableCell>
                         <div className="flex items-center gap-3">
                           {p.foto_url ? (
-                            <img src={p.foto_url} alt="" loading="lazy" className="size-10 rounded-lg object-cover" />
+                            <img src={p.foto_url} alt="" loading="lazy" className="size-10 shrink-0 rounded-lg object-cover" />
                           ) : (
-                            <div className="size-10 rounded-lg bg-muted" aria-hidden />
+                            <div className="size-10 shrink-0 rounded-lg bg-muted" aria-hidden />
                           )}
                           <div>
-                            <p className="font-medium">{p.nama}</p>
+                            <p className="min-w-56 max-w-sm break-words font-medium">{p.nama}</p>
                             {p.preorder ? (
                               <Badge variant="secondary" className="mr-1 mt-0.5">
                                 Pre-order {p.hari_proses} hari
@@ -309,7 +352,7 @@ export default function ProdukPage() {
                         </div>
                       </TableCell>
                       <TableCell>{p.kategori_nama ?? '-'}</TableCell>
-                      <TableCell>{p.harga_min && p.harga_max && p.harga_min !== p.harga_max ? `${fmtRp(p.harga_min)} – ${fmtRp(p.harga_max)}` : fmtRp(p.harga_min ?? p.harga)}</TableCell>
+                      <TableCell className="whitespace-nowrap tabular-nums">{p.harga_min && p.harga_max && p.harga_min !== p.harga_max ? `${fmtRp(p.harga_min)} – ${fmtRp(p.harga_max)}` : fmtRp(p.harga_min ?? p.harga)}</TableCell>
                       <TableCell>{p.stok}</TableCell>
                       <TableCell>
                         <Badge variant={p.aktif ? 'default' : 'secondary'}>{p.aktif ? 'Aktif' : 'Nonaktif'}</Badge>
@@ -337,7 +380,7 @@ export default function ProdukPage() {
                   ))}
                   {rows.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                      <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
                         {cari ? 'Tidak ada produk yang cocok.' : 'Belum ada produk.'}
                       </TableCell>
                     </TableRow>
@@ -345,6 +388,8 @@ export default function ProdukPage() {
                 </TableBody>
               </Table>
             </TableShell>
+            </div>
+            </>
           )}
         </CardContent>
       </Card>
