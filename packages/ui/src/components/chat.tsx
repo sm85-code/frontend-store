@@ -145,6 +145,7 @@ export function ChatComposer({ produk, pesanan = [], placeholder = 'Tulis pesanâ
     if (video && f.size > CHAT_MAX_VIDEO) return onTolak('Ukuran video maksimal 20 MB')
     if (!video && f.size > CHAT_MAX_IMAGE) return onTolak('Ukuran foto maksimal 5 MB')
     setFile(f)
+    setOrderId('')
     setPanel(null)
   }
 
@@ -154,7 +155,8 @@ export function ChatComposer({ produk, pesanan = [], placeholder = 'Tulis pesanâ
     setKirim(true)
     try {
       if (file) await onKirimFile(file, isi.trim())
-      else await onKirimTeks(isi.trim(), dipilih?.id ?? null, orderId || null)
+      else if (orderId) await onKirimTeks(isi.trim(), dipilih?.id ?? null, orderId)
+      else await onKirimTeks(isi.trim(), dipilih?.id ?? null)
       setIsi('')
       setOrderId('')
       setFile(null)
