@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
-import { Home, MessageSquare, Package, Receipt, Settings, Tags, Users } from 'lucide-react'
+import { Home, Store, MessageSquare, Package, Receipt, Settings, Tags, Users } from 'lucide-react'
 import type { Role } from '@/config/roles'
 
 export interface NavItem {
@@ -21,6 +21,7 @@ export const NAV: NavItem[] = [
   { to: '/produk', label: 'Produk', icon: Package, roles: ALL_ROLES },
   { to: '/kategori', label: 'Kategori', icon: Tags, roles: ALL_ROLES },
   { to: '/chat', label: 'Chat', icon: MessageSquare, roles: ALL_ROLES },
+  { to: '/profil-toko', label: 'Profil Toko', icon: Store, roles: ALL_ROLES },
   { to: '/pengaturan', label: 'Pengaturan', icon: Settings, roles: ALL_ROLES },
   { to: '/staff', label: 'Staff', icon: Users, roles: ['owner'] },
 ]

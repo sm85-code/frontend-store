@@ -11,11 +11,11 @@ export function LogoMark({ className = 'size-9' }: { className?: string }) {
 }
 
 /** Full logo with lettering. Height comes from `className` (width follows the artwork). */
-export function Logo({ className = '' }: { className?: string }) {
+export function Logo({ className = '', nama = 'AmpelKuning' }: { className?: string; nama?: string }) {
   return (
     <span className={`inline-flex items-center ${className}`}>
-      <img src="/brand/logo-light.png" alt="Ampelkuning" width={461} height={240} className="h-[3.1rem] w-auto dark:hidden md:h-14" />
-      <img src="/brand/logo-dark.png" alt="Ampelkuning" width={426} height={240} className="hidden h-[3.1rem] w-auto dark:block md:h-14" />
+      <img src="/brand/logo-light.png" alt={nama} width={461} height={240} className="h-[3.1rem] w-auto dark:hidden md:h-14" />
+      <img src="/brand/logo-dark.png" alt={nama} width={426} height={240} className="hidden h-[3.1rem] w-auto dark:block md:h-14" />
     </span>
   )
 }

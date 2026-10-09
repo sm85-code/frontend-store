@@ -1,5 +1,10 @@
+import 'server-only'
+import { cache } from 'react'
+import type { ProfilToko } from '@store/shared'
+import { api } from './api'
+
 /** Business contact details, shown on /kontak, in the footer and in policy pages. */
-export const KONTAK = {
+const DEFAULT_KONTAK: ProfilToko = {
   nama: 'AmpelKuning',
   email: 'ampelkuningdotcom@gmail.com',
   telepon: '0813-1351-1101',
@@ -16,10 +21,11 @@ export const KONTAK = {
   instagramNama: '@ampelkuningdotcom',
   tiktok: 'https://www.tiktok.com/@ampelkuningdotcom',
   tiktokNama: '@ampelkuningdotcom',
-} as const
+}
 
-export const ALAMAT_LENGKAP = `${KONTAK.jalan}, ${KONTAK.desa}, ${KONTAK.kecamatan}, ${KONTAK.kabupaten}, ${KONTAK.provinsi} ${KONTAK.kodePos}`
-
-export const WA_LINK = `https://wa.me/${KONTAK.whatsapp}`
-export const MAPS_LINK = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ALAMAT_LENGKAP)}`
-
+export const getKontak = cache(async () => {
+  let KONTAK = DEFAULT_KONTAK
+  try { KONTAK = await api.profilToko() } catch (error) { console.error('Profil toko belum dapat dimuat', error instanceof Error ? error.message : 'API error') }
+  const ALAMAT_LENGKAP = `${KONTAK.jalan}, ${KONTAK.desa}, ${KONTAK.kecamatan}, ${KONTAK.kabupaten}, ${KONTAK.provinsi} ${KONTAK.kodePos}`
+  return { KONTAK, ALAMAT_LENGKAP, WA_LINK: `https://wa.me/${KONTAK.whatsapp}`, MAPS_LINK: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ALAMAT_LENGKAP)}` }
+})

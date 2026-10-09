@@ -1,7 +1,7 @@
 import { Search } from 'lucide-react'
 
 /** Plain GET form (works without JavaScript and keeps the search URL shareable). */
-export function SearchBar({ q, kategori, className = '' }: { q?: string; kategori?: string; className?: string }) {
+export function SearchBar({ q, kategori, className = '', namaToko = 'AmpelKuning' }: { q?: string; kategori?: string; className?: string; namaToko?: string }) {
   return (
     <form action="/" method="get" role="search" className={`relative ${className}`}>
       {kategori ? <input type="hidden" name="kategori" value={kategori} /> : null}
@@ -10,7 +10,7 @@ export function SearchBar({ q, kategori, className = '' }: { q?: string; kategor
         type="search"
         name="q"
         defaultValue={q ?? ''}
-        placeholder="Cari produk di Ampelkuning…"
+        placeholder={`Cari produk di ${namaToko}…`}
         aria-label="Cari produk"
         className="h-11 w-full rounded-lg border border-input bg-card pl-10 pr-24 text-sm outline-none transition focus:border-ring focus:ring-4 focus:ring-ring/20"
       />

@@ -1,3 +1,4 @@
+import { getKontak } from '@/lib/kontak'
 import { ArrowRight, MessageCircle, PackageCheck, ShieldCheck } from 'lucide-react'
 import Link from 'next/link'
 import { LogoMark } from '@/components/Logo'
@@ -8,12 +9,13 @@ const PERKS = [
   { icon: PackageCheck, title: 'Pantau pesanan', text: 'Status pesanan bisa dilihat kapan saja.' },
 ]
 
-export function Hero() {
+export async function Hero() {
+  const { KONTAK } = await getKontak()
   return (
     <section className="hero rounded-xl" aria-labelledby="judul-hero">
       <div className="grid md:grid-cols-[1.25fr_1fr]">
         <div className="px-6 py-8 sm:px-10 sm:py-12">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Ampelkuning</p>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">{KONTAK.nama}</p>
           <h1 id="judul-hero" className="font-display mt-3 text-[2rem] leading-[1.1] sm:text-5xl">
             Belanja santai, harga bersahabat.
           </h1>

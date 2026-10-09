@@ -1,3 +1,4 @@
+import { getKontak } from '@/lib/kontak'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Bagian, Halaman } from '@/components/Halaman'
@@ -5,10 +6,13 @@ import { DaftarKurir } from '@/components/KurirLogo'
 import { LogoPembayaran, type MetodeLogo } from '@/components/LogoPembayaran'
 import { KURIR } from '@/lib/kurir'
 
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> {
+  const { KONTAK } = await getKontak()
+  return {
   title: 'Cara Berbelanja',
-  description: 'Langkah belanja di Ampelkuning, metode pembayaran, pengiriman, dan lama proses pesanan.',
+  description: `Langkah belanja di ${KONTAK.nama}, metode pembayaran, pengiriman, dan lama proses pesanan.`,
   alternates: { canonical: '/cara-berbelanja' },
+}
 }
 
 const BANK: MetodeLogo[] = [
@@ -37,9 +41,10 @@ const LANGKAH = [
   ['Pantau pesanan', 'Status pesanan bisa dilihat di menu Pesanan. Pertanyaan bisa disampaikan lewat Chat.'],
 ] as const
 
-export default function CaraBerbelanjaPage() {
+export default async function CaraBerbelanjaPage() {
+  const { KONTAK } = await getKontak()
   return (
-    <Halaman judul="Cara Berbelanja" ringkas="Belanja di Ampelkuning cukup beberapa langkah. Berikut panduan singkatnya.">
+    <Halaman judul="Cara Berbelanja" ringkas={`Belanja di ${KONTAK.nama} cukup beberapa langkah.`}>
       <Bagian judul="Langkah belanja">
         <ol className="flex flex-col gap-3">
           {LANGKAH.map(([judul, isi], i) => (

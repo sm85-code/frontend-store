@@ -5,21 +5,25 @@ import { Bagian, Halaman } from '@/components/Halaman'
 import { IkonInstagram } from '@/components/IkonInstagram'
 import { IkonTikTok } from '@/components/IkonTikTok'
 import { SITE_URL } from '@/lib/api'
-import { ALAMAT_LENGKAP, KONTAK, MAPS_LINK, WA_LINK } from '@/lib/kontak'
+import { getKontak } from '@/lib/kontak'
 
-export const metadata: Metadata = {
-  title: 'Kontak',
-  description: `Hubungi AmpelKuning lewat email, WhatsApp, atau alamat usaha di ${KONTAK.kabupaten}. Layanan ${KONTAK.jam}.`,
-  alternates: { canonical: '/kontak' },
+export async function generateMetadata(): Promise<Metadata> {
+  const { KONTAK } = await getKontak()
+  return { title: 'Kontak', description: `Hubungi ${KONTAK.nama} lewat email, WhatsApp, atau alamat usaha di ${KONTAK.kabupaten}. Layanan ${KONTAK.jam}.`, alternates: { canonical: '/kontak' } }
 }
 
+const KARTU = 'flex items-start gap-3.5 rounded-lg border bg-card p-4 text-left'
+const IKON = 'mt-0.5 size-5 shrink-0 text-[var(--brand-orange)]'
+
+export default async function KontakPage() {
+  const { KONTAK, ALAMAT_LENGKAP, MAPS_LINK, WA_LINK } = await getKontak()
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Store',
   name: KONTAK.nama,
   url: SITE_URL,
   email: KONTAK.email,
-  sameAs: [KONTAK.instagram, KONTAK.tiktok],
+  sameAs: [KONTAK.instagram, KONTAK.tiktok].filter(Boolean),
   telephone: `+${KONTAK.whatsapp}`,
   address: {
     '@type': 'PostalAddress',
@@ -29,15 +33,9 @@ const jsonLd = {
     postalCode: KONTAK.kodePos,
     addressCountry: 'ID',
   },
-  openingHoursSpecification: [
-    { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], opens: '08:00', closes: '16:00' },
-  ],
 }
 
-const KARTU = 'flex items-start gap-3.5 rounded-lg border bg-card p-4 text-left'
-const IKON = 'mt-0.5 size-5 shrink-0 text-[var(--brand-orange)]'
 
-export default function KontakPage() {
   return (
     <Halaman judul="Kontak" ringkas="Ada pertanyaan tentang produk, pesanan, atau pembayaran? Tim kami siap membantu pada jam layanan di bawah ini.">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
@@ -64,20 +62,20 @@ export default function KontakPage() {
               <p>{KONTAK.jam}</p>
             </div>
           </li>
-          <li className={KARTU}>
+          {KONTAK.instagram && <li className={KARTU}>
             <IkonInstagram className={IKON} />
             <div>
               <p className="font-bold">Instagram</p>
               <a className="underline underline-offset-2" href={KONTAK.instagram} rel="noopener noreferrer" target="_blank">{KONTAK.instagramNama}</a>
             </div>
-          </li>
-          <li className={KARTU}>
+          </li>}
+          {KONTAK.tiktok && <li className={KARTU}>
             <IkonTikTok className={IKON} />
             <div>
               <p className="font-bold">TikTok</p>
               <a className="underline underline-offset-2" href={KONTAK.tiktok} rel="noopener noreferrer" target="_blank">{KONTAK.tiktokNama}</a>
             </div>
-          </li>
+          </li>}
           <li className={KARTU}>
             <MessageCircle className={IKON} aria-hidden />
             <div>
