@@ -1,3 +1,4 @@
+import { getKontak } from '@/lib/kontak'
 import { ApiError } from '@store/shared'
 import { Gift, MessageCircle, ShieldCheck } from 'lucide-react'
 import type { Metadata } from 'next'
@@ -20,7 +21,8 @@ async function load(ref: string) {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const produk = await load((await params).slug).catch(() => null)
   if (!produk) return { title: 'Produk tidak ditemukan' }
-  const description = produk.deskripsi.slice(0, 160) || `Beli ${produk.nama} di Ampelkuning.`
+  const { KONTAK } = await getKontak()
+  const description = produk.deskripsi.slice(0, 160) || `Beli ${produk.nama} di ${KONTAK.nama}.`
   return {
     title: produk.nama,
     description,

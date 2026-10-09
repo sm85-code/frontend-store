@@ -1,14 +1,19 @@
+import { getKontak } from '@/lib/kontak'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Bagian, Halaman } from '@/components/Halaman'
 
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> {
+  const { KONTAK } = await getKontak()
+  return {
   title: 'Refund Policy',
-  description: 'Syarat dan cara mengajukan retur, penukaran, atau pengembalian dana (refund) di AmpelKuning.',
+  description: `Syarat dan cara mengajukan retur, penukaran, atau pengembalian dana (refund) di ${KONTAK.nama}.`,
   alternates: { canonical: '/refund-policy' },
 }
+}
 
-export default function RefundPolicyPage() {
+export default async function RefundPolicyPage() {
+  const { KONTAK } = await getKontak()
   return (
     <Halaman
       judul="Refund Policy"
@@ -64,7 +69,7 @@ export default function RefundPolicyPage() {
             kerja setelah retur disetujui (dan barang kami terima, bila perlu dikirim balik).
           </li>
           <li>
-            <strong>Ongkos kirim retur</strong> ditanggung Ampelkuning bila masalahnya berasal dari kami atau pengiriman. Bila
+            <strong>Ongkos kirim retur</strong> ditanggung {KONTAK.nama} bila masalahnya berasal dari kami atau pengiriman. Bila
             retur bukan karena kesalahan kami, ongkos kirim balik ditanggung pembeli.
           </li>
         </ul>

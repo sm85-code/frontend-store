@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import { IkonInstagram } from '@/components/IkonInstagram'
 import { IkonTikTok } from '@/components/IkonTikTok'
 import { Logo } from '@/components/Logo'
-import { KONTAK, WA_LINK } from '@/lib/kontak'
+import { getKontak } from '@/lib/kontak'
 
 const tautan = 'inline-flex min-h-9 items-center rounded text-foreground/75 underline-offset-4 transition-colors hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring'
 
@@ -27,12 +27,13 @@ function Item({ href, children }: { href: string; children: ReactNode }) {
   )
 }
 
-export function Footer() {
+export async function Footer() {
+  const { KONTAK, WA_LINK } = await getKontak()
   return (
     <footer className="mt-10 border-t bg-card pb-[calc(9rem+env(safe-area-inset-bottom))] md:pb-0">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-9 text-sm sm:px-6 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1.8fr)] md:gap-12">
         <div>
-          <Logo />
+          <Logo nama={KONTAK.nama} />
           <p className="prose-id mt-3 text-muted-foreground md:max-w-sm">
             Belanja produk pilihan dengan mudah: masuk dengan Google, simpan alamat, dan pantau pesanan Anda di satu tempat.
           </p>
@@ -45,14 +46,14 @@ export function Footer() {
               <MessageCircle className="size-4 shrink-0 text-[var(--brand-orange)]" aria-hidden />
               WhatsApp {KONTAK.telepon}
             </a>
-            <a href={KONTAK.instagram} rel="noopener noreferrer" target="_blank" className={`${tautan} gap-2.5`}>
+            {KONTAK.instagram && <a href={KONTAK.instagram} rel="noopener noreferrer" target="_blank" className={`${tautan} gap-2.5`}>
               <IkonInstagram className="size-4 shrink-0 text-[var(--brand-orange)]" />
               Instagram {KONTAK.instagramNama}
-            </a>
-            <a href={KONTAK.tiktok} rel="noopener noreferrer" target="_blank" className={`${tautan} gap-2.5`}>
+            </a>}
+            {KONTAK.tiktok && <a href={KONTAK.tiktok} rel="noopener noreferrer" target="_blank" className={`${tautan} gap-2.5`}>
               <IkonTikTok className="size-4 shrink-0 text-[var(--brand-orange)]" />
               TikTok {KONTAK.tiktokNama}
-            </a>
+            </a>}
             <p className="flex min-h-9 items-center gap-2.5 text-foreground/75">
               <Clock className="size-4 shrink-0 text-[var(--brand-orange)]" aria-hidden />
               {KONTAK.jam}
@@ -80,7 +81,7 @@ export function Footer() {
           </div>
         </div>
       </div>
-      <p className="border-t px-4 py-4 text-center text-xs text-muted-foreground">© {new Date().getFullYear()} AmpelKuning. All rights reserved.</p>
+      <p className="border-t px-4 py-4 text-center text-xs text-muted-foreground">© {new Date().getFullYear()} {KONTAK.nama}. All rights reserved.</p>
     </footer>
   )
 }

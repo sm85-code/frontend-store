@@ -10,12 +10,12 @@ import { SearchBar } from '@/components/SearchBar'
 import { api } from '@/lib/api'
 import { cartCount, useCart, useMe, useSignedOut } from '@/lib/queries'
 
-function Search({ className }: { className?: string }) {
+function Search({ className, namaToko }: { className?: string; namaToko: string }) {
   const params = useSearchParams()
-  return <SearchBar q={params.get('q') ?? undefined} kategori={params.get('kategori') ?? undefined} className={className} />
+  return <SearchBar namaToko={namaToko} q={params.get('q') ?? undefined} kategori={params.get('kategori') ?? undefined} className={className} />
 }
 
-export function Header() {
+export function Header({ namaToko = 'AmpelKuning' }: { namaToko?: string }) {
   const me = useMe()
   const cart = useCart()
   const signedOut = useSignedOut()
@@ -25,12 +25,12 @@ export function Header() {
   return (
     <header className="sticky top-0 z-30 border-b bg-card/90 backdrop-blur-md">
       <div className="mx-auto flex h-[4.25rem] max-w-6xl items-center gap-3 px-4 sm:px-6 md:h-[4.75rem]">
-        <Link href="/" aria-label="Ampelkuning, ke beranda" className="mr-auto md:mr-0">
-          <Logo />
+        <Link href="/" aria-label={`${namaToko}, ke beranda`} className="mr-auto md:mr-0">
+          <Logo nama={namaToko} />
         </Link>
 
         <Suspense fallback={<div className="mx-6 hidden h-11 flex-1 md:block" />}>
-          <Search className="mx-6 hidden max-w-xl flex-1 md:block" />
+          <Search namaToko={namaToko} className="mx-6 hidden max-w-xl flex-1 md:block" />
         </Suspense>
 
         <nav aria-label="Akun dan keranjang" className="flex items-center gap-1">
@@ -80,7 +80,7 @@ export function Header() {
 
       <div className="px-4 pb-3 md:hidden">
         <Suspense fallback={<div className="h-11" />}>
-          <Search />
+          <Search namaToko={namaToko} />
         </Suspense>
       </div>
     </header>

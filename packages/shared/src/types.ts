@@ -328,3 +328,9 @@ export interface PengaturanPengirimanInput {
   asal_alamat: string
   asal_kode_pos: string
 }
+
+export interface ProfilToko {
+  nama: string; email: string; telepon: string; whatsapp: string;
+  jalan: string; desa: string; kecamatan: string; kabupaten: string; provinsi: string; kodePos: string;
+  jam: string; instagram: string; instagramNama: string; tiktok: string; tiktokNama: string;
+}

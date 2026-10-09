@@ -4,16 +4,21 @@ import type { ReactNode } from 'react'
 import { BottomNav } from '@/components/BottomNav'
 import { Footer } from '@/components/Footer'
 import { Header } from '@/components/Header'
+import { getKontak } from '@/lib/kontak'
 import { SITE_URL } from '@/lib/api'
 import { Providers } from './providers'
 import './globals.css'
 
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> {
+  const { KONTAK } = await getKontak()
+  return {
   metadataBase: new URL(SITE_URL),
-  title: { default: 'Ampelkuning — Belanja Online', template: '%s · Ampelkuning' },
-  description: 'Belanja produk pilihan dengan harga terbaik di Ampelkuning.',
-  openGraph: { type: 'website', siteName: 'Ampelkuning', locale: 'id_ID', images: [{ url: '/og.png', width: 1200, height: 630, alt: 'Ampelkuning' }] },
+  title: { default: `${KONTAK.nama} — Belanja Online`, template: `%s · ${KONTAK.nama}` },
+  description: `Belanja produk pilihan dengan harga terbaik di ${KONTAK.nama}.`,
+  openGraph: { type: 'website', siteName: KONTAK.nama, locale: 'id_ID', images: [{ url: '/og.png', width: 1200, height: 630, alt: KONTAK.nama }] },
   twitter: { card: 'summary_large_image', images: ['/og.png'] },
+}
+
 }
 
 export const viewport: Viewport = {
@@ -23,7 +28,8 @@ export const viewport: Viewport = {
   ],
 }
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const { KONTAK } = await getKontak()
   return (
     <html lang="id" suppressHydrationWarning>
       <head>
@@ -40,7 +46,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <a href="#konten" className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded-md focus:bg-card focus:px-3 focus:py-2">
             Lewati ke konten
           </a>
-          <Header />
+          <Header namaToko={KONTAK.nama} />
           <main id="konten" className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 md:py-8 md:pb-10">
             {children}
           </main>

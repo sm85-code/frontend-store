@@ -1,19 +1,24 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Bagian, Halaman } from '@/components/Halaman'
-import { KONTAK } from '@/lib/kontak'
+import { getKontak } from '@/lib/kontak'
 
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> {
+  const { KONTAK } = await getKontak()
+  return {
   title: 'Syarat & Ketentuan',
-  description: 'Ketentuan penggunaan situs dan pembelian di AmpelKuning: akun, pesanan, pembayaran, pengiriman, pre-order, retur, dan privasi.',
+  description: `Ketentuan penggunaan situs dan pembelian di ${KONTAK.nama}: akun, pesanan, pembayaran, pengiriman, pre-order, retur, dan privasi.` ,
   alternates: { canonical: '/syarat-ketentuan' },
 }
+}
 
-export default function SyaratKetentuanPage() {
+export default async function SyaratKetentuanPage() {
+  const { KONTAK } = await getKontak()
+
   return (
     <Halaman
       judul="Syarat & Ketentuan"
-      ringkas="Dengan menggunakan situs ampelkuning.com dan berbelanja di AmpelKuning, Anda menyetujui syarat dan ketentuan berikut. Mohon dibaca sebelum melakukan pemesanan."
+      ringkas={`Dengan menggunakan situs ini dan berbelanja di ${KONTAK.nama}, Anda menyetujui syarat dan ketentuan berikut.`}
       diperbarui="3 Oktober 2026"
     >
       <Bagian judul="1. Tentang kami">

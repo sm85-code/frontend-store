@@ -1,6 +1,7 @@
 import type { Client } from './client'
 import type {
   Admin,
+  ProfilToko,
   Alamat,
   AlamatInput,
   Kategori,
@@ -34,6 +35,8 @@ type Range = { dari: string; sampai: string }
 
 export function adminEndpoints(c: Client) {
   return {
+    profilToko: () => c.get<ProfilToko>('/profil-toko'),
+    simpanProfilToko: (data: ProfilToko) => c.put<ProfilToko>('/profil-toko', data),
     kemampuan: () => c.get<{ cod_batas: number }>('/kemampuan'),
     login: (email: string, password: string) => c.post<Admin>('/auth/login', { email, password }),
     logout: () => c.post<{ ok: true }>('/auth/logout'),
@@ -110,6 +113,7 @@ export function adminEndpoints(c: Client) {
 
 export function buyerEndpoints(c: Client) {
   return {
+    profilToko: () => c.get<ProfilToko>('/profil-toko', { init: { cache: 'no-store' } }),
     register: (input: { nama: string; email: string; password: string }) => c.post<Pembeli>('/auth/register', input),
     login: (email: string, password: string) => c.post<Pembeli>('/auth/login', { email, password }),
     loginGoogle: (id_token: string) => c.post<Pembeli>('/auth/google', { id_token }),

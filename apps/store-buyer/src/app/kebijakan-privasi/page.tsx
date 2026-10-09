@@ -1,15 +1,17 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { KONTAK } from '@/lib/kontak'
+import { getKontak } from '@/lib/kontak'
 
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> {
+  const { KONTAK } = await getKontak()
+  return {
   title: 'Kebijakan Privasi',
-  description: 'Data apa yang dikumpulkan Ampelkuning, untuk apa dipakai, dan hak Anda atas data tersebut.',
+  description: `Data apa yang dikumpulkan ${KONTAK.nama}, untuk apa dipakai, dan hak Anda atas data tersebut.` ,
   alternates: { canonical: '/kebijakan-privasi' },
+}
 }
 
 const UPDATED = '1 Oktober 2026'
-const CONTACT_EMAIL: string = KONTAK.email
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -20,13 +22,16 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   )
 }
 
-export default function KebijakanPrivasiPage() {
+export default async function KebijakanPrivasiPage() {
+  const { KONTAK } = await getKontak()
+  const CONTACT_EMAIL = KONTAK.email
+
   return (
     <article className="mx-auto max-w-3xl">
       <h1 className="text-2xl font-extrabold tracking-tight">Kebijakan Privasi</h1>
       <p className="mt-1 text-sm text-muted-foreground">Terakhir diperbarui: {UPDATED}</p>
       <p className="mt-4 text-sm leading-relaxed">
-        Ampelkuning (&ldquo;kami&rdquo;) mengelola toko online di ampelkuning.com. Halaman ini menjelaskan data apa yang
+        {KONTAK.nama} (&ldquo;kami&rdquo;) mengelola toko online di ampelkuning.com. Halaman ini menjelaskan data apa yang
         kami kumpulkan saat Anda berbelanja, untuk apa data itu dipakai, dan pilihan Anda.
       </p>
 

@@ -12,6 +12,7 @@ const KategoriPage = lazy(() => import('./pages/KategoriPage'))
 const PesananPage = lazy(() => import('./pages/PesananPage'))
 const PesananDetailPage = lazy(() => import('./pages/PesananDetailPage'))
 const ChatPage = lazy(() => import('./pages/ChatPage'))
+const ProfilTokoPage = lazy(() => import('./pages/ProfilTokoPage'))
 const PengaturanPage = lazy(() => import('./pages/PengaturanPage'))
 const StaffPage = lazy(() => import('./pages/StaffPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
@@ -39,6 +40,7 @@ export default function App() {
               <Route path="/pesanan" element={<Protected><PesananPage /></Protected>} />
               <Route path="/pesanan/:id" element={<Protected><PesananDetailPage /></Protected>} />
               <Route path="/chat" element={<Protected><ChatPage /></Protected>} />
+              <Route path="/profil-toko" element={<Protected><ProfilTokoPage /></Protected>} />
               <Route path="/pengaturan" element={<Protected><PengaturanPage /></Protected>} />
               <Route path="/staff" element={<Protected ownerOnly><StaffPage /></Protected>} />
               <Route path="*" element={<NotFoundPage />} />

@@ -3,12 +3,15 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { Bagian, Halaman } from '@/components/Halaman'
-import { KONTAK } from '@/lib/kontak'
+import { getKontak } from '@/lib/kontak'
 
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> {
+  const { KONTAK } = await getKontak()
+  return {
   title: 'FAQ',
-  description: 'Pertanyaan yang sering diajukan tentang pemesanan, pembayaran, pengiriman, pre-order, varian, dan retur di AmpelKuning.',
+  description: `Pertanyaan yang sering diajukan tentang pemesanan, pembayaran, pengiriman, pre-order, varian, dan retur di ${KONTAK.nama}.` ,
   alternates: { canonical: '/faq' },
+}
 }
 
 interface Tanya {
@@ -23,6 +26,8 @@ interface Kelompok {
   daftar: Tanya[]
 }
 
+export default async function FaqPage() {
+  const { KONTAK } = await getKontak()
 const FAQ: Kelompok[] = [
   {
     judul: 'Pemesanan',
@@ -39,7 +44,7 @@ const FAQ: Kelompok[] = [
       { q: 'Metode pembayaran apa saja yang tersedia?', a: 'Transfer Virtual Account dari berbagai bank, QRIS (dapat dibayar dari GoPay, OVO, DANA, LinkAja, ShopeePay, atau mobile banking), dan gerai minimarket Alfamart atau Indomaret. Pilihan yang tampil mengikuti metode yang sedang aktif.' },
       { q: 'Berapa lama batas waktu pembayaran?', a: 'Batas waktu tertera di halaman pembayaran. Jika batas waktu pembayaran lewat, hubungi penjual untuk memeriksa status pembayaran dan pembatalan pesanan.' },
       { q: 'Saya sudah bayar tetapi status pesanan belum berubah.', a: 'Status biasanya berubah dalam beberapa menit setelah pembayaran terkonfirmasi. Jika belum berubah dalam satu jam, hubungi kami lewat Chat dan sertakan bukti pembayaran.' },
-      { q: 'Apakah pembayaran di AmpelKuning aman?', a: 'Pembayaran dilakukan di halaman pembayaran yang aman. Kami tidak menyimpan data kartu atau rekening Anda dan tidak pernah meminta PIN, OTP, atau password.' },
+      { q: `Apakah pembayaran di ${KONTAK.nama} aman?`, a: 'Pembayaran dilakukan di halaman pembayaran yang aman. Kami tidak menyimpan data kartu atau rekening Anda dan tidak pernah meminta PIN, OTP, atau password.' },
     ],
   },
   {
@@ -69,7 +74,7 @@ const FAQ: Kelompok[] = [
   {
     judul: 'Bantuan',
     daftar: [
-      { q: 'Bagaimana cara menghubungi AmpelKuning?', a: `Lewat Chat di toko, WhatsApp ${KONTAK.telepon}, atau email ${KONTAK.email}. Layanan ${KONTAK.jam}.`, isi: <>Lewat <Link className="underline" href="/chat">Chat</Link> di toko, WhatsApp {KONTAK.telepon}, atau email <a className="underline" href={`mailto:${KONTAK.email}`}>{KONTAK.email}</a>. Layanan {KONTAK.jam}. Detail lain ada di <Link className="underline" href="/kontak">Kontak</Link>.</> },
+      { q: `Bagaimana cara menghubungi ${KONTAK.nama}?`, a: `Lewat Chat di toko, WhatsApp ${KONTAK.telepon}, atau email ${KONTAK.email}. Layanan ${KONTAK.jam}.`, isi: <>Lewat <Link className="underline" href="/chat">Chat</Link> di toko, WhatsApp {KONTAK.telepon}, atau email <a className="underline" href={`mailto:${KONTAK.email}`}>{KONTAK.email}</a>. Layanan {KONTAK.jam}. Detail lain ada di <Link className="underline" href="/kontak">Kontak</Link>.</> },
     ],
   },
 ]
@@ -80,7 +85,7 @@ const jsonLd = {
   mainEntity: FAQ.flatMap((k) => k.daftar).map((t) => ({ '@type': 'Question', name: t.q, acceptedAnswer: { '@type': 'Answer', text: t.a } })),
 }
 
-export default function FaqPage() {
+
   return (
     <Halaman judul="FAQ" ringkas="Jawaban untuk pertanyaan yang paling sering diajukan. Tidak menemukan jawabannya? Hubungi kami lewat halaman Kontak.">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
