@@ -186,11 +186,15 @@ h3 {
   }
 }
 
-/* Bottom tab bar (phones). */
-.bottom-nav {
+/* Shared surface; only the tab bar owns the device safe-area padding. */
+.bottom-nav,
+.purchase-bar {
   background: color-mix(in oklch, var(--card) 88%, transparent);
   backdrop-filter: blur(14px) saturate(1.4);
   border-top: 1px solid var(--border);
+}
+
+.bottom-nav {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
