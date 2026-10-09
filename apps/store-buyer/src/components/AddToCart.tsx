@@ -160,11 +160,11 @@ export function ProdukDetail({ produk, children }: { produk: Produk; children?: 
       {/* Phones: price and the main action stay within reach above the tab bar. */}
       <div className="purchase-bar fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 border-t px-4 py-3 md:hidden">
         <div className="mx-auto flex max-w-md items-center gap-3">
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="text-[0.7rem] font-medium text-muted-foreground">Harga</p>
-            <p className="truncate text-base font-extrabold leading-tight">{harga}</p>
+            <p className="text-xl font-extrabold leading-tight">{harga}</p>
           </div>
-          <Button className="ml-auto h-11 flex-1 rounded-lg font-bold" disabled={nonaktif} loading={add.isPending} onClick={() => klikTambah(1)}>
+          <Button className="h-11 shrink-0 rounded-lg px-4 font-bold" disabled={nonaktif} loading={add.isPending} onClick={() => klikTambah(1)}>
             <ShoppingCart className="size-5" /> {habis ? 'Stok habis' : perluPilih ? 'Pilih varian' : 'Tambah'}
           </Button>
         </div>
