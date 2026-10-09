@@ -12,6 +12,7 @@ const selectClass =
 
 interface Row {
   id?: string
+  expected_stok?: number
   nama: string
   sku: string
   harga: string
@@ -25,11 +26,12 @@ interface Row {
 }
 
 const blank = (): Row => ({ nama: '', sku: '', harga: '', stok: '0', berat: '', p: '', l: '', t: '', foto_id: '', aktif: true })
-const opt = (v: string | number | null | undefined) => (v === null || v === undefined || Number(v) === 0 ? '' : String(Number(v)))
+const opt = (v: string | number | null | undefined) => (v === null || v === undefined ? '' : String(Number(v)))
 
 function fromVarian(v: Varian): Row {
   return {
     id: v.id,
+    expected_stok: v.stok,
     nama: v.nama,
     sku: v.sku ?? '',
     harga: opt(v.harga_sendiri),
@@ -46,6 +48,7 @@ function fromVarian(v: Varian): Row {
 function toInput(r: Row): VarianInput {
   return {
     id: r.id,
+    expected_stok: r.expected_stok,
     nama: r.nama.trim(),
     sku: r.sku.trim(),
     harga: r.harga === '' ? null : r.harga,

@@ -77,3 +77,11 @@ describe('ChatComposer', () => {
     await waitFor(() => expect(p.onKirimFile).toHaveBeenCalledWith(img, 'ini ya'))
   })
 })
+
+it('sends a selected buyer order without requiring text', async () => {
+  const send = vi.fn().mockResolvedValue({})
+  render(<ChatComposer produk={[]} pesanan={[{ id: 'o1', total: '100000' }]} onKirimTeks={send} onKirimFile={vi.fn()} onTolak={vi.fn()} />)
+  fireEvent.change(screen.getByLabelText('Lampirkan pesanan pembeli'), { target: { value: 'o1' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Kirim' }))
+  await waitFor(() => expect(send).toHaveBeenCalledWith('', null, 'o1'))
+})

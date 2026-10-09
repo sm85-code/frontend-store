@@ -51,7 +51,11 @@ export function ProdukDetail({ produk, children }: { produk: Produk; children?: 
   const foto = produk.foto?.length ? produk.foto : produk.foto_url ? [{ id: null, url: produk.foto_url }] : []
 
   function klikTambah(jumlah: number) {
-    if (perluPilih) return void toast.info('Pilih varian terlebih dahulu')
+    if (perluPilih) {
+      document.getElementById('pilihan-varian')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      document.querySelector<HTMLButtonElement>('#pilihan-varian button')?.focus({ preventScroll: true })
+      return void toast.info('Pilih varian terlebih dahulu')
+    }
     add.mutate(jumlah)
   }
   const tombol = habis ? 'Stok habis' : perluPilih ? 'Pilih varian' : dipilih && stok <= 0 ? 'Varian habis' : 'Tambah ke keranjang'
@@ -107,7 +111,7 @@ export function ProdukDetail({ produk, children }: { produk: Produk; children?: 
         </div>
 
         {punyaVarian ? (
-          <fieldset>
+          <fieldset id="pilihan-varian">
             <legend className="mb-2 text-sm font-bold">
               Pilih varian{dipilih ? <span className="font-medium text-muted-foreground"> · {dipilih.nama}</span> : null}
             </legend>
@@ -137,7 +141,8 @@ export function ProdukDetail({ produk, children }: { produk: Produk; children?: 
           </fieldset>
         ) : null}
 
-        <div className="hidden flex-wrap items-center gap-3 md:flex">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="text-sm font-medium">Jumlah</span>
           <div className="inline-flex items-center rounded-lg border bg-card">
             <Button variant="ghost" size="icon" aria-label="Kurangi" disabled={qty <= 1} onClick={() => setQty((q) => Math.max(1, q - 1))}>
               <Minus className="size-4" />
@@ -147,7 +152,7 @@ export function ProdukDetail({ produk, children }: { produk: Produk; children?: 
               <Plus className="size-4" />
             </Button>
           </div>
-          <Button size="lg" className="rounded-lg px-7 font-bold" disabled={nonaktif} loading={add.isPending} onClick={() => klikTambah(qty)}>
+          <Button size="lg" className="hidden rounded-lg px-7 font-bold md:inline-flex" disabled={nonaktif} loading={add.isPending} onClick={() => klikTambah(qty)}>
             <ShoppingCart className="size-5" /> {tombol}
           </Button>
         </div>
@@ -164,7 +169,7 @@ export function ProdukDetail({ produk, children }: { produk: Produk; children?: 
             <p className="text-[0.7rem] font-medium text-muted-foreground">Harga</p>
             <p className="text-xl font-extrabold leading-tight">{harga}</p>
           </div>
-          <Button className="h-11 shrink-0 rounded-lg px-4 font-bold" disabled={nonaktif} loading={add.isPending} onClick={() => klikTambah(1)}>
+          <Button className="h-11 shrink-0 rounded-lg px-4 font-bold" disabled={nonaktif} loading={add.isPending} onClick={() => klikTambah(qty)}>
             <ShoppingCart className="size-5" /> {habis ? 'Stok habis' : perluPilih ? 'Pilih varian' : 'Tambah'}
           </Button>
         </div>

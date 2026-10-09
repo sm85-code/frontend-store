@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { LengkapiPengiriman } from '@/components/LengkapiPengiriman'
 import { KurirLogo } from '@/components/KurirLogo'
 import { LacakPaket } from '@/components/LacakPaket'
 import { PengirimanBadge, StatusBadge } from '@/components/StatusBadge'
@@ -66,7 +67,7 @@ export default function PesananDetailPage() {
           <CardContent className="flex flex-col gap-3 p-5">
             <p className="text-sm">Selesaikan pembayaran agar pesanan Anda diproses.</p>
             {belumAktif ? <Notice tone="warning">{belumAktif} Pesanan Anda tersimpan dan tidak hilang.</Notice> : null}
-            <Button className="self-start" loading={bayar.isPending} onClick={() => bayar.mutate()}>Bayar sekarang</Button>
+            <Button disabled={pengiriman.isPending || !pengiriman.data} className="self-start" loading={bayar.isPending} onClick={() => bayar.mutate()}>Bayar sekarang</Button>
           </CardContent>
         </Card>
       ) : null}
@@ -96,6 +97,7 @@ export default function PesananDetailPage() {
         </CardContent>
       </Card>
 
+      {!pengiriman.isPending && pengiriman.error instanceof ApiError && pengiriman.error.status === 404 && ['menunggu_pembayaran', 'menunggu_konfirmasi'].includes(p.status) ? <LengkapiPengiriman pesananId={id} cod={p.metode_pembayaran === 'cod'} /> : null}
       {pengiriman.data ? (
         <Card>
           <CardHeader><CardTitle>Pengiriman</CardTitle></CardHeader>

@@ -40,6 +40,10 @@ export function adminEndpoints(c: Client) {
     gantiPassword: (current_password: string, new_password: string) =>
       c.post<{ ok: true }>('/auth/ganti-password', { current_password, new_password }),
 
+    daftarProduk: (query: { halaman: number; cari: string; urutan?: string }) =>
+      c.get<{ items: Produk[]; total: number }>('/daftar/produk', { query }),
+    daftarPesanan: (query: { halaman: number; cari: string; status_filter?: string; dari?: string; sampai?: string; urutan?: string }) =>
+      c.get<{ items: (Pesanan & { nama_pembeli?: string })[]; total: number }>('/daftar/pesanan', { query }),
     listProduk: () => c.get<Produk[]>('/produk'),
     createProduk: (input: ProdukInput) => c.post<Produk>('/produk', input),
     patchProduk: (id: string, patch: ProdukPatch) => c.patch<Produk>(`/produk/${id}`, patch),
@@ -59,6 +63,8 @@ export function adminEndpoints(c: Client) {
     deleteKategori: (id: string) => c.delete<{ ok: true }>(`/kategori/${id}`),
 
     listPesanan: () => c.get<Pesanan[]>('/pesanan'),
+    verifikasiPembayaran: (id: string, transactionId: string) => c.post<Pesanan>(`/pesanan/${id}/verifikasi-pembayaran?transaction_id=${encodeURIComponent(transactionId)}`),
+    rekonsiliasiKurir: (id: string, orderId: string) => c.post<Pengiriman>(`/pesanan/${id}/rekonsiliasi-kurir?order_id=${encodeURIComponent(orderId)}`),
     getPesanan: (id: string) => c.get<Pesanan>(`/pesanan/${id}`),
     ubahStatusPesanan: (id: string, status: StatusPesanan) => c.patch<Pesanan>(`/pesanan/${id}/status`, { status }),
     getPengiriman: (id: string) => c.get<Pengiriman>(`/pesanan/${id}/pengiriman`),
@@ -76,10 +82,12 @@ export function adminEndpoints(c: Client) {
     laporanProdukTerlaris: (r: Range & { limit?: number }) => c.get<ProdukTerlaris[]>('/laporan/produk-terlaris', { query: r }),
     laporanRingkasanStatus: () => c.get<RingkasanStatus>('/laporan/ringkasan-status'),
 
+    daftarChat: (query: { halaman: number; cari: string; unread: boolean; unanswered: boolean }) => c.get<{ items: Percakapan[]; total: number }>('/chat-halaman', { query }),
     listChat: () => c.get<Percakapan[]>('/chat'),
-    getChat: (id: string) => c.get<Percakapan>(`/chat/${id}`),
-    kirimChat: (id: string, isi: string, produk_id?: string | null) =>
-      c.post<Percakapan>(`/chat/${id}`, { isi, produk_id: produk_id ?? null }),
+    pesananChat: (id: string) => c.get<Pesanan[]>(`/chat/${id}/pesanan`),
+    getChat: (id: string, before?: string) => c.get<Percakapan>(`/chat/${id}`, { query: { before } }),
+    kirimChat: (id: string, isi: string, produk_id?: string | null, pesanan_id?: string | null) =>
+      c.post<Percakapan>(`/chat/${id}`, { isi, produk_id: produk_id ?? null, pesanan_id }),
     kirimLampiranChat: (id: string, file: File, isi = '') => {
       const form = new FormData()
       form.append('file', file)
@@ -123,18 +131,19 @@ export function buyerEndpoints(c: Client) {
     ubahKeranjang: (ref: string, qty: number) => c.patch<KeranjangItem>(`/keranjang/${ref}`, { qty }),
     hapusKeranjang: (ref: string) => c.delete<{ ok: true }>(`/keranjang/${ref}`),
 
-    checkout: (cod = false) => c.post<Pesanan>('/pesanan/checkout', cod ? { cod: true } : undefined),
+    kemampuan: () => c.get<{ cod_batas: number; pengiriman_aktif: boolean }>('/kemampuan'),
+    checkout: (cod = false, pengiriman?: PengirimanInput) => c.post<Pesanan>('/pesanan/checkout', { cod, pengiriman }),
     listPesanan: () => c.get<Pesanan[]>('/pesanan'),
     getPesanan: (id: string) => c.get<Pesanan>(`/pesanan/${id}`),
-    cekOngkir: (kode_pos_tujuan: string, cod = false) =>
-      c.post<OpsiOngkir[]>('/pengiriman/cek-ongkir', { kode_pos_tujuan, cod }),
+    cekOngkir: (kode_pos_tujuan: string, cod = false, pesanan_id?: string) =>
+      c.post<OpsiOngkir[]>('/pengiriman/cek-ongkir', { kode_pos_tujuan, cod, pesanan_id }),
     isiPengiriman: (id: string, input: PengirimanInput) => c.post<Pengiriman>(`/pesanan/${id}/pengiriman`, input),
     getPengiriman: (id: string) => c.get<Pengiriman>(`/pesanan/${id}/pengiriman`),
     lacakPengiriman: (id: string) => c.get<LacakPengiriman>(`/pesanan/${id}/pengiriman/lacak`),
     bayar: (id: string) => c.post<{ checkout_url: string }>(`/pesanan/${id}/bayar`),
 
-    getChat: () => c.get<Percakapan>('/chat'),
-    kirimChat: (isi: string, produk_id?: string | null) => c.post<Percakapan>('/chat', { isi, produk_id: produk_id ?? null }),
+    getChat: (before?: string) => c.get<Percakapan>('/chat', { query: { before } }),
+    kirimChat: (isi: string, produk_id?: string | null, pesanan_id?: string | null) => c.post<Percakapan>('/chat', { isi, produk_id: produk_id ?? null, pesanan_id }),
     kirimLampiranChat: (file: File, isi = '') => {
       const form = new FormData()
       form.append('file', file)

@@ -76,6 +76,7 @@ export interface Varian {
 }
 
 export interface VarianInput {
+  expected_stok?: number
   id?: string
   nama: string
   sku: string
@@ -105,7 +106,7 @@ export interface ProdukInput {
   hari_proses?: number
 }
 
-export type ProdukPatch = Partial<ProdukInput> & { aktif?: boolean }
+export type ProdukPatch = Partial<ProdukInput> & { expected_stok?: number } & { aktif?: boolean }
 
 export interface Kategori {
   id: string
@@ -154,6 +155,7 @@ export interface ItemPesanan {
 }
 
 export interface Pesanan {
+  payment_state?: string
   id: string
   status: StatusPesanan
   total: string
@@ -165,6 +167,7 @@ export interface Pesanan {
 export type StatusPengiriman = 'menunggu_pickup' | 'dikirim' | 'diterima' | 'bermasalah'
 
 export interface Pengiriman {
+  booking_state?: string
   id: string
   pesanan_id: string
   kurir: string
@@ -266,6 +269,7 @@ export interface Alamat {
 export type AlamatInput = Omit<Alamat, 'id'>
 
 export interface PesanChat {
+  pesanan?: { id: string; total: string; status: string } | null
   id: string
   pengirim_admin: boolean
   isi: string
@@ -276,6 +280,9 @@ export interface PesanChat {
 }
 
 export interface Percakapan {
+  has_older?: boolean
+  preview?: string
+  belum_dibalas?: boolean
   id: string
   user_id: string
   nama_pembeli: string | null

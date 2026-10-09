@@ -99,8 +99,8 @@ export default function DashboardPage() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Penjualan Harian</CardTitle>
-            {penjualan.data ? <CardDescription>Total {fmtRp(penjualan.data.grand_total)}</CardDescription> : null}
+            <CardTitle>Nilai Pesanan Harian (WIB)</CardTitle>
+            {penjualan.data ? <CardDescription>Total {fmtRp(penjualan.data.grand_total)} · Termasuk ongkir dan biaya COD; bukan saldo dana cair.</CardDescription> : null}
           </CardHeader>
           <CardContent>
             {penjualan.isPending && rangeValid ? (

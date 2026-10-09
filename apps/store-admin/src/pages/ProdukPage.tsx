@@ -14,11 +14,13 @@ import { ErrorLine, Field, PageTitle } from '@/components/erp'
 import FotoManager from '@/components/FotoManager'
 import VarianEditor from '@/components/VarianEditor'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { api, errorMessage } from '../lib/api'
+
+import { ListPagination } from '../components/ListPagination'
 
 const selectClass =
   'h-9 w-full rounded-lg border border-input bg-transparent px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50'
@@ -74,6 +76,7 @@ function ProdukForm({ produk: awal, onDone }: { produk: Produk | null; onDone: (
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<Values>({ resolver: zodResolver(schema), defaultValues: awal ? toValues(awal) : empty })
   const preorder = watch('preorder')
@@ -87,7 +90,7 @@ function ProdukForm({ produk: awal, onDone }: { produk: Produk | null; onDone: (
         deskripsi: v.deskripsi,
         kategori_id: v.kategori_id || null,
         harga: v.harga,
-        stok: Number(v.stok),
+        ...(!awal || !awal.varian?.length ? { stok: Number(v.stok), ...(awal ? { expected_stok: awal.stok } : {}) } : {}),
         berat_gram: Number(v.berat_gram),
         panjang_cm: v.panjang_cm,
         lebar_cm: v.lebar_cm,
@@ -96,7 +99,7 @@ function ProdukForm({ produk: awal, onDone }: { produk: Produk | null; onDone: (
         cod: v.cod,
         hari_proses: v.preorder ? Number(v.hari_proses) : 2,
       }
-      return awal ? api.patchProduk(awal.id, input) : api.createProduk(input)
+      return awal ? api.patchProduk(awal.id, input) : api.createProduk({ ...input, stok: Number(v.stok) })
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['produk'] })
@@ -117,7 +120,7 @@ function ProdukForm({ produk: awal, onDone }: { produk: Produk | null; onDone: (
         <Textarea id="p-desk" {...register('deskripsi')} />
       </Field>
       <Field label="Kategori" htmlFor="p-kat">
-        <select id="p-kat" className={selectClass} {...register('kategori_id')}>
+        <select id="p-kat" className={selectClass} {...register('kategori_id')} value={watch('kategori_id')} onChange={(e) => setValue('kategori_id', e.target.value)}>
           <option value="">Tanpa kategori</option>
           {kategori.data?.map((k) => (
             <option key={k.id} value={k.id}>
@@ -131,7 +134,7 @@ function ProdukForm({ produk: awal, onDone }: { produk: Produk | null; onDone: (
           <Input id="p-harga" inputMode="decimal" aria-invalid={!!errors.harga} {...register('harga')} />
         </Field>
         <Field label="Stok" htmlFor="p-stok" error={errors.stok?.message}>
-          <Input id="p-stok" inputMode="numeric" aria-invalid={!!errors.stok} {...register('stok')} />
+          <Input id="p-stok" readOnly={!!produk?.varian?.length} inputMode="numeric" aria-invalid={!!errors.stok} {...register('stok')} />
         </Field>
       </div>
       {produk?.varian?.length ? (
@@ -209,8 +212,10 @@ function ProdukForm({ produk: awal, onDone }: { produk: Produk | null; onDone: (
 export default function ProdukPage() {
   const qc = useQueryClient()
   const confirm = useConfirm()
-  const produk = useQuery({ queryKey: ['produk'], queryFn: api.listProduk })
   const [cari, setCari] = useState('')
+  const [page, setPage] = useState(1)
+  const [sort, setSort] = useState('terbaru')
+  const produk = useQuery({ queryKey: ['produk', 'halaman', cari, page, sort], queryFn: () => api.daftarProduk({ halaman: page, cari, urutan: sort }) })
   const [editing, setEditing] = useState<Produk | 'baru' | null>(null)
 
   const aktifMut = useMutation({
@@ -228,10 +233,7 @@ export default function ProdukPage() {
     onError: (e) => toast.error(errorMessage(e, 'Produk tidak bisa dihapus. Jika sudah pernah dipesan, nonaktifkan saja.')),
   })
 
-  const rows = useMemo(() => {
-    const q = cari.trim().toLowerCase()
-    return (produk.data ?? []).filter((p) => !q || p.nama.toLowerCase().includes(q))
-  }, [produk.data, cari])
+  const rows = produk.data?.items ?? []
 
   async function onDelete(p: Produk) {
     const ok = await confirm({
@@ -255,9 +257,10 @@ export default function ProdukPage() {
             aria-label="Cari produk"
             placeholder="Cari nama produk…"
             value={cari}
-            onChange={(e) => setCari(e.target.value)}
+            onChange={(e) => { setCari(e.target.value); setPage(1) }}
             className="max-w-sm"
           />
+          <select aria-label="Urutan produk" className={selectClass + " mt-3 max-w-sm"} value={sort} onChange={(e) => { setSort(e.target.value); setPage(1) }}><option value="terbaru">Terbaru</option><option value="nama">Nama A–Z</option><option value="harga">Harga tertinggi</option></select>
         </CardContent>
       </Card>
 
@@ -346,6 +349,7 @@ export default function ProdukPage() {
         </CardContent>
       </Card>
 
+      <ListPagination page={page} total={produk.data?.total ?? 0} onChange={setPage} />
       <Dialog open={editing !== null} onOpenChange={(open) => !open && setEditing(null)}>
         <DialogContent className="max-h-[92vh] max-w-5xl overflow-y-auto">
           <DialogHeader>

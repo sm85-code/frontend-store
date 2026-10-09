@@ -22,6 +22,7 @@ export interface ChatPesan {
   id: string
   isi: string
   created_at: string
+  pesanan?: { id: string; total: string; status: string } | null
   lampiran?: ChatLampiran | null
   produk?: ChatProduk | null
 }
@@ -87,6 +88,7 @@ export function ChatBubble({
         )
       ) : null}
       {kartu ? href ? <a href={href} className="block hover:opacity-90">{kartu}</a> : kartu : null}
+      {pesan.pesanan ? <a href={`/pesanan/${encodeURIComponent(pesan.pesanan.id)}`} className="rounded-md border bg-card p-3 text-card-foreground"><strong>Pesanan #{pesan.pesanan.id.slice(0, 8)}</strong><p>{rp(pesan.pesanan.total)} · {pesan.pesanan.status.replaceAll('_', ' ')}</p></a> : null}
       {pesan.isi ? <Teks isi={pesan.isi} /> : null}
       <p className="text-[0.7rem] text-muted-foreground">{waktu}</p>
     </li>
@@ -96,8 +98,9 @@ export function ChatBubble({
 export interface ChatComposerProps {
   /** Products that can be attached as a card. */
   produk: ChatProduk[]
+  pesanan?: { id: string; total: string }[]
   placeholder?: string
-  onKirimTeks: (isi: string, produkId: string | null) => Promise<unknown>
+  onKirimTeks: (isi: string, produkId: string | null, pesananId?: string | null) => Promise<unknown>
   onKirimFile: (file: File, isi: string) => Promise<unknown>
   /** Called with a message when a picked file is rejected (too big / wrong type). */
   onTolak: (pesan: string) => void
@@ -105,8 +108,9 @@ export interface ChatComposerProps {
 
 const ikon = 'grid size-9 shrink-0 place-items-center rounded-md border bg-card text-muted-foreground transition hover:bg-muted hover:text-foreground disabled:opacity-50'
 
-export function ChatComposer({ produk, placeholder = 'Tulis pesan…', onKirimTeks, onKirimFile, onTolak }: ChatComposerProps) {
+export function ChatComposer({ produk, pesanan = [], placeholder = 'Tulis pesan…', onKirimTeks, onKirimFile, onTolak }: ChatComposerProps) {
   const [isi, setIsi] = useState('')
+  const [orderId, setOrderId] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const [dipilih, setDipilih] = useState<ChatProduk | null>(null)
   const [panel, setPanel] = useState<'emoji' | 'produk' | null>(null)
@@ -121,7 +125,7 @@ export function ChatComposer({ produk, placeholder = 'Tulis pesan…', onKirimTe
     return produk.filter((p) => !q || p.nama.toLowerCase().includes(q)).slice(0, 30)
   }, [produk, cari])
 
-  const bisaKirim = !kirim && (isi.trim() !== '' || file !== null || dipilih !== null)
+  const bisaKirim = !kirim && (isi.trim() !== '' || file !== null || dipilih !== null || orderId !== '')
 
   function sisipkan(emoji: string) {
     const el = area.current
@@ -141,6 +145,7 @@ export function ChatComposer({ produk, placeholder = 'Tulis pesan…', onKirimTe
     if (video && f.size > CHAT_MAX_VIDEO) return onTolak('Ukuran video maksimal 20 MB')
     if (!video && f.size > CHAT_MAX_IMAGE) return onTolak('Ukuran foto maksimal 5 MB')
     setFile(f)
+    setOrderId('')
     setPanel(null)
   }
 
@@ -150,8 +155,10 @@ export function ChatComposer({ produk, placeholder = 'Tulis pesan…', onKirimTe
     setKirim(true)
     try {
       if (file) await onKirimFile(file, isi.trim())
+      else if (orderId) await onKirimTeks(isi.trim(), dipilih?.id ?? null, orderId)
       else await onKirimTeks(isi.trim(), dipilih?.id ?? null)
       setIsi('')
+      setOrderId('')
       setFile(null)
       setDipilih(null)
       setPanel(null)
@@ -167,7 +174,8 @@ export function ChatComposer({ produk, placeholder = 'Tulis pesan…', onKirimTe
   }
 
   return (
-    <form className="flex flex-col gap-2 border-t p-3" onSubmit={submit}>
+    <form className="flex min-w-0 flex-col gap-2 border-t p-3" onSubmit={submit}>
+      {pesanan.length ? <select aria-label="Lampirkan pesanan pembeli" className="min-w-0 rounded-md border bg-background p-2 text-sm" value={orderId} disabled={!!file} onChange={(e) => setOrderId(e.target.value)}><option value="">Lampirkan pesanan pembeli</option>{pesanan.map((p) => <option key={p.id} value={p.id}>#{p.id.slice(0, 8)} · {rp(p.total)}</option>)}</select> : null}
       {file || dipilih ? (
         <div className="flex items-center gap-2 rounded-md border bg-muted/50 p-2 text-sm">
           {file ? (
@@ -250,7 +258,7 @@ export function ChatComposer({ produk, placeholder = 'Tulis pesan…', onKirimTe
           placeholder={file ? 'Tambah keterangan (opsional)…' : placeholder}
           onChange={(e) => setIsi(e.target.value)}
           onKeyDown={onKey}
-          className="max-h-28 min-h-9 flex-1 resize-none rounded-md border bg-background px-3 py-1.5 text-sm outline-none focus:border-ring"
+          className="max-h-28 min-h-9 min-w-0 flex-1 resize-none rounded-md border bg-background px-3 py-1.5 text-sm outline-none focus:border-ring"
         />
         <button type="submit" disabled={!bisaKirim} aria-label="Kirim" className="grid size-9 shrink-0 place-items-center rounded-md bg-primary text-primary-foreground transition disabled:opacity-50">
           <Send className="size-4" />
