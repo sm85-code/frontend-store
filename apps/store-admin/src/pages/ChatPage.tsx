@@ -1,5 +1,6 @@
 import { fmtDateTime, type Percakapan } from '@store/shared'
 import { ChatBubble, ChatComposer } from '@store/ui'
+import { ListPagination } from '../components/ListPagination'
 import Spinner from '@/components/Spinner'
 import { ErrorLine, PageTitle } from '@/components/erp'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -75,23 +76,24 @@ function Thread({ id }: { id: string }) {
 }
 
 export default function ChatPage() {
-  const daftar = useQuery({ queryKey: ['chat', 'daftar'], queryFn: api.listChat, refetchInterval: POLL_MS })
   const qc = useQueryClient()
   const [aktif, setAktif] = useState<string | null>(null)
   const [cari, setCari] = useState('')
   const [unread, setUnread] = useState(false)
   const [unanswered, setUnanswered] = useState(false)
-  const visible = (daftar.data ?? []).filter((c) => (!unread || c.unread_admin) && (!unanswered || c.belum_dibalas) && (c.nama_pembeli ?? '').toLowerCase().includes(cari.toLowerCase()))
+  const [page, setPage] = useState(1)
+  const daftar = useQuery({ queryKey: ['chat', 'daftar', page, cari, unread, unanswered], queryFn: () => api.daftarChat({ halaman: page, cari, unread, unanswered }), refetchInterval: POLL_MS })
+  const visible = daftar.data?.items ?? []
 
   return (
     <div className="space-y-4">
       <PageTitle title="Chat Pembeli" description="Diperbarui otomatis setiap 10 detik." />
-      <div className="flex flex-wrap items-center gap-3 text-sm"><input aria-label="Cari pembeli" placeholder="Cari pembeli" className="rounded-lg border bg-card px-3 py-2" value={cari} onChange={(e) => setCari(e.target.value)} /><label className="flex items-center gap-2"><input type="checkbox" checked={unread} onChange={(e) => setUnread(e.target.checked)} />Belum dibaca</label><label className="flex items-center gap-2"><input type="checkbox" checked={unanswered} onChange={(e) => setUnanswered(e.target.checked)} />Belum dibalas</label></div>
+      <div className="flex flex-wrap items-center gap-3 text-sm"><input aria-label="Cari pembeli" placeholder="Cari pembeli" className="rounded-lg border bg-card px-3 py-2" value={cari} onChange={(e) => { setCari(e.target.value); setPage(1) }} /><label className="flex items-center gap-2"><input type="checkbox" checked={unread} onChange={(e) => { setUnread(e.target.checked); setPage(1) }} />Belum dibaca</label><label className="flex items-center gap-2"><input type="checkbox" checked={unanswered} onChange={(e) => { setUnanswered(e.target.checked); setPage(1) }} />Belum dibalas</label></div>
       {daftar.isPending ? (
         <Spinner column label="Memuat percakapan…" />
       ) : daftar.error ? (
         <ErrorLine message={errorMessage(daftar.error)} />
-      ) : daftar.data.length === 0 ? (
+      ) : daftar.data.items.length === 0 ? (
         <Card>
           <CardContent className="py-10 text-center text-sm text-muted-foreground">
             Belum ada percakapan. Percakapan muncul setelah pembeli mengirim pesan pertama.
@@ -118,6 +120,7 @@ export default function ChatPage() {
                 </button>
               </li>
             ))}
+            <li><ListPagination page={page} total={daftar.data.total} onChange={setPage} /></li>
           </ul>
           {aktif ? (
             <div className="min-w-0"><button className="mb-3 rounded-lg border bg-card px-4 py-2 md:hidden" onClick={() => setAktif(null)}>← Kembali ke daftar</button><Thread key={aktif} id={aktif} /></div>

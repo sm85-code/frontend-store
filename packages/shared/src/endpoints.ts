@@ -82,6 +82,7 @@ export function adminEndpoints(c: Client) {
     laporanProdukTerlaris: (r: Range & { limit?: number }) => c.get<ProdukTerlaris[]>('/laporan/produk-terlaris', { query: r }),
     laporanRingkasanStatus: () => c.get<RingkasanStatus>('/laporan/ringkasan-status'),
 
+    daftarChat: (query: { halaman: number; cari: string; unread: boolean; unanswered: boolean }) => c.get<{ items: Percakapan[]; total: number }>('/chat-halaman', { query }),
     listChat: () => c.get<Percakapan[]>('/chat'),
     pesananChat: (id: string) => c.get<Pesanan[]>(`/chat/${id}/pesanan`),
     getChat: (id: string, before?: string) => c.get<Percakapan>(`/chat/${id}`, { query: { before } }),
