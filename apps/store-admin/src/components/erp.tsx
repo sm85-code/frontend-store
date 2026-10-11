@@ -30,7 +30,7 @@ export function ErrorLine({ message }: { message: string }) {
   return (
     <p
       role="alert"
-      className="rounded-lg border px-3 py-2 text-sm"
+      className="rounded-lg border px-5 py-4 text-sm leading-relaxed"
       style={{ borderColor: 'var(--status-error-border)', background: 'var(--status-error-bg)', color: 'var(--status-error)' }}
     >
       {message}
@@ -41,7 +41,7 @@ export function ErrorLine({ message }: { message: string }) {
 export function PageTitle({ title, description, actions }: { title: string; description?: string; actions?: ReactNode }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <div>
+      <div className="min-w-0">
         <h1 className="page-h1 font-heading text-2xl font-bold">{title}</h1>
         {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
       </div>

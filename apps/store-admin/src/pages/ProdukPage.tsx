@@ -267,17 +267,17 @@ export default function ProdukPage() {
 
       <BulkActions ids={rows.map((p) => p.id)} selected={bulk.selected} setSelected={bulk.setSelected} actions={[{ label: 'Aktifkan', run: (id) => api.patchProduk(id, { aktif: true }) }, { label: 'Nonaktifkan', run: (id) => api.patchProduk(id, { aktif: false }) }, { label: 'Hapus', destructive: true, run: api.deleteProduk }]} onComplete={() => { for (const key of ['produk']) void qc.invalidateQueries({ queryKey: [key] }) }} />
 
-      <Card className="border-0 bg-transparent shadow-none md:border md:bg-card md:shadow-sm">
-        <CardContent className="p-0 md:p-6">
+      <Card className="border-0 bg-transparent shadow-none lg:border lg:bg-card lg:shadow-sm">
+        <CardContent className="p-0 lg:p-6">
           {produk.isPending ? (
             <Spinner column label="Memuat produk…" />
           ) : produk.error ? (
             <ErrorLine message={errorMessage(produk.error)} />
           ) : (
             <>
-            <ul className="space-y-3 md:hidden" aria-label="Daftar produk">
+            <ul className="space-y-3 lg:hidden" aria-label="Daftar produk">
               {rows.map((p) => (
-                <li key={p.id} className="space-y-3 rounded-xl border bg-card p-3 shadow-sm">
+                <li key={p.id} className="space-y-3 rounded-xl border bg-card p-4 shadow-sm">
                   <div className="flex items-start gap-3"><input type="checkbox" className="mt-1 shrink-0" aria-label={`Pilih ${p.nama}`} checked={bulk.selected.includes(p.id)} onChange={() => bulk.toggle(p.id)} />
                     {p.foto_url ? <img src={p.foto_url} alt="" loading="lazy" className="size-16 shrink-0 rounded-lg object-cover" /> : <div className="size-16 shrink-0 rounded-lg bg-muted" aria-hidden />}
                     <div className="min-w-0 flex-1 space-y-1.5">
@@ -313,15 +313,15 @@ export default function ProdukPage() {
               ))}
               {rows.length === 0 ? <li className="py-8 text-center text-sm text-muted-foreground">{cari ? 'Tidak ada produk yang cocok.' : 'Belum ada produk.'}</li> : null}
             </ul>
-            <div className="hidden md:block">
+            <div className="hidden lg:block">
             <TableShell minWidth={1000}>
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead><span className="sr-only">Pilih</span></TableHead><TableHead>Produk</TableHead>
                     <TableHead>Kategori</TableHead>
-                    <TableHead>Harga</TableHead>
-                    <TableHead>Stok</TableHead>
+                    <TableHead className="text-right">Harga</TableHead>
+                    <TableHead className="text-right">Stok</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Aksi</TableHead>
                   </TableRow>
@@ -352,8 +352,8 @@ export default function ProdukPage() {
                         </div>
                       </TableCell>
                       <TableCell>{p.kategori_nama ?? '-'}</TableCell>
-                      <TableCell className="whitespace-nowrap tabular-nums">{p.harga_min && p.harga_max && p.harga_min !== p.harga_max ? `${fmtRp(p.harga_min)} – ${fmtRp(p.harga_max)}` : fmtRp(p.harga_min ?? p.harga)}</TableCell>
-                      <TableCell>{p.stok}</TableCell>
+                      <TableCell className="whitespace-nowrap text-right tabular-nums">{p.harga_min && p.harga_max && p.harga_min !== p.harga_max ? `${fmtRp(p.harga_min)} – ${fmtRp(p.harga_max)}` : fmtRp(p.harga_min ?? p.harga)}</TableCell>
+                      <TableCell className="text-right tabular-nums">{p.stok}</TableCell>
                       <TableCell>
                         <Badge variant={p.aktif ? 'default' : 'secondary'}>{p.aktif ? 'Aktif' : 'Nonaktif'}</Badge>
                       </TableCell>

@@ -4,9 +4,9 @@ export function ListPagination({ page, total, onChange }: { page: number; total:
   const pages = Math.max(1, Math.ceil(total / 25))
   return <nav aria-label="Halaman tabel" className="flex flex-col items-center gap-3 pt-4 text-sm sm:flex-row sm:justify-between">
     <span>{total} data · Halaman {page} dari {pages}</span>
-    <div className="flex gap-2">
+    {pages > 1 && <div className="flex flex-wrap justify-center gap-2">
       <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => onChange(page - 1)}>Sebelumnya</Button>
       <Button variant="outline" size="sm" disabled={page >= pages} onClick={() => onChange(page + 1)}>Berikutnya</Button>
-    </div>
+    </div>}
   </nav>
 }
