@@ -77,9 +77,9 @@ export default function PesananPage() {
             <ErrorLine message={errorMessage(pesanan.error)} />
           ) : (
             <>
-            <ul className="space-y-3 md:hidden" aria-label="Daftar pesanan">
+            <ul className="space-y-3 lg:hidden" aria-label="Daftar pesanan">
               {rows.map((p) => (
-                <li key={p.id} className="space-y-3 rounded-xl border bg-card p-3">
+                <li key={p.id} className="space-y-3 rounded-xl border bg-card p-4">
                   <div className="flex items-start justify-between gap-3"><input type="checkbox" className="mt-1 shrink-0" aria-label={`Pilih pesanan ${p.id.slice(0, 8)}`} checked={bulk.selected.includes(p.id)} onChange={() => bulk.toggle(p.id)} />
                     <div className="min-w-0"><p className="font-semibold break-words">{p.nama_pembeli ?? 'Pembeli'}</p><p className="text-xs text-muted-foreground">#{p.id.slice(0, 8)}</p></div>
                     <StatusPesananBadge status={p.status} />
@@ -91,15 +91,15 @@ export default function PesananPage() {
               ))}
               {!rows.length ? <li className="py-8 text-center text-sm text-muted-foreground">{filter === 'semua' && !cari && !dari && !sampai ? 'Belum ada pesanan.' : 'Tidak ada pesanan yang cocok dengan filter.'}</li> : null}
             </ul>
-            <div className="hidden md:block">
+            <div className="hidden lg:block">
             <TableShell minWidth={800}>
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead><span className="sr-only">Pilih</span></TableHead><TableHead>Tanggal</TableHead>
                     <TableHead>Pesanan</TableHead>
-                    <TableHead>Item</TableHead>
-                    <TableHead>Total</TableHead>
+                    <TableHead className="text-right">Item</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Aksi</TableHead>
                   </TableRow>
@@ -109,8 +109,8 @@ export default function PesananPage() {
                     <TableRow key={p.id}><TableCell><input type="checkbox" aria-label={`Pilih ${p.id.slice(0, 8)}`} checked={bulk.selected.includes(p.id)} onChange={() => bulk.toggle(p.id)} /></TableCell>
                       <TableCell>{fmtDateTime(p.created_at)}</TableCell>
                       <TableCell className="font-mono text-xs">{p.id.slice(0, 8)}<p className="font-sans">{p.nama_pembeli}</p></TableCell>
-                      <TableCell>{p.items.reduce((n, i) => n + i.qty, 0)}</TableCell>
-                      <TableCell className="whitespace-nowrap tabular-nums">{fmtRp(p.total)}</TableCell>
+                      <TableCell className="text-right tabular-nums">{p.items.reduce((n, i) => n + i.qty, 0)}</TableCell>
+                      <TableCell className="whitespace-nowrap text-right tabular-nums">{fmtRp(p.total)}</TableCell>
                       <TableCell>
                         <StatusPesananBadge status={p.status} />
                       </TableCell>

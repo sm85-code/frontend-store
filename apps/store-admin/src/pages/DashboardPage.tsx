@@ -26,7 +26,7 @@ function ringkasRupiah(v: number): string {
 function ErrorLine({ error }: { error: unknown }) {
   return (
     <p
-      className="rounded-lg border px-3 py-2 text-sm"
+      className="rounded-lg border px-5 py-4 text-sm leading-relaxed"
       style={{ borderColor: 'var(--status-error-border)', background: 'var(--status-error-bg)', color: 'var(--status-error)' }}
     >
       {errorMessage(error)}

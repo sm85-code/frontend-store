@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client'
 import { ConfirmProvider } from './components/ConfirmProvider'
 import { Toaster } from './components/ui/sonner'
 import App from './App'
+import MultilineText from './components/MultilineText'
 import { ThemeProvider } from './lib/appearance'
 import { createQueryClient } from './lib/query'
 import './index.css'
@@ -34,6 +35,7 @@ createRoot(document.getElementById('root')!).render(
       <QueryClientProvider client={createQueryClient()}>
         <ConfirmProvider>
           <App />
+          <MultilineText />
           <Toaster />
         </ConfirmProvider>
       </QueryClientProvider>

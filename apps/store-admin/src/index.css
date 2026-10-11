@@ -4,3 +4,20 @@
 @import '@store/ui/styles.css';
 @import './erp-look.css';
 @source '../../../packages/ui/src';
+
+/* Shared admin rhythm: readable corners, distinct headers, usable touch controls. */
+[data-slot="table-head"], [data-slot="table-cell"] { padding: .75rem 1rem; }
+[data-slot="table-head"]:first-child, [data-slot="table-cell"]:first-child { padding-left: 1.25rem; }
+[data-slot="table-head"]:last-child, [data-slot="table-cell"]:last-child { padding-right: 1.25rem; }
+[data-slot="table-header"] { background: color-mix(in oklab, var(--primary) 18%, var(--card)); }
+[data-slot="table-header"] [data-slot="table-head"] { color: var(--foreground); font-weight: 700; }
+[data-slot="table-header"] [data-slot="table-row"] { border-bottom: 2px solid color-mix(in oklab, var(--primary) 40%, var(--border)); }
+[data-slot="table-cell"].text-right { white-space: nowrap; font-variant-numeric: tabular-nums; }
+select:not([multiple]) { min-height: 44px; padding: .5rem 1rem; }
+@media (max-width: 1023px) {
+  [data-slot="button"], [data-slot="input"], [data-slot="select-trigger"] { min-height: 44px; }
+  [data-slot="button"].size-10 { min-width: 44px; }
+  .page-h1 { font-size: 1.25rem; line-height: 1.35; }
+}
+
+[data-multiline-justify] { text-align: justify !important; text-justify: inter-word; text-align-last: start; }

@@ -140,6 +140,8 @@ export default function StaffPage() {
             <Spinner column label="Memuat staff…" />
           ) : staff.error ? (
             <div className="space-y-2"><ErrorLine message={errorMessage(staff.error)} /><Button variant="outline" disabled={staff.isFetching} onClick={() => void staff.refetch()}>Coba lagi</Button></div>
+          ) : staff.data.filter((s) => `${s.nama} ${s.email}`.toLowerCase().includes(search.trim().toLowerCase())).length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">Tidak ada admin yang cocok.</p>
           ) : (
             <TableShell>
               <Table>
@@ -153,7 +155,6 @@ export default function StaffPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {staff.data.filter((s) => `${s.nama} ${s.email}`.toLowerCase().includes(search.trim().toLowerCase())).length === 0 ? <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground">Tidak ada admin yang cocok.</TableCell></TableRow> : null}
                   {staff.data.filter((s) => `${s.nama} ${s.email}`.toLowerCase().includes(search.trim().toLowerCase())).map((s) => (
                     <TableRow key={s.id}>
                       <TableCell className="font-medium">{s.nama}</TableCell>
