@@ -208,3 +208,16 @@ h3 {
     transition: none;
   }
 }
+
+/* Exact two-line box: generic heading rhythm must not expose a clipped third line. */
+.product-card-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  height: 2.75rem;
+  min-height: 0;
+  overflow: hidden;
+  line-height: 1.375rem;
+  overflow-wrap: anywhere;
+  text-wrap: wrap;
+}

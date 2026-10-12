@@ -15,7 +15,7 @@ export function ProductCard({ produk, index = 0 }: { produk: Produk; index?: num
   const punyaVarian = (produk.varian?.length ?? 0) > 0
   return (
     <article className="fade-up card-lift group relative flex h-full flex-col overflow-hidden rounded-lg border bg-card" style={{ '--i': Math.min(index, 12) } as React.CSSProperties}>
-      <Link href={produkHref(produk)} className="flex flex-1 flex-col" aria-label={produk.nama}>
+      <Link href={produkHref(produk)} className="flex min-w-0 flex-1 flex-col" aria-label={produk.nama}>
         <div className="relative aspect-[4/5] overflow-hidden bg-muted">
           {produk.foto_url ? (
             <img
@@ -38,14 +38,14 @@ export function ProductCard({ produk, index = 0 }: { produk: Produk; index?: num
             ) : null}
           </div>
         </div>
-        <div className="flex flex-1 flex-col p-3">
+        <div className="min-w-0 px-3 pt-3 pb-2">
           {produk.kategori_nama ? <p className="text-[0.68rem] font-bold uppercase tracking-wider text-muted-foreground">{produk.kategori_nama}</p> : null}
-          <h3 className="mt-0.5 line-clamp-2 min-h-10 text-sm font-semibold leading-snug">{produk.nama}</h3>
-          <p className="mt-auto pt-2 pr-10 text-[0.95rem] font-extrabold">{hargaLabel(produk)}</p>
+          <h3 className="product-card-title mt-0.5 text-sm font-semibold" title={produk.nama}>{produk.nama}</h3>
         </div>
       </Link>
-      {habis ? null : (
-        <div className="absolute bottom-2.5 right-2.5">
+      <div className="mt-auto flex items-end justify-between gap-2 px-3 pb-3">
+        <Link href={produkHref(produk)} className="min-w-0 flex-1 break-words text-[0.95rem] font-extrabold leading-snug">{hargaLabel(produk)}</Link>
+        {habis ? null : <div className="shrink-0">
           {punyaVarian ? (
             <Link
               href={produkHref(produk)}
@@ -57,8 +57,8 @@ export function ProductCard({ produk, index = 0 }: { produk: Produk; index?: num
           ) : (
             <QuickAdd produkId={produk.id} nama={produk.nama} />
           )}
-        </div>
-      )}
+        </div>}
+      </div>
     </article>
   )
 }
