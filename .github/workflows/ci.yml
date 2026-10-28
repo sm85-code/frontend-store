@@ -93,4 +93,6 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # pnpm workspace root refuses `pnpm add wrangler`; install via npm instead.
+          packageManager: npm
           command: pages deploy apps/store-admin/dist --project-name=ak-store-admin --branch=main --commit-hash=${{ github.sha }} --commit-dirty=true
