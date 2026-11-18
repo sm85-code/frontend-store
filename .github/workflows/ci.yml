@@ -40,7 +40,7 @@ jobs:
   # and CLOUDFLARE_ACCOUNT_ID. Skips (with a notice) while they are not set.
   deploy:
     needs: check
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: ${{ false }} # Production migrated to sm85-code/ampelkuning and erp-ampelkuning
     runs-on: ubuntu-latest
     concurrency:
       group: pages-deploy-production
@@ -103,7 +103,7 @@ jobs:
   # Manual rollback on the server: sudo /opt/store-buyer/deploy.sh rollback
   deploy-oracle:
     needs: [check]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: ${{ false }} # Production migrated to sm85-code/ampelkuning and erp-ampelkuning
     runs-on: ubuntu-latest
     concurrency:
       group: oracle-deploy-store-buyer
